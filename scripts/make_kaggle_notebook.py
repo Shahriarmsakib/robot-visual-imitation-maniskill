@@ -27,7 +27,8 @@ CONFIG = "configs/baseline_act_rgb_100d.json"
 SEED = 1
 EXP_NAME = f"act_pickcube_rgb_baseline_100d_seed{SEED}"
 MAX_HOURS = 11.0         # stop and checkpoint before Kaggle's 12 h limit (leaves time for final eval + output upload)
-EXTRA_ARGS = []          # e.g. ["--total-iters", "2000", "--eval-freq", "1000"] for a short GPU smoke run"""
+EXTRA_ARGS = []          # e.g. ["--total-iters", "2000", "--eval-freq", "1000"] for a short GPU smoke run
+GPU_ID = "0"             # Kaggle "GPU T4 x2" has 2 GPUs; training uses one (pinning also avoids a fork_rng warning)"""
 
 GET_CODE = """import glob, os, shutil, subprocess
 
@@ -74,8 +75,8 @@ else:
 TRAIN = """import sys
 cmd = [sys.executable, "scripts/train.py", "--config", CONFIG, "--seed", str(SEED), "--exp-name", EXP_NAME,
        "--runs-dir", f"{WORK}/runs", "--max-hours", str(MAX_HOURS), *EXTRA_ARGS]
-print(" ".join(cmd))
-proc = subprocess.run(cmd)
+print(f"CUDA_VISIBLE_DEVICES={GPU_ID}", " ".join(cmd))
+proc = subprocess.run(cmd, env={**os.environ, "CUDA_VISIBLE_DEVICES": GPU_ID})
 status = {0: "FINISHED", 3: "PAUSED (time budget): resume in a new version"}.get(proc.returncode, f"FAILED (exit {proc.returncode})")
 print("training status:", status)
 if proc.returncode not in (0, 3):
