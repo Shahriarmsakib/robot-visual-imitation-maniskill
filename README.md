@@ -2,7 +2,7 @@
 
 Does focusing a robot policy's vision on the relevant objects make imitation learning work with fewer demonstrations and hold up better when the scene looks different? This project tests that on ManiSkill 3's `PickCube-v1` task, using the official ACT (Action Chunking with Transformers) RGB baseline as the reference.
 
-> **Status: implementation in progress (M0 of M4 done). No training results yet.** See [experiments/status.md](experiments/status.md).
+> **Status: implementation in progress (M0 and M1 done). No training results yet.** See [experiments/status.md](experiments/status.md).
 
 ## Plan
 
@@ -24,7 +24,18 @@ scripts/prepare_data.sh 100       # download official demos, convert 100 to RGB
 python scripts/check_env.py --render-test
 ```
 
-On macOS the simulator runs on CPU only, so full training runs on a CUDA GPU (Kaggle). Setup details and known macOS issues are in [docs/m0_audit.md](docs/m0_audit.md).
+On macOS the simulator runs on CPU only and training uses Apple's GPU (MPS). Setup details and known macOS issues are in [docs/m0_audit.md](docs/m0_audit.md).
+
+## Training
+
+```bash
+python -m pytest -q --run-slow                                   # tests, incl. exact-resume check
+python scripts/train.py --config configs/smoke_mac.json          # 30-second end-to-end smoke run
+python scripts/train.py --config configs/baseline_act_rgb_100d.json --seed 1 \
+  --exp-name act_pickcube_rgb_baseline_100d_seed1                # Phase A baseline
+```
+
+Rerunning a command resumes from its last checkpoint. Full runs are meant for a CUDA GPU: [notebooks/kaggle_train.ipynb](notebooks/kaggle_train.ipynb) runs the same scripts on Kaggle and resumes across 12-hour sessions. What changed relative to the official ACT trainer, and how it was verified, is in [docs/m1_training.md](docs/m1_training.md).
 
 ## Layout
 
@@ -36,10 +47,11 @@ tests/        dataset, model, metric and smoke tests
 results/      small metrics files, figures, short media
 docs/         methodology, audit, limitations
 experiments/  run manifests and status tracker
+third_party/  unmodified upstream ACT baseline (Apache-2.0)
 ```
 
 Large files (demo `.h5` files, checkpoints) are never committed.
 
 ## Acknowledgements
 
-Built on [ManiSkill](https://github.com/haosulab/ManiSkill) (tag `v3.0.1`) and its ACT baseline.
+Built on [ManiSkill](https://github.com/haosulab/ManiSkill) (tag `v3.0.1`) and its ACT baseline (Apache-2.0, vendored in `third_party/maniskill_act/`). ACT is from Zhao et al., "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware", RSS 2023.

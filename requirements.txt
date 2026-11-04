@@ -9,5 +9,8 @@ h5py==3.16.0
 imageio==2.38.1
 matplotlib==3.11.2
 tyro==1.0.16
+diffusers==0.42.1   # EMAModel, as used by the upstream ACT trainer
+ipython             # imported (unused) by the vendored ACT model code
+pytest==9.2.0
 # SAPIEN's macOS wheel does not bundle Pinocchio, which pd_ee_delta_pos needs for IK.
 pin==4.1.0; sys_platform == "darwin"
