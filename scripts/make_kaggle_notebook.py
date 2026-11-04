@@ -13,7 +13,7 @@ Thin wrapper around the repository's scripts; all logic lives in `scripts/` and 
 
 **Before running**
 1. Settings: *Accelerator* → **GPU T4 x2** (or P100), *Internet* → **On** (needs a phone-verified Kaggle account).
-2. Code: set `REPO_URL` below to the GitHub repo, **or** upload the zip from `scripts/export_code_zip.sh` as a private Kaggle Dataset and add it as an input.
+2. Code: cloned from the public GitHub repo in `REPO_URL`. Alternatively set `REPO_URL = ""` and add the zip from `scripts/export_code_zip.sh` as a Kaggle Dataset input.
 3. Run in the background with **Save Version → Save & Run All (Commit)**; it keeps running with the browser closed, up to Kaggle's 12-hour limit.
 
 **Resuming after the 12-hour limit**: training checkpoints itself and stops cleanly after `MAX_HOURS`. Create a new version of this notebook, add the previous version's **output** as an input (*Add Input → Your Work → Notebooks*), keep the same `EXP_NAME`/`SEED`, and Save & Run All again. The run continues from `latest.pt` with identical optimiser, schedule, data order and RNG state.
@@ -21,7 +21,7 @@ Thin wrapper around the repository's scripts; all logic lives in `scripts/` and 
 Nothing here is a result until the eval rows in `metrics.jsonl` say so."""
 
 CONFIG = """# ---- edit these ----
-REPO_URL = ""            # e.g. "https://github.com/<you>/robot-visual-imitation-maniskill.git"; empty = use the uploaded code dataset
+REPO_URL = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"  # empty = use an uploaded code dataset
 REPO_REF = "main"
 CONFIG = "configs/baseline_act_rgb_100d.json"
 SEED = 1
