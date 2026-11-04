@@ -1,0 +1,17 @@
+# Large data and model files (keep out of git)
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.ckpt
+data/
+runs/
+checkpoints/
+wandb/
+
+# Python / OS clutter
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+.DS_Store
