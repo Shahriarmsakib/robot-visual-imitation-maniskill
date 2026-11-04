@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-11-04T04:47:01+00:00",
+  "created_utc": "2026-11-04T05:22:16+00:00",
   "platform": "macOS-26.5-arm64-arm-64bit",
   "machine": "arm64",
   "python": "3.11.18",
@@ -21,7 +21,7 @@
     "recommended_sim_backend": "physx_cpu"
   },
   "repo": {
-    "commit": "aad87fa7eeccf9935a9d4b39bb6ea8ebb9a17c15",
+    "commit": "e148bc96d03ccdd9b7148e8548bb6c1e4a2233f2",
     "dirty": false
   },
   "upstream": {
@@ -42,12 +42,13 @@
   },
   "render_test": {
     "ok": true,
+    "sim_backend": "physx_cpu",
     "rgb_shape": [
       1,
       128,
       128,
       3
     ],
-    "seconds_per_100_steps": 0.25
+    "seconds_per_100_steps": 0.249
   }
 }
