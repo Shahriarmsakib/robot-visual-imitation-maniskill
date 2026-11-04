@@ -39,6 +39,16 @@ def test_interrupted_run_resumes_exactly(tmp_path, demo_path):
     assert [e["step"] for e in evals] == [0, 10, 20]
     assert all(e["n_trials"] == 2 for e in evals)
 
+    # The trained checkpoint feeds the M2 tools: standalone evaluation and rollout export.
+    final = tmp_path / "straight/checkpoints/final.pt"
+    rc = subprocess.run([sys.executable, "scripts/evaluate.py", str(final), "--num-episodes", "2", "--num-envs", "2",
+                         "--device", "cpu", "--out", str(tmp_path / "eval.json")], cwd=ROOT).returncode
+    assert rc == 0 and json.loads((tmp_path / "eval.json").read_text())["n_trials"] == 2
+    rc = subprocess.run([sys.executable, "scripts/export_rollouts.py", str(final), "--num-episodes", "1",
+                         "--device", "cpu", "--out", str(tmp_path / "media")], cwd=ROOT).returncode
+    assert rc == 0
+    assert (tmp_path / "media/rollout_montage.png").exists() and list((tmp_path / "media").glob("ep00_*.gif"))
+
 
 @pytest.mark.slow
 def test_resume_refuses_changed_hyperparameters(tmp_path, demo_path):

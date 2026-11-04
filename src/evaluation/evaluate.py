@@ -38,11 +38,12 @@ def _episode_metrics(info):
 
 @torch.no_grad()
 def evaluate(agent, envs, n_episodes, num_queries, temporal_agg, max_timesteps, device, sim_backend,
-             norm_stats=None, seed=None):
+             norm_stats=None, seed=None, frame_hook=None):
     """Roll out `agent` until at least `n_episodes` trials finish.
 
     Returns {"per_episode": {metric: array(n_trials)}, "summary": {...}}; n_trials is a
-    multiple of the number of parallel envs.
+    multiple of the number of parallel envs. `frame_hook(envs, ts)`, if given, is called
+    before every env step (e.g. to render frames for videos).
     """
     delta_control = not norm_stats
     if not delta_control:
@@ -89,6 +90,8 @@ def evaluate(agent, envs, n_episodes, num_queries, temporal_agg, max_timesteps, 
         if sim_backend == "physx_cpu":
             action = action.cpu().numpy()
 
+        if frame_hook is not None:
+            frame_hook(envs, ts)
         obs, _, _, truncated, info = envs.step(action)
         ts += 1
 

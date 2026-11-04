@@ -6,7 +6,7 @@ Only runs with real logs appear as complete. Every result row needs a run ID, se
 |---|---|---|
 | M0 audit | Done (2026-11-03) | `docs/m0_audit.md`, `experiments/manifests/env_darwin.json` |
 | M1 baseline code + smoke tests | Done (2026-11-03): Mac tests and Kaggle T4 smoke run | `docs/m1_training.md`, `pytest --run-slow` (14 passed), `kaggle_gpu_smoke_seed1` below |
-| M2 logging, plotting, rollout export | Not started (structured logging done in M1) | |
+| M2 logging, plotting, rollout export | Done (2026-11-03); figures are "pending" templates until a run completes | `results/README.md`, `pytest --run-slow` (19 passed) |
 | M3 experiments | Not started | |
 | M4 publication | Not started | |
 
@@ -16,7 +16,7 @@ Only runs with real logs appear as complete. Every result row needs a run ID, se
 |---|---|---|---|---|---|---|---|---|---|
 | colab_pilot (prior) | A | 100 | 1 | 6,700+ of 30,000 | 100 at iter 5,000 | 2% | 2% | not inventoried | Interrupted; pilot only, not reused |
 | kaggle_gpu_smoke_seed1 | smoke | 100 | 1 | 2,000 of 2,000 | 100 at steps 0/1k/2k | 0 / 0 / 5 of 100 | 0 / 0 / 2 of 100 | Kaggle output (not kept) | Pipeline check only, not a baseline: shortened schedule (LR drop at step 1,333) |
-| act_pickcube_rgb_baseline_100d_seed1 | A | 100 | 1 | 0 of 30,000 | | | | | Not started |
+| act_pickcube_rgb_baseline_100d_seed1 | A | 100 | 1 | running | | | | | Launched on Kaggle T4, 2026-11-03 |
 
 ## Measured compute
 
