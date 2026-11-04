@@ -11,7 +11,7 @@ OUT="$DEMO_DIR/trajectory.rgb.pd_ee_delta_pos.physx_cpu.h5"
 cd "$ROOT"
 
 if [ ! -f "$DEMO_DIR/trajectory.h5" ]; then
-  yes | python -m mani_skill.utils.download_demo PickCube-v1 -o data/demos
+  python -m mani_skill.utils.download_demo PickCube-v1 -o data/demos
 fi
 
 if [ -f "$OUT" ]; then
