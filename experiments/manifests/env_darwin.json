@@ -1,0 +1,53 @@
+{
+  "created_utc": "2026-11-04T04:47:01+00:00",
+  "platform": "macOS-26.5-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.11.18",
+  "packages": {
+    "mani_skill": "3.0.1",
+    "sapien": "3.0.3",
+    "torch": "2.6.0",
+    "torchvision": "0.21.0",
+    "gymnasium": "1.4.0",
+    "h5py": "3.16.0",
+    "numpy": "2.4.6",
+    "pin": "4.1.0",
+    "mplib": null
+  },
+  "device": {
+    "cuda": false,
+    "mps": true,
+    "recommended_device": "mps",
+    "recommended_sim_backend": "physx_cpu"
+  },
+  "repo": {
+    "commit": "aad87fa7eeccf9935a9d4b39bb6ea8ebb9a17c15",
+    "dirty": false
+  },
+  "upstream": {
+    "repo": "https://github.com/haosulab/ManiSkill",
+    "tag": "v3.0.1",
+    "commit": "a4a4f9272ad64b1564035874b605ceb687b63ed8",
+    "act_baseline_path": "examples/baselines/act"
+  },
+  "dataset": {
+    "path": "data/demos/PickCube-v1/motionplanning/trajectory.rgb.pd_ee_delta_pos.physx_cpu.h5",
+    "exists": true,
+    "size_mb": 41.61,
+    "sha256": "d0f2a05140652bcebce8aebe5aad1c79b3ebe63929398669a8fefff27ef8c2cc",
+    "episodes": 100,
+    "samples": 7720,
+    "problems": [],
+    "ok": true
+  },
+  "render_test": {
+    "ok": true,
+    "rgb_shape": [
+      1,
+      128,
+      128,
+      3
+    ],
+    "seconds_per_100_steps": 0.25
+  }
+}
