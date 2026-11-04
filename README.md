@@ -2,7 +2,7 @@
 
 Does focusing a robot policy's vision on the relevant objects make imitation learning work with fewer demonstrations and hold up better when the scene looks different? This project tests that on ManiSkill 3's `PickCube-v1` task, using the official ACT (Action Chunking with Transformers) RGB baseline as the reference.
 
-> **Status: implementation in progress (M0 and M1 done). No training results yet.** See [experiments/status.md](experiments/status.md).
+> **Status: implementation in progress (M0–M2 done). Phase A baseline training on Kaggle; no results yet.** See [experiments/status.md](experiments/status.md).
 
 ## Plan
 
@@ -36,6 +36,10 @@ python scripts/train.py --config configs/baseline_act_rgb_100d.json --seed 1 \
 ```
 
 Rerunning a command resumes from its last checkpoint. Full runs are meant for a CUDA GPU: [notebooks/kaggle_train.ipynb](notebooks/kaggle_train.ipynb) runs the same scripts on Kaggle and resumes across 12-hour sessions. What changed relative to the official ACT trainer, and how it was verified, is in [docs/m1_training.md](docs/m1_training.md).
+
+## Results
+
+Tables, figures and rollout GIFs are regenerated from run logs by `scripts/collect_results.py`, `scripts/plot_results.py` and `scripts/export_rollouts.py`; see [results/README.md](results/README.md). Until a run completes, the figures are labelled "pending" templates.
 
 ## Layout
 
