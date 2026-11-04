@@ -4,7 +4,7 @@
 *.pt
 *.pth
 *.ckpt
-data/
+/data/
 runs/
 checkpoints/
 wandb/
@@ -15,3 +15,6 @@ __pycache__/
 .venv/
 .ipynb_checkpoints/
 .DS_Store
+
+# Local tools (MoltenVK for macOS rendering)
+.tools/
