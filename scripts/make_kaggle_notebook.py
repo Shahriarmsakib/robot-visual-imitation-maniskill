@@ -45,12 +45,19 @@ os.chdir(CODE)
 print("code from", REPO_URL or hits[0])
 print(subprocess.run(["git", "log", "-1", "--oneline"], capture_output=True, text=True).stdout or "(no git metadata: zip upload)")"""
 
-SETUP = """!bash scripts/setup_linux_gpu.sh
-!nvidia-smi --query-gpu=name,memory.total --format=csv"""
+SETUP = """def sh(cmd):
+    \"\"\"Run a shell command, streaming output; stop the notebook if it fails.\"\"\"
+    print("$", cmd)
+    rc = subprocess.run(cmd, shell=True).returncode
+    if rc != 0:
+        raise RuntimeError(f"command failed (exit {rc}): {cmd}  <- scroll up for the error")
 
-DATA = """!bash scripts/prepare_data.sh 100"""
+sh("bash scripts/setup_linux_gpu.sh")
+sh("nvidia-smi --query-gpu=name,memory.total --format=csv")"""
 
-CHECK = """!python scripts/check_env.py --render-test --sim-backend physx_cuda --out {WORK}/runs/env_kaggle.json"""
+DATA = """sh("bash scripts/prepare_data.sh 100")"""
+
+CHECK = """sh(f"python scripts/check_env.py --render-test --sim-backend physx_cuda --out {WORK}/runs/env_kaggle.json")"""
 
 RESTORE = """# Bring back the previous session's run (if its output was added as an input) so training resumes.
 run_dir = f"{WORK}/runs/{EXP_NAME}"
@@ -70,7 +77,9 @@ cmd = [sys.executable, "scripts/train.py", "--config", CONFIG, "--seed", str(SEE
 print(" ".join(cmd))
 proc = subprocess.run(cmd)
 status = {0: "FINISHED", 3: "PAUSED (time budget): resume in a new version"}.get(proc.returncode, f"FAILED (exit {proc.returncode})")
-print("training status:", status)"""
+print("training status:", status)
+if proc.returncode not in (0, 3):
+    raise RuntimeError("training failed; the traceback is above")"""
 
 SUMMARY = """import json
 rows = [json.loads(l) for l in open(f"{run_dir}/metrics.jsonl")]
@@ -81,7 +90,7 @@ for r in rows:
               f"success_at_end {se['count']}/{se['n']} ({se['rate']:.0%}), backend {r['sim_backend']}")
 last = [r for r in rows if r["type"] == "train"][-1:]
 print("last train row:", last)
-!du -sh {run_dir}/checkpoints/* 2>/dev/null"""
+sh(f"du -sh {run_dir}/checkpoints/*")"""
 
 
 def code(src):
