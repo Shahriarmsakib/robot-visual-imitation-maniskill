@@ -27,9 +27,18 @@ EOF
  "enable_environment": {"__NV_PRIME_RENDER_OFFLOAD": "1"}, "disable_environment": {"DISABLE_LAYER_NV_OPTIMUS_1": ""}}}
 EOF
 
-# Same versions as requirements.txt, minus torch/torchvision (use the platform's CUDA build)
-# and pin (SAPIEN's Linux wheel bundles Pinocchio).
-grep -v -E "^(torch|torchvision|pin)==" "$ROOT/requirements.txt" | grep -v "^#" | grep -v "^$" > /tmp/requirements-gpu.txt
+# Same versions as requirements.txt, minus torch/torchvision (use the platform's CUDA build),
+# pin (SAPIEN's Linux wheel bundles Pinocchio) and mani_skill (installed separately below).
+grep -v -E "^(torch|torchvision|pin|mani_skill)==" "$ROOT/requirements.txt" | grep -v "^#" | grep -v "^$" > /tmp/requirements-gpu.txt
 pip install -q -r /tmp/requirements-gpu.txt
+
+# ManiSkill 3.0.1 requires mplib==0.1.1 on Linux, which has no wheel for Python >= 3.12 (Kaggle).
+# mplib is only imported by ManiSkill's motion-planning demo generators, which this project does not
+# run (it downloads the official demos), so install ManiSkill without it plus its other dependencies.
+MANISKILL_PIN="$(grep -E "^mani_skill==" "$ROOT/requirements.txt")"
+pip install -q --no-deps "$MANISKILL_PIN"
+pip install -q scipy dacite pyyaml tqdm GitPython tabulate transforms3d trimesh "imageio[ffmpeg]" IPython \
+  pytorch_kinematics==0.7.6 defusedxml nvidia-ml-py huggingface_hub
+python -c "import mani_skill.envs, sapien; print('mani_skill', mani_skill.__version__, 'sapien', sapien.__version__)"
 
 python -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else '')"
