@@ -1,0 +1,14 @@
+{
+  "_comment": "Tiny end-to-end check on a laptop: a few updates, 2 eval trials. Not an experiment.",
+  "exp_name": "smoke_mac",
+  "num_demos": 5,
+  "total_iters": 20,
+  "batch_size": 8,
+  "log_freq": 5,
+  "eval_freq": 10,
+  "save_freq": null,
+  "ckpt_freq": 5,
+  "num_eval_episodes": 2,
+  "num_eval_envs": 2,
+  "runs_dir": "runs/smoke"
+}

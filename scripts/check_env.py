@@ -96,13 +96,13 @@ def dataset_info(path):
     }
 
 
-def render_test():
+def render_test(sim_backend):
     import gymnasium as gym
     import mani_skill.envs  # noqa: F401  registers environments
 
     env = gym.make(
         "PickCube-v1", obs_mode="rgb", control_mode="pd_ee_delta_pos",
-        sim_backend="physx_cpu", max_episode_steps=100,
+        sim_backend=sim_backend, max_episode_steps=100,
     )
     obs, _ = env.reset(seed=0)
     rgb = obs["sensor_data"]["base_camera"]["rgb"]
@@ -112,12 +112,14 @@ def render_test():
     elapsed = time.time() - start
     env.close()
     ok = tuple(rgb.shape) == (1, 128, 128, 3) and float(rgb.float().std()) > 1.0
-    return {"ok": ok, "rgb_shape": list(rgb.shape), "seconds_per_100_steps": round(elapsed, 3)}
+    return {"ok": ok, "sim_backend": sim_backend, "rgb_shape": list(rgb.shape),
+            "seconds_per_100_steps": round(elapsed, 3)}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--render-test", action="store_true", help="also step PickCube-v1 with RGB cameras")
+    parser.add_argument("--sim-backend", default="physx_cpu", help="backend for the render test (physx_cpu or physx_cuda)")
     parser.add_argument("--out", type=Path, default=None, help="manifest path (default: experiments/manifests/env_<os>.json)")
     args = parser.parse_args()
 
@@ -134,7 +136,7 @@ def main():
     }
     if args.render_test:
         try:
-            manifest["render_test"] = render_test()
+            manifest["render_test"] = render_test(args.sim_backend)
         except Exception as exc:  # report the failure in the manifest instead of a bare traceback
             manifest["render_test"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
 
@@ -142,7 +144,7 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(manifest, indent=2) + "\n")
     print(json.dumps(manifest, indent=2))
-    print(f"\nWrote {out.relative_to(ROOT)}")
+    print(f"\nWrote {out}")
 
     missing = [p for p in ("mani_skill", "sapien", "torch") if manifest["packages"][p] is None]
     failed = []

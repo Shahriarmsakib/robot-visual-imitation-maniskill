@@ -18,3 +18,5 @@ __pycache__/
 
 # Local tools (MoltenVK for macOS rendering)
 .tools/
+dist/
+.pytest_cache/
