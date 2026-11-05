@@ -1,0 +1,43 @@
+{
+  "checkpoint": "runs/kaggle/act_pickcube_rgb_baseline_100d_seed1/checkpoints/final.pt",
+  "checkpoint_step": 30000,
+  "run": "act_pickcube_rgb_baseline_100d_seed1",
+  "sim_backend": "physx_cpu",
+  "device": "mps",
+  "eval_seed": 10000,
+  "seconds": 34.5,
+  "n_trials": 100,
+  "success_once": {
+    "count": 20,
+    "n": 100,
+    "rate": 0.2,
+    "ci95": [
+      0.1333659225590988,
+      0.28883096192650237
+    ]
+  },
+  "return": {
+    "mean": 6.09,
+    "std": 13.780489831642415,
+    "n": 100
+  },
+  "episode_len": {
+    "mean": 100.0,
+    "std": 0.0,
+    "n": 100
+  },
+  "reward": {
+    "mean": 0.060899999999999996,
+    "std": 0.13780489831642415,
+    "n": 100
+  },
+  "success_at_end": {
+    "count": 16,
+    "n": 100,
+    "rate": 0.16,
+    "ci95": [
+      0.10095202349473717,
+      0.24420444558894414
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+run_id,variant,num_demos,seed,steps_done,total_steps,status,sessions,final_n_trials,final_success_once,final_success_once_rate,final_success_at_end,final_success_at_end_rate,final_success_at_end_ci95,best_success_at_end_rate,best_success_at_end_step,checkpoint,sim_backend,device,git_commit,dataset_sha256
+act_pickcube_rgb_baseline_100d_seed1,act_rgb,100,1,30000,30000,complete,1,100,29,0.29,18,0.18,"[0.11700131654251038, 0.26667536024213084]",0.19,20000,final.pt,physx_cuda,Tesla T4,be7fb02,5c49d0071df0

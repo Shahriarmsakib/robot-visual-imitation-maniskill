@@ -111,8 +111,8 @@ def plot_success_curves(runs, out_dir, name="fig2b_success_vs_step"):
     runs = sorted(runs, key=lambda r: (r.variant, r.num_demos or 0, r.seed))
     cols = min(3, len(runs))
     rows = int(np.ceil(len(runs) / cols))
-    fig, axes = plt.subplots(rows, cols, figsize=(3.6 * cols + 0.8, 2.9 * rows + 0.6), squeeze=False,
-                             sharey=True)
+    size = (6.4, 3.8) if len(runs) == 1 else (3.6 * cols + 0.8, 2.9 * rows + 0.6)
+    fig, axes = plt.subplots(rows, cols, figsize=size, squeeze=False, sharey=True)
     for ax, run in zip(axes.flat, runs):
         last_rate = {m: 100 * run.evals[-1][m]["rate"] for m in METRIC_COLOR}
         # Nudge the two end labels apart when the lines finish close together.
@@ -194,8 +194,8 @@ def plot_data_efficiency(table, out_dir, name="fig3_data_efficiency", budgets=(1
     else:
         ax.legend(loc="upper left")
         if missing:
-            ax.text(0.99, 0.02, "pending: " + ", ".join(map(str, missing)) + " demos", transform=ax.transAxes,
-                    ha="right", va="bottom", fontsize=8, color=MUTED)
+            ax.text(0.99, 0.98, "pending: " + ", ".join(map(str, missing)) + " demos", transform=ax.transAxes,
+                    ha="right", va="top", fontsize=8, color=MUTED)
     ax.set_title("Data efficiency: success of the final model vs demo budget", loc="left")
     ax.text(0, -0.24, "Error bars: std across seeds (≥2 seeds) or 95% Wilson CI (1 seed). Dots: individual seeds.",
             transform=ax.transAxes, color=MUTED, fontsize=8)

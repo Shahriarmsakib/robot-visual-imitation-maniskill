@@ -38,6 +38,8 @@ def main():
     parser.add_argument("--fps", type=int, default=15)
     parser.add_argument("--stride", type=int, default=2, help="keep every Nth simulator step in GIFs")
     parser.add_argument("--montage-rows", type=int, default=4)
+    parser.add_argument("--max-gifs-per-outcome", type=int, default=2,
+                        help="GIFs kept per outcome (success/failure); every episode still appears in rollouts.json")
     args = parser.parse_args()
 
     device = select_device(args.device)
@@ -68,11 +70,15 @@ def main():
     at_end = result["per_episode"]["success_at_end"] > 0.5
     once = result["per_episode"]["success_once"] > 0.5
     labelled = []
+    gifs_written = {True: 0, False: 0}
     for i, raw in enumerate(episodes):
         text = outcome_text(i, bool(at_end[i]), bool(once[i]))
         frames = [label_frame(f, args.size, t, text, bool(at_end[i])) for t, f in raw]
-        name = f"ep{i:02d}_{'success' if at_end[i] else 'failure'}.gif"
-        write_gif(frames, out / name, args.fps)
+        name = None
+        if gifs_written[bool(at_end[i])] < args.max_gifs_per_outcome:
+            name = f"ep{i:02d}_{'success' if at_end[i] else 'failure'}.gif"
+            write_gif(frames, out / name, args.fps)
+            gifs_written[bool(at_end[i])] += 1
         labelled.append({"episode": i, "success_at_end": bool(at_end[i]), "success_once": bool(once[i]),
                          "gif": name, "frames": frames})
 
@@ -92,7 +98,7 @@ def main():
                 "episodes": [{k: v for k, v in e.items() if k != "frames"} for e in labelled]}
     (out / "rollouts.json").write_text(json.dumps(manifest, indent=2) + "\n")
     print(title)
-    print(f"wrote {len(labelled)} GIFs + rollout_montage.png + rollouts.json to {out}/")
+    print(f"wrote {sum(gifs_written.values())} GIFs ({len(labelled)} episodes) + rollout_montage.png + rollouts.json to {out}/")
 
 
 if __name__ == "__main__":

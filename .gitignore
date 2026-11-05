@@ -5,7 +5,7 @@
 *.pth
 *.ckpt
 /data/
-runs/
+/runs/
 checkpoints/
 wandb/
 

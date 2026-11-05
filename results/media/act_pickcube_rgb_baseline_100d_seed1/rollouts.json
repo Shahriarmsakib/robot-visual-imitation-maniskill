@@ -1,0 +1,168 @@
+{
+  "checkpoint": "runs/kaggle/act_pickcube_rgb_baseline_100d_seed1/checkpoints/final.pt",
+  "checkpoint_step": 30000,
+  "run": "act_pickcube_rgb_baseline_100d_seed1",
+  "sim_backend": "physx_cpu",
+  "scene_seed": 10000,
+  "size": 192,
+  "fps": 12,
+  "stride": 3,
+  "summary": {
+    "n_trials": 20,
+    "success_once": {
+      "count": 6,
+      "n": 20,
+      "rate": 0.3,
+      "ci95": [
+        0.14547527396899385,
+        0.5189767762289793
+      ]
+    },
+    "return": {
+      "mean": 9.45,
+      "std": 15.55787581901848,
+      "n": 20
+    },
+    "episode_len": {
+      "mean": 100.0,
+      "std": 0.0,
+      "n": 20
+    },
+    "reward": {
+      "mean": 0.0945,
+      "std": 0.15557875819018482,
+      "n": 20
+    },
+    "success_at_end": {
+      "count": 4,
+      "n": 20,
+      "rate": 0.2,
+      "ci95": [
+        0.0806563532712,
+        0.41602172202575993
+      ]
+    }
+  },
+  "episodes": [
+    {
+      "episode": 0,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": "ep00_failure.gif"
+    },
+    {
+      "episode": 1,
+      "success_at_end": true,
+      "success_once": true,
+      "gif": "ep01_success.gif"
+    },
+    {
+      "episode": 2,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": "ep02_failure.gif"
+    },
+    {
+      "episode": 3,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 4,
+      "success_at_end": false,
+      "success_once": true,
+      "gif": null
+    },
+    {
+      "episode": 5,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 6,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 7,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 8,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 9,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 10,
+      "success_at_end": false,
+      "success_once": true,
+      "gif": null
+    },
+    {
+      "episode": 11,
+      "success_at_end": true,
+      "success_once": true,
+      "gif": "ep11_success.gif"
+    },
+    {
+      "episode": 12,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 13,
+      "success_at_end": true,
+      "success_once": true,
+      "gif": null
+    },
+    {
+      "episode": 14,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 15,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 16,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 17,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 18,
+      "success_at_end": false,
+      "success_once": false,
+      "gif": null
+    },
+    {
+      "episode": 19,
+      "success_at_end": true,
+      "success_once": true,
+      "gif": null
+    }
+  ]
+}
