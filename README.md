@@ -2,7 +2,7 @@
 
 Does focusing a robot policy's vision on the relevant objects make imitation learning work with fewer demonstrations and hold up better when the scene looks different? This project tests that on ManiSkill 3's `PickCube-v1` task, using the official ACT (Action Chunking with Transformers) RGB baseline as the reference.
 
-> **Status: implementation in progress (M0–M2 done). Phase A baseline training on Kaggle; no results yet.** See [experiments/status.md](experiments/status.md).
+> **Status: M0–M2 done; Phase A baseline complete for one seed.** See [experiments/status.md](experiments/status.md).
 
 ## Plan
 
@@ -39,7 +39,13 @@ Rerunning a command resumes from its last checkpoint. Full runs are meant for a 
 
 ## Results
 
-Tables, figures and rollout GIFs are regenerated from run logs by `scripts/collect_results.py`, `scripts/plot_results.py` and `scripts/export_rollouts.py`; see [results/README.md](results/README.md). Until a run completes, the figures are labelled "pending" templates.
+**Phase A baseline (100 demos, seed 1, 30k steps, Kaggle T4):** the final policy succeeds in **18/100** trials (95% CI 12–27%) and reaches the goal at some point in 29/100. A Mac CPU-simulator re-evaluation gives 16/100. One seed only; details and limits in [docs/phase_a_baseline.md](docs/phase_a_baseline.md).
+
+| Success during training | Example rollouts (success and failure) |
+|---|---|
+| ![success vs step](results/figures/fig2b_success_vs_step.png) | ![success](results/media/act_pickcube_rgb_baseline_100d_seed1/ep01_success.gif) ![failure](results/media/act_pickcube_rgb_baseline_100d_seed1/ep00_failure.gif) |
+
+Tables, figures and rollout GIFs are regenerated from the raw logs in `results/runs/` by `scripts/collect_results.py`, `scripts/plot_results.py` and `scripts/export_rollouts.py`; see [results/README.md](results/README.md).
 
 ## Layout
 

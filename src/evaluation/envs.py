@@ -5,6 +5,7 @@ Derived from `FlattenRGBDObservationWrapper` (examples/baselines/act/train_rgbd.
 Changes: CPU vector envs use same-step autoreset so gymnasium >= 1.0 behaves like the
 gymnasium 0.29 API the upstream evaluator was written for.
 """
+import sys
 from functools import partial
 from typing import Dict, Optional
 
@@ -59,7 +60,10 @@ def _cpu_vector_env(env_fns):
         kwargs["autoreset_mode"] = gym.vector.AutoresetMode.SAME_STEP
     if len(env_fns) == 1:
         return gym.vector.SyncVectorEnv(env_fns, **kwargs)
-    return gym.vector.AsyncVectorEnv(env_fns, context="forkserver", **kwargs)
+    # macOS: workers forked from the forkserver share renderer state and only ~2 can render
+    # (IndexError: unordered_map::at in take_picture); spawned workers start clean.
+    context = "spawn" if sys.platform == "darwin" else "forkserver"
+    return gym.vector.AsyncVectorEnv(env_fns, context=context, **kwargs)
 
 
 def make_eval_envs(

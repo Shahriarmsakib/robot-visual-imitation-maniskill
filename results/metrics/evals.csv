@@ -1,0 +1,8 @@
+run_id,variant,num_demos,seed,step,n_trials,success_once,success_at_end,success_once_rate,success_at_end_rate,sim_backend,eval_seed
+act_pickcube_rgb_baseline_100d_seed1,act_rgb,100,1,0,100,0,0,0.0,0.0,physx_cuda,10000
+act_pickcube_rgb_baseline_100d_seed1,act_rgb,100,1,5000,100,5,3,0.05,0.03,physx_cuda,10000
+act_pickcube_rgb_baseline_100d_seed1,act_rgb,100,1,10000,100,16,12,0.16,0.12,physx_cuda,10000
+act_pickcube_rgb_baseline_100d_seed1,act_rgb,100,1,15000,100,18,10,0.18,0.1,physx_cuda,10000
+act_pickcube_rgb_baseline_100d_seed1,act_rgb,100,1,20000,100,34,19,0.34,0.19,physx_cuda,10000
+act_pickcube_rgb_baseline_100d_seed1,act_rgb,100,1,25000,100,25,13,0.25,0.13,physx_cuda,10000
+act_pickcube_rgb_baseline_100d_seed1,act_rgb,100,1,30000,100,29,18,0.29,0.18,physx_cuda,10000
