@@ -2,7 +2,7 @@
 
 Derived from `evaluate` in ManiSkill v3.0.1 examples/baselines/act/act/evaluate.py
 (Apache-2.0). Changes: evaluation episodes are seeded so every checkpoint is tested on
-the same initial scenes; per-episode metrics are flattened across parallel envs (one
+the same scenes (see make_eval_envs: enhanced_determinism); per-episode metrics are flattened across parallel envs (one
 entry per trial, not per batch); gymnasium >= 1.0 info dicts are supported; results
 include success counts and 95% Wilson intervals.
 """
@@ -38,12 +38,14 @@ def _episode_metrics(info):
 
 @torch.no_grad()
 def evaluate(agent, envs, n_episodes, num_queries, temporal_agg, max_timesteps, device, sim_backend,
-             norm_stats=None, seed=None, frame_hook=None):
+             norm_stats=None, seed=None, frame_hook=None, info_hook=None):
     """Roll out `agent` until at least `n_episodes` trials finish.
 
     Returns {"per_episode": {metric: array(n_trials)}, "summary": {...}}; n_trials is a
     multiple of the number of parallel envs. `frame_hook(envs, ts)`, if given, is called
-    before every env step (e.g. to render frames for videos).
+    before every env step (e.g. to render frames for videos). `info_hook(info, step, truncated)`
+    is called after every env step with the step number (1-based within the episode); on the
+    final step of an episode the episode's own info is under info["final_info"].
     """
     delta_control = not norm_stats
     if not delta_control:
@@ -96,6 +98,8 @@ def evaluate(agent, envs, n_episodes, num_queries, temporal_agg, max_timesteps, 
         ts += 1
 
         truncated = np.asarray(common.to_numpy(truncated))
+        if info_hook is not None:
+            info_hook(info, ts, truncated)
         if truncated.any():
             assert truncated.all(), "all eval envs must truncate together (ignore_terminations=True)"
             for k, v in _episode_metrics(info).items():

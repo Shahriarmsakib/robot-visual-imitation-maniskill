@@ -1,0 +1,26 @@
+{
+  "successful_rollout": {
+    "episode": 9,
+    "category": "success",
+    "rule": "lowest episode ID matching the category rule",
+    "file": "videos/successful_rollout.mp4"
+  },
+  "failed_grasp": {
+    "episode": 61,
+    "category": "approached_no_grasp",
+    "rule": "lowest episode ID matching the category rule",
+    "file": "videos/failed_grasp.mp4"
+  },
+  "dropped_cube": {
+    "episode": 69,
+    "category": "grasp_lost_before_target",
+    "rule": "lowest episode ID matching the category rule",
+    "file": "videos/dropped_cube.mp4"
+  },
+  "lost_success": {
+    "episode": 28,
+    "category": "reached_target_lost_success",
+    "rule": "lowest episode ID matching the category rule",
+    "file": "videos/lost_success.mp4"
+  }
+}

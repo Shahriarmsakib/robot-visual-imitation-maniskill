@@ -74,15 +74,22 @@ def make_eval_envs(
     max_episode_steps: Optional[int] = None,
     include_depth: bool = False,
     video_dir: Optional[str] = None,
+    extra_wrappers=(),
 ):
-    """Vectorised evaluation envs. On CPU only the first env records video; on GPU all do."""
+    """Vectorised evaluation envs. On CPU only the first env records video; on GPU all do.
+
+    extra_wrappers are applied after the observation wrapper (e.g. info-only diagnostics).
+    """
     env_kwargs = dict(
         control_mode=control_mode, reward_mode="sparse",
+        # Seed every reset (incl. automatic ones) from the reset seed, so all episodes of an evaluation
+        # are reproducible, not only the first per env. Without it later scenes depend on global RNG state.
+        enhanced_determinism=True,
         obs_mode="rgbd" if include_depth else "rgb", render_mode="rgb_array",
     )
     if max_episode_steps is not None:
         env_kwargs["max_episode_steps"] = max_episode_steps
-    wrappers = [partial(FlattenRGBDObservationWrapper, depth=include_depth)]
+    wrappers = [partial(FlattenRGBDObservationWrapper, depth=include_depth), *extra_wrappers]
 
     if sim_backend == "physx_cpu":
         def make(seed, record):

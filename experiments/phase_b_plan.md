@@ -35,6 +35,11 @@ Estimated ~63 GPU hours, about 2–2.5 weeks of Kaggle's ~30 h/week.
 2. `collect_results.py`: warn when runs used datasets with different SHA-256 (Kaggle and Mac conversions differ, see `docs/phase_a_baseline.md`).
 3. Two-GPU smoke test on Kaggle (1,000 steps each, ~20 min). If each run is slower than ~1.25 s/step, two 30k runs will not fit in one 11 h session and will resume in the next.
 
+## Input from the Phase A failure analysis (2026-11-06)
+- Run `scripts/failure_analysis.py` on each Phase B final checkpoint, so the curve shows whether more demos improve grasping, transport or final precision (Phase A: grasp 97%, target 25%).
+- Evaluations now use `enhanced_determinism=True`: all runs see identical scenes, enabling paired comparisons.
+- Step 20k beat step 30k on paired CPU scenes; keep the 5k-step checkpoints and report both.
+
 ## Risks
 - CPU contention between two runs on Kaggle's 4 vCPUs (measured by the smoke test).
 - 10 demos may give near-0% success: valid, but only bounds the rate.

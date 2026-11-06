@@ -20,3 +20,6 @@ __pycache__/
 .tools/
 dist/
 .pytest_cache/
+
+# Intermediate frame dumps from failure analysis (large; videos and figures are kept)
+results/**/_frames_*.npy

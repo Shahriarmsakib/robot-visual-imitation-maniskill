@@ -7,6 +7,7 @@ Only runs with real logs appear as complete. Every result row needs a run ID, se
 | M0 audit | Done (2026-11-03) | `docs/m0_audit.md`, `experiments/manifests/env_darwin.json` |
 | M1 baseline code + smoke tests | Done (2026-11-03): Mac tests and Kaggle T4 smoke run | `docs/m1_training.md`, `pytest --run-slow` (14 passed), `kaggle_gpu_smoke_seed1` below |
 | M2 logging, plotting, rollout export | Done (2026-11-03); figures are "pending" templates until a run completes | `results/README.md`, `pytest --run-slow` (19 passed) |
+| Phase A failure analysis | Done (2026-11-06) | `results/phase_a_failure_analysis/failure_analysis_report.md`: 97% grasp, 25% reach target, 16% final (200 eps, `physx_cpu`); step 20k beats 30k on paired scenes (45 vs 32, p = 0.002) |
 | M3 experiments | Not started | |
 | M4 publication | Not started | |
 

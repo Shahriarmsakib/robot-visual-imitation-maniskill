@@ -108,7 +108,7 @@ class Args:
     stop_at_step: Optional[int] = None
     """stop like --max-hours once this step is reached (split a run across sessions; resume tests)"""
     eval_seed: int = 10_000
-    """seed for evaluation scenes; the same scenes are used at every evaluation"""
+    """seed for evaluation scenes; with enhanced_determinism (since 2026-11-06) every evaluation uses the same scenes"""
     skip_initial_eval: bool = False
 
 
