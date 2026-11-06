@@ -9,7 +9,7 @@ Run `act_pickcube_rgb_baseline_100d_seed1`. Raw logs: `results/runs/act_pickcube
 | Data | 100 official motion-planning demos, RGB 128×128 (resized to 224), `pd_ee_delta_pos`, 7,720 samples |
 | Model | Official ACT (ResNet-18, chunk 30, temporal ensembling), upstream hyperparameters, batch 256 |
 | Training | 30,000 updates (≈ 1,000 epochs), LR drop ×0.1 at step 20,000, EMA policy evaluated |
-| Evaluation | 100 trials every 5,000 steps, scene seed 10000, max 100 steps per episode |
+| Evaluation | 100 trials every 5,000 steps, scene seed 10000, max 100 steps per episode. Only the first 10 scenes were identical across evaluations (see the correction in `docs/m1_training.md`); the rest were random draws |
 | Compute | Kaggle Tesla T4, one session (started 2026-11-04 07:06 UTC), 0.97 s/step, code `be7fb02` |
 | Software | Python 3.13.16, torch 2.11.0+cu130, mani_skill 3.0.1, sapien 3.0.3, `physx_cuda` |
 

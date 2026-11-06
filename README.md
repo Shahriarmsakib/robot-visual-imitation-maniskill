@@ -45,6 +45,8 @@ Rerunning a command resumes from its last checkpoint. Full runs are meant for a 
 |---|---|
 | ![success vs step](results/figures/fig2b_success_vs_step.png) | ![success](results/media/act_pickcube_rgb_baseline_100d_seed1/ep01_success.gif) ![failure](results/media/act_pickcube_rgb_baseline_100d_seed1/ep00_failure.gif) |
 
+**Why it fails** ([failure analysis](results/phase_a_failure_analysis/failure_analysis_report.md), 200 episodes per checkpoint, no retraining): the policy grasps the cube in 97% of episodes but brings it into the 2.5 cm goal tolerance in only 25%. In 68% it carries the cube to about 4 cm short of the goal (usually too low) and stops there. The bottleneck is goal-reaching precision, not grasping.
+
 Tables, figures and rollout GIFs are regenerated from the raw logs in `results/runs/` by `scripts/collect_results.py`, `scripts/plot_results.py` and `scripts/export_rollouts.py`; see [results/README.md](results/README.md).
 
 ## Layout

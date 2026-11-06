@@ -16,7 +16,7 @@ The upstream ACT baseline (ManiSkill `v3.0.1`) is vendored unmodified in `third_
 | Full checkpoints in `latest.pt` (model, EMA, optimizer, scheduler, RNG, step) | Upstream saves weights only, so an interrupted run can't continue |
 | Exact resume, including data order | Kaggle stops sessions at 12 h |
 | Evaluation at step 0 (untrained), every `eval_freq`, and after the final update | Upstream evaluated after 1 update and never evaluated the final model |
-| Seeded evaluation scenes (`eval_seed`, same scenes at every evaluation) | Upstream evaluation was unseeded, so checkpoints were tested on different scenes |
+| Seeded evaluation scenes (`eval_seed`) | Upstream evaluation was unseeded, so checkpoints were tested on different scenes. **Correction (2026-11-06):** until `enhanced_determinism=True` was added to `make_eval_envs`, only the first scene of each parallel env was fixed; later scenes came from automatic resets driven by global RNG state. Phase A's training-time evaluations therefore share their first 10 scenes and draw the other 90 at random (still valid random samples, but not identical sets across checkpoints) |
 | Metrics per trial with counts and 95% Wilson intervals | Avoids the batch-vs-trial confusion noted in the brief |
 | Training RNG saved and restored around evaluation | In-process evaluation otherwise changes the training randomness |
 | Same-step autoreset for CPU vector envs | Keeps the upstream evaluator correct on gymnasium ≥ 1.0 |

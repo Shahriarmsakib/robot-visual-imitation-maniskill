@@ -49,6 +49,21 @@ def test_interrupted_run_resumes_exactly(tmp_path, demo_path):
     assert rc == 0
     assert (tmp_path / "media/rollout_montage.png").exists() and list((tmp_path / "media").glob("ep00_*.gif"))
 
+    # Failure analysis: runs twice on the same scenes and must reproduce itself exactly.
+    for label in ("a", "b"):
+        rc = subprocess.run([sys.executable, "scripts/failure_analysis.py", str(final), "--label", label,
+                             "--num-episodes", "4", "--num-envs", "2", "--device", "cpu",
+                             "--out", str(tmp_path / "fa")], cwd=ROOT).returncode
+        assert rc == 0
+    a = (tmp_path / "fa/metrics/episodes_a.csv").read_text().replace("\na,", "\nX,")
+    b = (tmp_path / "fa/metrics/episodes_b.csv").read_text().replace("\nb,", "\nX,")
+    assert a == b
+    run = json.loads((tmp_path / "fa/metrics/run_a.json").read_text())
+    assert run["checks"]["final_success_matches_env_metric"] and run["checks"]["n_episodes"] == 4
+    rc = subprocess.run([sys.executable, "scripts/summarize_failure_analysis.py", "--dir", str(tmp_path / "fa"),
+                         "--primary", "a"], cwd=ROOT).returncode
+    assert rc == 0 and (tmp_path / "fa/figures/success_breakdown.png").exists()
+
 
 @pytest.mark.slow
 def test_resume_refuses_changed_hyperparameters(tmp_path, demo_path):
