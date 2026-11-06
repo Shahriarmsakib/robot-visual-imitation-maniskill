@@ -1,0 +1,293 @@
+{
+  "source": "data/demos/PickCube-v1/motionplanning/trajectory.h5",
+  "source_sha256": "03ca60546541a7f18321d9d32721f0254bc75217828c0cadacd217d0c014576a",
+  "dataset": "data/object_centric/pickcube_5demos_rgbd.h5",
+  "dataset_size_mb": 2.87,
+  "env_id": "PickCube-v1",
+  "obs_mode": "rgbd",
+  "control_mode": "pd_joint_pos",
+  "sim_backend": "physx_cpu",
+  "render_mode": "rgb_array",
+  "mani_skill_version": "3.0.1",
+  "camera": "base_camera",
+  "source_type": "motionplanning",
+  "episodes": [
+    {
+      "name": "ep_000",
+      "source_episode": "traj_0",
+      "seed": 0,
+      "T": 74,
+      "success": true,
+      "shapes": {
+        "rgb": [
+          75,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          75,
+          128,
+          128
+        ],
+        "qpos": [
+          75,
+          9
+        ],
+        "qvel": [
+          75,
+          9
+        ],
+        "tcp_pose": [
+          75,
+          7
+        ],
+        "cube_pose": [
+          75,
+          7
+        ],
+        "goal_pos": [
+          75,
+          3
+        ],
+        "actions": [
+          74,
+          8
+        ],
+        "success": [
+          74
+        ]
+      }
+    },
+    {
+      "name": "ep_001",
+      "source_episode": "traj_1",
+      "seed": 1,
+      "T": 74,
+      "success": true,
+      "shapes": {
+        "rgb": [
+          75,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          75,
+          128,
+          128
+        ],
+        "qpos": [
+          75,
+          9
+        ],
+        "qvel": [
+          75,
+          9
+        ],
+        "tcp_pose": [
+          75,
+          7
+        ],
+        "cube_pose": [
+          75,
+          7
+        ],
+        "goal_pos": [
+          75,
+          3
+        ],
+        "actions": [
+          74,
+          8
+        ],
+        "success": [
+          74
+        ]
+      }
+    },
+    {
+      "name": "ep_002",
+      "source_episode": "traj_2",
+      "seed": 2,
+      "T": 50,
+      "success": true,
+      "shapes": {
+        "rgb": [
+          51,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          51,
+          128,
+          128
+        ],
+        "qpos": [
+          51,
+          9
+        ],
+        "qvel": [
+          51,
+          9
+        ],
+        "tcp_pose": [
+          51,
+          7
+        ],
+        "cube_pose": [
+          51,
+          7
+        ],
+        "goal_pos": [
+          51,
+          3
+        ],
+        "actions": [
+          50,
+          8
+        ],
+        "success": [
+          50
+        ]
+      }
+    },
+    {
+      "name": "ep_003",
+      "source_episode": "traj_3",
+      "seed": 3,
+      "T": 86,
+      "success": true,
+      "shapes": {
+        "rgb": [
+          87,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          87,
+          128,
+          128
+        ],
+        "qpos": [
+          87,
+          9
+        ],
+        "qvel": [
+          87,
+          9
+        ],
+        "tcp_pose": [
+          87,
+          7
+        ],
+        "cube_pose": [
+          87,
+          7
+        ],
+        "goal_pos": [
+          87,
+          3
+        ],
+        "actions": [
+          86,
+          8
+        ],
+        "success": [
+          86
+        ]
+      }
+    },
+    {
+      "name": "ep_004",
+      "source_episode": "traj_4",
+      "seed": 4,
+      "T": 76,
+      "success": true,
+      "shapes": {
+        "rgb": [
+          77,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          77,
+          128,
+          128
+        ],
+        "qpos": [
+          77,
+          9
+        ],
+        "qvel": [
+          77,
+          9
+        ],
+        "tcp_pose": [
+          77,
+          7
+        ],
+        "cube_pose": [
+          77,
+          7
+        ],
+        "goal_pos": [
+          77,
+          3
+        ],
+        "actions": [
+          76,
+          8
+        ],
+        "success": [
+          76
+        ]
+      }
+    }
+  ],
+  "checks": [
+    {
+      "check": "1. five demonstrations processed",
+      "passed": true,
+      "detail": "5 episodes"
+    },
+    {
+      "check": "2. RGB images extracted",
+      "passed": true,
+      "detail": "uint8 (T+1, H, W, 3), non-constant"
+    },
+    {
+      "check": "3. depth valid",
+      "passed": true,
+      "detail": "int16 mm, all pixels > 0, range 184-9436 mm"
+    },
+    {
+      "check": "4. cube and end-effector poses",
+      "passed": true,
+      "detail": "(T+1, 7) each; replayed cube vs recorded state max error 0.34 mm (tol 5 mm)"
+    },
+    {
+      "check": "5. expert actions extracted",
+      "passed": true,
+      "detail": "original pd_joint_pos actions, shape (T, 8)"
+    },
+    {
+      "check": "6. observation/action alignment",
+      "passed": true,
+      "detail": "obs T+1, actions T, success T; same-index error vs recorded states: joints 2.0e-05 rad, cube 0.34 mm; shifted by one step: joints >= 0.021 rad, cube >= 4.7 mm; per-step success agrees with recording on 99.7% of steps (first-success step replay/recorded: [(70, 69), (70, 70), (45, 45), (80, 80), (72, 72)])"
+    },
+    {
+      "check": "7. demonstrations successful",
+      "passed": true,
+      "detail": "5/5 successful at the last step (replay and recording)"
+    },
+    {
+      "check": "8. cube projects onto red pixels at t=0 (supporting)",
+      "passed": true,
+      "detail": "5/5 on red pixels; depth at projected pixel vs geometry max error 0.8 cm"
+    }
+  ]
+}
