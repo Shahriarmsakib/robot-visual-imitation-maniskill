@@ -1,0 +1,322 @@
+{
+  "dataset": "data/object_centric/pickcube_5demos_objectcentric_ee_delta.h5",
+  "dataset_size_mb": 2.86,
+  "regenerate": "python scripts/build_objectcentric_ee_delta.py --num-demos 5",
+  "source": "data/demos/PickCube-v1/motionplanning/trajectory.h5",
+  "source_sha256": "03ca60546541a7f18321d9d32721f0254bc75217828c0cadacd217d0c014576a",
+  "source_unchanged": true,
+  "env_id": "PickCube-v1",
+  "obs_mode": "rgbd",
+  "control_mode": "pd_ee_delta_pos",
+  "sim_backend": "physx_cpu",
+  "mani_skill_version": "3.0.1",
+  "camera": "base_camera",
+  "conversion_command": "python -m mani_skill.trajectory.replay_trajectory --traj-path data/object_centric/conversion/trajectory.h5 --use-first-env-state -c pd_ee_delta_pos -o rgbd --save-traj -b physx_cpu --count 5",
+  "converted_file_sha256": "b53375a5a7f3f10a0d20708ec7165fc0075de463dc54abfb3d869c37ebedff01",
+  "action_layout": "[dx, dy, dz, gripper]: end-effector position delta (normalised to [-1, 1]) + gripper (+1 open, -1 close)",
+  "episodes": [
+    {
+      "name": "ep_000",
+      "source_episode": "traj_0",
+      "seed": 0,
+      "T": 74,
+      "original_T": 74,
+      "action_shape": [
+        74,
+        4
+      ],
+      "conversion_success": true,
+      "replay_success": true,
+      "shapes": {
+        "rgb": [
+          75,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          75,
+          128,
+          128
+        ],
+        "qpos": [
+          75,
+          9
+        ],
+        "qvel": [
+          75,
+          9
+        ],
+        "tcp_pose": [
+          75,
+          7
+        ],
+        "cube_pose": [
+          75,
+          7
+        ],
+        "goal_pos": [
+          75,
+          3
+        ],
+        "actions": [
+          74,
+          4
+        ],
+        "success": [
+          74
+        ]
+      }
+    },
+    {
+      "name": "ep_001",
+      "source_episode": "traj_1",
+      "seed": 1,
+      "T": 74,
+      "original_T": 74,
+      "action_shape": [
+        74,
+        4
+      ],
+      "conversion_success": true,
+      "replay_success": true,
+      "shapes": {
+        "rgb": [
+          75,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          75,
+          128,
+          128
+        ],
+        "qpos": [
+          75,
+          9
+        ],
+        "qvel": [
+          75,
+          9
+        ],
+        "tcp_pose": [
+          75,
+          7
+        ],
+        "cube_pose": [
+          75,
+          7
+        ],
+        "goal_pos": [
+          75,
+          3
+        ],
+        "actions": [
+          74,
+          4
+        ],
+        "success": [
+          74
+        ]
+      }
+    },
+    {
+      "name": "ep_002",
+      "source_episode": "traj_2",
+      "seed": 2,
+      "T": 50,
+      "original_T": 50,
+      "action_shape": [
+        50,
+        4
+      ],
+      "conversion_success": true,
+      "replay_success": true,
+      "shapes": {
+        "rgb": [
+          51,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          51,
+          128,
+          128
+        ],
+        "qpos": [
+          51,
+          9
+        ],
+        "qvel": [
+          51,
+          9
+        ],
+        "tcp_pose": [
+          51,
+          7
+        ],
+        "cube_pose": [
+          51,
+          7
+        ],
+        "goal_pos": [
+          51,
+          3
+        ],
+        "actions": [
+          50,
+          4
+        ],
+        "success": [
+          50
+        ]
+      }
+    },
+    {
+      "name": "ep_003",
+      "source_episode": "traj_3",
+      "seed": 3,
+      "T": 86,
+      "original_T": 86,
+      "action_shape": [
+        86,
+        4
+      ],
+      "conversion_success": true,
+      "replay_success": true,
+      "shapes": {
+        "rgb": [
+          87,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          87,
+          128,
+          128
+        ],
+        "qpos": [
+          87,
+          9
+        ],
+        "qvel": [
+          87,
+          9
+        ],
+        "tcp_pose": [
+          87,
+          7
+        ],
+        "cube_pose": [
+          87,
+          7
+        ],
+        "goal_pos": [
+          87,
+          3
+        ],
+        "actions": [
+          86,
+          4
+        ],
+        "success": [
+          86
+        ]
+      }
+    },
+    {
+      "name": "ep_004",
+      "source_episode": "traj_4",
+      "seed": 4,
+      "T": 76,
+      "original_T": 76,
+      "action_shape": [
+        76,
+        4
+      ],
+      "conversion_success": true,
+      "replay_success": true,
+      "shapes": {
+        "rgb": [
+          77,
+          128,
+          128,
+          3
+        ],
+        "depth": [
+          77,
+          128,
+          128
+        ],
+        "qpos": [
+          77,
+          9
+        ],
+        "qvel": [
+          77,
+          9
+        ],
+        "tcp_pose": [
+          77,
+          7
+        ],
+        "cube_pose": [
+          77,
+          7
+        ],
+        "goal_pos": [
+          77,
+          3
+        ],
+        "actions": [
+          76,
+          4
+        ],
+        "success": [
+          76
+        ]
+      }
+    }
+  ],
+  "checks": [
+    {
+      "check": "1. five converted demonstrations replayed",
+      "passed": true,
+      "detail": "converted 5/5 (missing source ids: none); replayed 5"
+    },
+    {
+      "check": "2. every action has four components",
+      "passed": true,
+      "detail": "action dims [4]; shapes [(74, 4), (74, 4), (50, 4), (86, 4), (76, 4)]"
+    },
+    {
+      "check": "3. RGB, depth, poses, goal and actions synchronized",
+      "passed": true,
+      "detail": "all per-step arrays T+1, actions/success T; same-index vs converted-file states: joints 2.1e-06 rad, cube 0.00 mm; shifted by one step: joints >= 0.021 rad, cube >= 4.7 mm"
+    },
+    {
+      "check": "4. all converted demonstrations succeed",
+      "passed": true,
+      "detail": "replay 5/5, converted file 5/5 successful at the last step; per-step success agrees on 100.0% of steps"
+    },
+    {
+      "check": "5. actions valid for pd_ee_delta_pos",
+      "passed": true,
+      "detail": "all 360 actions inside the controller's action space [-1.0, -1.0, -1.0, -1.0]...[1.0, 1.0, 1.0, 1.0]; xyz range -0.266..0.399; gripper values [-1.0, 1.0]"
+    },
+    {
+      "check": "6. poses come from the converted replay",
+      "passed": true,
+      "detail": "vs converted-file states: TCP 0.00 mm, cube 0.00 mm, joints 2.1e-06 rad; vs original joint-control replay: joints differ by 0.314, 0.191, 0.129, 0.235, 0.064 rad while the TCP path agrees within 0.25 mm (max per episode)"
+    },
+    {
+      "check": "7. no missing values, shifts or invalid depth",
+      "passed": true,
+      "detail": "no NaN/inf; depth int16 mm, all pixels > 0, range 185-9436 mm; no one-step shift (check 3); cube projects onto red pixels at t=0 in 5/5, depth agrees within 0.8 cm"
+    }
+  ],
+  "all_passed": true
+}

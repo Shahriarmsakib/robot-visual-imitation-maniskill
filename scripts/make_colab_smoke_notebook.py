@@ -7,11 +7,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-INTRO = """# Object-centric data extraction: smoke test (PickCube-v1, 5 demos, RGB-D)
+INTRO = """# Object-centric data extraction: smoke test + Phase 2A ACT-compatible dataset (PickCube-v1, 5 demos, RGB-D)
 
 Replays five official ManiSkill motion-planning demonstrations on `physx_cpu`, records RGB, depth, cube pose
 (simulator ground truth), end-effector pose, joint positions/velocities, expert actions and success, validates
-them, and saves an HDF5 file. All logic lives in `scripts/object_centric_smoke_test.py` and `src/data/object_centric.py`.
+them, and saves an HDF5 file (sections 1–6). Sections 7–8 build the Phase 2A dataset: the same demos converted to
+`pd_ee_delta_pos` (the Phase A ACT action space) with ManiSkill's replay tool, then validated and tested. All logic
+lives in `scripts/object_centric_smoke_test.py`, `scripts/build_objectcentric_ee_delta.py` and `src/data/object_centric.py`.
 
 **Runtime:** *Runtime → Change runtime type → T4 GPU*. The simulation runs on CPU (`physx_cpu`), but the
 camera renderer needs a GPU Vulkan driver; a CPU-only runtime cannot render images. No training happens here."""
@@ -38,6 +40,21 @@ display(Image("results/object_centric_smoke/smoke_frames.png"))
 report = json.load(open("results/object_centric_smoke/validation.json"))
 for c in report["checks"]:
     print(("PASS " if c["passed"] else "FAIL ") + c["check"] + ": " + c["detail"])"""
+
+EE_BUILD = """# Phase 2A: convert the same 5 demos to pd_ee_delta_pos (ACT's action space) with ManiSkill's replay tool,
+# replay them with RGB-D, validate (7 checks) and save pickcube_5demos_objectcentric_ee_delta.h5
+!python scripts/build_objectcentric_ee_delta.py --num-demos 5"""
+
+EE_SHOW = """display(Image("results/object_centric_ee_delta/ee_delta_frames.png"))
+summary = json.load(open("results/object_centric_ee_delta/summary.json"))
+for e in summary["episodes"]:
+    print(f"{e['name']} ({e['source_episode']}): T={e['T']} actions {e['action_shape']}, "
+          f"conversion ok {e['conversion_success']}, replay success {e['replay_success']}")
+for c in summary["checks"]:
+    print(("PASS " if c["passed"] else "FAIL ") + c["check"])"""
+
+EE_TEST = """# Automated dataset-integrity tests
+!python -m pytest -q tests/test_objectcentric_dataset.py"""
 
 INSPECT = """# How to read the saved dataset
 import h5py
@@ -66,7 +83,9 @@ nb = {
                  "language_info": {"name": "python"}, "accelerator": "GPU", "colab": {"gpuType": "T4"}},
     "cells": [md(INTRO), md("## 1. Code"), code(SETUP), md("## 2. Install"), code(INSTALL),
               md("## 3. Demonstrations"), code(DATA), md("## 4. Extract, validate, save"), code(RUN),
-              md("## 5. Visualisation and validation summary"), code(SHOW), md("## 6. Dataset layout"), code(INSPECT)],
+              md("## 5. Visualisation and validation summary"), code(SHOW), md("## 6. Dataset layout"), code(INSPECT),
+              md("## 7. Phase 2A: ACT-compatible dataset (pd_ee_delta_pos)"), code(EE_BUILD), code(EE_SHOW),
+              md("## 8. Dataset integrity tests"), code(EE_TEST)],
 }
 out = ROOT / "notebooks" / "object_centric_smoke_test_colab.ipynb"
 out.write_text(json.dumps(nb, indent=1) + "\n")
