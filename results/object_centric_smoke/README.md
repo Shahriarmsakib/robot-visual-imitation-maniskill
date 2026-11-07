@@ -1,6 +1,14 @@
 # Object-centric data extraction: smoke test
 
-**Result: SMOKE TEST PASSED** (all 7 required checks plus 1 supporting check). Run on macOS (`physx_cpu`, MoltenVK rendering), 2026-11-06. Machine-readable details: `validation.json`; figure: `smoke_frames.png`.
+**Result: SMOKE TEST PASSED** (all 7 required checks plus 1 supporting check) on both platforms, 2026-11-06. Machine-readable details (Mac run): `validation.json`; figure: `smoke_frames.png`.
+
+| | macOS (M5, MoltenVK) | Google Colab (Linux, T4 runtime, torch 2.8) |
+|---|---|---|
+| Replayed cube vs recorded state | 0.34 mm | 0.00 mm |
+| Replayed joints vs recorded state | 2.0e-5 rad | 4.8e-7 rad |
+| Per-step success agrees with recording | 99.7% (`traj_0` first succeeds at step 70, not 69) | 100% |
+
+On Linux the replay reproduces the recorded demonstrations exactly, so the small macOS drift is a platform-level numerical difference in the CPU simulator. This is the likely cause of the Mac-vs-Kaggle dataset hash difference noted in `docs/phase_a_baseline.md`.
 
 **What it does.** Replays the first 5 official ManiSkill PickCube-v1 motion-planning demonstrations (`traj_0`–`traj_4`, seeds 0–4) from their recorded initial simulator state with the expert's original `pd_joint_pos` actions, in `obs_mode="rgbd"`. At every step it records RGB, depth, joint positions and velocities, end-effector (TCP) pose, cube pose and goal position from the simulator, plus camera intrinsics and extrinsics. The source file (`trajectory.h5`, SHA-256 `03ca6054…`) is only read.
 
@@ -33,4 +41,4 @@ Alignment rule (also stored in the file): index t of every per-step array is the
 
 **Reproduce.**
 - Mac: `source scripts/env_macos.sh && python scripts/object_centric_smoke_test.py`.
-- Colab: `notebooks/object_centric_smoke_test_colab.ipynb` on a T4 GPU runtime. Not yet run on Colab.
+- Colab: `notebooks/object_centric_smoke_test_colab.ipynb` on a T4 GPU runtime (verified 2026-11-06).
