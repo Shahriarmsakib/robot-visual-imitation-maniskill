@@ -1,6 +1,6 @@
 # Phase 2A: ACT-compatible object-centric dataset: validation report
 
-**Result: DATASET VALIDATION PASSED.** All 5 demonstrations converted and replayed successfully; all 7 checks pass. Built on macOS (`physx_cpu`), 2026-11-06. No model was trained. Machine-readable: `summary.json`; figure: `ee_delta_frames.png`.
+**Result: DATASET VALIDATION PASSED** on macOS and on Google Colab (Linux, T4 runtime, code `e495ec2`; integrity tests 5 passed, 1 slow test skipped), 2026-11-06. All 5 demonstrations converted and replayed successfully; all 7 checks pass. No model was trained. The tables below are from the macOS build. Machine-readable: `summary.json`; figure: `ee_delta_frames.png`.
 
 ## How it was built
 
@@ -61,4 +61,4 @@ Alignment: index t of every per-step array is the state before `actions[t]`; ind
 - The converter keeps each demo's length and reproduces the expert's end-effector path within 0.25 mm, so these are the same demonstrations expressed in ACT's action space.
 - Built on macOS. A Linux (Colab/Kaggle) build may differ by sub-millimetre amounts and rare pixels (see `results/object_centric_smoke/README.md`); use one platform per experiment.
 - Tests: `python -m pytest -q tests/test_objectcentric_dataset.py` (dataset integrity; `--run-slow` also rebuilds a 2-demo copy end to end).
-- Colab: sections 7–8 of `notebooks/object_centric_smoke_test_colab.ipynb` (not yet run on Colab).
+- Colab: sections 7–8 of `notebooks/object_centric_smoke_test_colab.ipynb` (verified 2026-11-06).
