@@ -23,6 +23,8 @@ REPO_URL = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.g
 CODE = "/content/robot-visual-imitation-maniskill"
 if not os.path.exists(CODE):
     subprocess.run(["git", "clone", "--depth", "1", REPO_URL, CODE], check=True)
+else:  # a copy from an earlier run in this session: update it to the latest commit
+    subprocess.run(["git", "-C", CODE, "pull", "--ff-only"], check=True)
 os.chdir(CODE)
 print(subprocess.run(["git", "log", "-1", "--oneline"], capture_output=True, text=True).stdout)"""
 
