@@ -1,0 +1,17 @@
+device mps | labelled pool 100 demos | action-free pool 900 demos, 70256 transitions | loaded in 14s
+N=  5 seed=0: xyz R2 x -1.556 y -0.109 z -0.049 | xyz MAE 0.0761 (zero-action 0.0589) | gripper acc 0.671 (majority 0.546) | 111s
+N=  5 seed=1: xyz R2 x -0.800 y -0.889 z 0.108 | xyz MAE 0.0751 (zero-action 0.0589) | gripper acc 0.711 (majority 0.546) | 110s
+N=  5 seed=2: xyz R2 x -1.231 y -0.396 z 0.217 | xyz MAE 0.0726 (zero-action 0.0589) | gripper acc 0.823 (majority 0.546) | 110s
+N= 10 seed=0: xyz R2 x -0.607 y -0.702 z -0.121 | xyz MAE 0.0765 (zero-action 0.0589) | gripper acc 0.789 (majority 0.546) | 112s
+N= 10 seed=1: xyz R2 x -0.642 y -0.006 z 0.295 | xyz MAE 0.0621 (zero-action 0.0589) | gripper acc 0.813 (majority 0.546) | 113s
+N= 10 seed=2: xyz R2 x -0.305 y -0.142 z 0.434 | xyz MAE 0.0593 (zero-action 0.0589) | gripper acc 0.831 (majority 0.546) | 113s
+N= 25 seed=0: xyz R2 x -0.061 y 0.235 z 0.704 | xyz MAE 0.0471 (zero-action 0.0589) | gripper acc 0.876 (majority 0.546) | 112s
+N= 25 seed=1: xyz R2 x -0.544 y 0.225 z 0.344 | xyz MAE 0.0622 (zero-action 0.0589) | gripper acc 0.866 (majority 0.546) | 112s
+N= 25 seed=2: xyz R2 x 0.089 y 0.441 z 0.827 | xyz MAE 0.0398 (zero-action 0.0589) | gripper acc 0.907 (majority 0.546) | 114s
+N= 50 seed=0: xyz R2 x 0.091 y 0.050 z 0.699 | xyz MAE 0.0478 (zero-action 0.0589) | gripper acc 0.899 (majority 0.546) | 130s
+N= 50 seed=1: xyz R2 x 0.136 y 0.304 z 0.679 | xyz MAE 0.0469 (zero-action 0.0589) | gripper acc 0.912 (majority 0.546) | 127s
+N= 50 seed=2: xyz R2 x 0.168 y 0.201 z 0.713 | xyz MAE 0.0458 (zero-action 0.0589) | gripper acc 0.914 (majority 0.546) | 128s
+N=100 seed=0: xyz R2 x 0.103 y 0.442 z 0.763 | xyz MAE 0.0418 (zero-action 0.0589) | gripper acc 0.945 (majority 0.546) | 129s
+N=100 seed=1: xyz R2 x 0.095 y 0.576 z 0.831 | xyz MAE 0.0390 (zero-action 0.0589) | gripper acc 0.947 (majority 0.546) | 128s
+N=100 seed=2: xyz R2 x 0.189 y 0.322 z 0.837 | xyz MAE 0.0400 (zero-action 0.0589) | gripper acc 0.953 (majority 0.546) | 113s
+wrote results/action_free/idm/metrics.csv, results/action_free/idm/summary.json; total 2026s

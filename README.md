@@ -2,7 +2,7 @@
 
 Does focusing a robot policy's vision on the relevant objects make imitation learning work with fewer demonstrations and hold up better when the scene looks different? This project tests that on ManiSkill 3's `PickCube-v1` task, using the official ACT (Action Chunking with Transformers) RGB baseline as the reference.
 
-> **Status: M0–M2 done; Phase A baseline complete for one seed.** See [experiments/status.md](experiments/status.md).
+> **Status: Phase A baseline and failure analysis done; Phase 3 (learning from action-free demos) step 1 done.** See [experiments/status.md](experiments/status.md).
 
 ## Plan
 
@@ -12,6 +12,7 @@ Does focusing a robot policy's vision on the relevant objects make imitation lea
 | B. Data efficiency | How does success change with 10, 25, 50 and 100 demos? |
 | C. Object-centric vision | Does an object-focused view (crop or mask around cube and gripper) help? |
 | D. Visual robustness | How much does success drop under camera, lighting and texture changes? |
+| 3. Action-free demos | When only N demos keep their actions, do IDM pseudo-labels or latent actions learned from the rest help? ([plan](experiments/phase3_action_free_plan.md), [literature](docs/literature_action_free_video.md)) |
 
 All experiments are in simulation. Nothing here claims transfer to a real robot.
 
@@ -46,6 +47,8 @@ Rerunning a command resumes from its last checkpoint. Full runs are meant for a 
 | ![success vs step](results/figures/fig2b_success_vs_step.png) | ![success](results/media/act_pickcube_rgb_baseline_100d_seed1/ep01_success.gif) ![failure](results/media/act_pickcube_rgb_baseline_100d_seed1/ep00_failure.gif) |
 
 **Why it fails** ([failure analysis](results/phase_a_failure_analysis/failure_analysis_report.md), 200 episodes per checkpoint, no retraining): the policy grasps the cube in 97% of episodes but brings it into the 2.5 cm goal tolerance in only 25%. In 68% it carries the cube to about 4 cm short of the goal (usually too low) and stops there. The bottleneck is goal-reaching precision, not grasping.
+
+**Learning from action-free demos, step 1** ([IDM label quality](results/action_free/idm/README.md), 1,000 demos, 15 runs): an inverse dynamics model trained on N labelled demos labels the other 900 demos' hidden actions. With 5–10 labelled demos its movement labels are worse than predicting no motion; from about 25 they become useful (vertical motion R² 0.63–0.81, gripper 88–95% correct), while motion along the camera's viewing axis stays hard to recover.
 
 Tables, figures and rollout GIFs are regenerated from the raw logs in `results/runs/` by `scripts/collect_results.py`, `scripts/plot_results.py` and `scripts/export_rollouts.py`; see [results/README.md](results/README.md).
 
