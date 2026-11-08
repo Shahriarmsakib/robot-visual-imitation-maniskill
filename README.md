@@ -1,72 +1,81 @@
-# Object-Centric Visual Imitation Learning in ManiSkill
+# Label-Efficient Visual Imitation for Robot Manipulation
 
-Does focusing a robot policy's vision on the relevant objects make imitation learning work with fewer demonstrations and hold up better when the scene looks different? This project tests that on ManiSkill 3's `PickCube-v1` task, using the official ACT (Action Chunking with Transformers) RGB baseline as the reference.
+**How much action supervision does a visual robot policy need, and what makes action-free demonstrations useful?**
 
-> **Status: Phase A baseline and failure analysis done; Phase 3 (learning from action-free demos) step 1 done.** See [experiments/status.md](experiments/status.md).
+Robot demonstrations with recorded actions are expensive; video of the same behaviour without actions is cheap. This project studies, in a fully controlled simulation, how a vision-based manipulation policy can learn from **a few action-labelled demonstrations plus many action-free ones**, and which intermediate structure makes the action-free part useful: **inverse dynamics** (pseudo-labelling the missing actions), **latent actions** learned from frame changes, or **object-centric geometry**.
 
-## Plan
+The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goal position) with the official ACT policy from RGB images. Simulation is the point, not a limitation: every frame comes with the true action, object poses and camera calibration, so the study can measure what real-video work cannot. That includes how accurate pseudo-labels are, what latent actions encode, and *why* a policy fails.
 
-| Phase | Question |
-|---|---|
-| A. Baseline | Reproduce ACT on PickCube-v1 from RGB images (100 demos, 30k iterations) |
-| B. Data efficiency | How does success change with 10, 25, 50 and 100 demos? |
-| C. Object-centric vision | Does an object-focused view (crop or mask around cube and gripper) help? |
-| D. Visual robustness | How much does success drop under camera, lighting and texture changes? |
-| 3. Action-free demos | When only N demos keep their actions, do IDM pseudo-labels or latent actions learned from the rest help? ([plan](experiments/phase3_action_free_plan.md), [literature](docs/literature_action_free_video.md)) |
+> **Status (2026-11-08).** Baseline and failure analysis done. Object-centric dataset pipeline done. Action-free study: pseudo-label quality done; first policy comparison running. Simulation only; nothing here claims real-robot transfer. Progress log: [experiments/status.md](experiments/status.md).
 
-All experiments are in simulation. Nothing here claims transfer to a real robot.
+## Research thread
 
-## Setup (macOS, Apple Silicon)
+| | Question | Status | Main result so far |
+|---|---|---|---|
+| **1. Baseline and diagnosis** | How good is the standard ACT RGB policy, and why does it fail? | Done | 18/100 success (published reference 28/100, best checkpoint). It grasps 97% of the time but places the cube in only 25% of episodes. The bottleneck is goal precision, not grasping |
+| **2. Object-centric data** | Can we extract synchronized RGB-D, ground-truth object/gripper geometry and camera calibration in ACT's action space? | Done | Validated on Mac and Linux; replay matches the recorded demos to 0.00 mm on Linux |
+| **3. Learning from action-free demos** | With only N labelled demos, does an IDM or a latent action model trained on the rest improve the policy? | In progress | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25; policy comparison at N = 25 running |
+| **4. Object-centric latent actions** *(next)* | Do actions expressed relative to the cube and goal fix the precision bottleneck and make action-free learning robust? | Planned | — |
+| **5. Visual robustness** *(next)* | Which representation degrades least under camera, lighting and distractor shifts? | Planned | — |
+
+## Key results
+
+### 1. Baseline: grasping is solved, goal precision is not
+
+ACT trained on 100 demos (30k steps, Kaggle T4) succeeds in **18/100** held-out trials (95% CI 12–27%). That is consistent with the ManiSkill 3 paper's 28/100, which is the best checkpoint during training ([details](docs/phase_a_baseline.md)). A failure analysis over 200 episodes per checkpoint reads the simulator state at every step. It shows the policy **grasps the cube in 97%** of episodes but brings it into the 2.5 cm goal tolerance in only **25%**. In 68% of episodes it carries the cube to about 4 cm short of the goal, usually too low, and stops ([report](results/phase_a_failure_analysis/failure_analysis_report.md)).
+
+| Where episodes drop out | Success during training | Rollouts |
+|---|---|---|
+| ![pipeline](results/phase_a_failure_analysis/figures/success_breakdown.png) | ![success vs step](results/figures/fig2b_success_vs_step.png) | ![success](results/media/act_pickcube_rgb_baseline_100d_seed1/ep01_success.gif) ![failure](results/media/act_pickcube_rgb_baseline_100d_seed1/ep00_failure.gif) |
+
+### 2. How well can a few labelled demos label the rest?
+
+An inverse dynamics model (IDM) trained on N labelled demos predicts the hidden actions of 900 action-free demos (15 runs: 5 budgets × 3 seeds). With **5–10 labelled demos its movement labels are worse than predicting no motion**. From about **25** they become useful: vertical motion R² 0.63–0.81, gripper 88–95% correct. Motion along the camera's viewing axis stays hard to recover ([details](results/action_free/idm/README.md)).
+
+![IDM label quality](results/action_free/idm/idm_label_quality.png)
+
+### 3. Does pseudo-labelling help the policy? *(running)*
+
+At N = 25, ACT is trained on the 25 labelled demos alone (arm A), and on the same 25 plus 900 IDM-pseudo-labelled demos (arm B). Both use the same settings, seed and evaluation scenes. Results are added here when the run completes.
+
+## Why this direction
+
+- **Grounded in current work.** Latent action models (LAPO, ICLR 2024; LAPA, ICLR 2025; CLAM, 2025; LAOM, ICML 2025) and IDM pseudo-labelling (VPT, 2022; Morin et al., ICML 2026) are an active route to learning from video. Recent studies disagree on when each works ([literature review](docs/literature_action_free_video.md)).
+- **An open gap.** No published study compares behaviour cloning, IDM pseudo-labelling and latent action models across action-label budgets on ManiSkill. Existing comparisons rarely measure label or latent quality against ground-truth actions.
+- **A testable hypothesis from our own data.** Failures are about precise goal reaching, and the goal is not visible in the image. That suggests action-free learning should represent motion *relative to objects and goal*, which connects the object-centric data (thread 2) to the action-free study (thread 3).
+
+Planned paper-level study: success vs number of labelled demos (5–100) for BC, IDM pseudo-labelling and a continuous latent action model with a jointly trained decoder, with ≥ 3 seeds. It adds label and latent quality measured against ground truth, failure-mode breakdowns, and an object-centric variant ([plan and compute budget](experiments/phase3_action_free_plan.md)).
+
+## Reproduce
 
 ```bash
-scripts/setup_macos.sh            # Python 3.11 venv + pinned packages + local MoltenVK
-source scripts/env_macos.sh       # every new terminal
-scripts/prepare_data.sh 100       # download official demos, convert 100 to RGB
-python scripts/check_env.py --render-test
+scripts/setup_macos.sh && source scripts/env_macos.sh      # macOS (Apple Silicon); Linux GPU: scripts/setup_linux_gpu.sh
+scripts/prepare_data.sh 100                                  # official demos -> RGB, pd_ee_delta_pos
+python -m pytest -q --run-slow                               # tests, incl. exact-resume and alignment checks
+python scripts/train.py --config configs/baseline_act_rgb_100d.json --seed 1   # thread 1 baseline (GPU)
+python scripts/failure_analysis.py <checkpoint> --label step30000 --videos      # failure analysis
+python scripts/build_objectcentric_ee_delta.py                                  # thread 2 dataset
+python scripts/idm_sweep.py --offsets 0 1 2                                     # thread 3 IDM label quality
+OUT=results/phase3_run bash scripts/run_phase3_pair.sh                          # thread 3 policy pair (2 GPUs)
 ```
 
-On macOS the simulator runs on CPU only and training uses Apple's GPU (MPS). Setup details and known macOS issues are in [docs/m0_audit.md](docs/m0_audit.md).
+Full runs are meant for a CUDA GPU. Training resumes exactly from checkpoints, and evaluation scenes are fully reproducible (`enhanced_determinism`). Kaggle runners: [notebooks/kaggle_train.ipynb](notebooks/kaggle_train.ipynb), [kaggle/phase3_pair_kernel.py](kaggle/phase3_pair_kernel.py).
 
-## Training
-
-```bash
-python -m pytest -q --run-slow                                   # tests, incl. exact-resume check
-python scripts/train.py --config configs/smoke_mac.json          # 30-second end-to-end smoke run
-python scripts/train.py --config configs/baseline_act_rgb_100d.json --seed 1 \
-  --exp-name act_pickcube_rgb_baseline_100d_seed1                # Phase A baseline
-```
-
-Rerunning a command resumes from its last checkpoint. Full runs are meant for a CUDA GPU: [notebooks/kaggle_train.ipynb](notebooks/kaggle_train.ipynb) runs the same scripts on Kaggle and resumes across 12-hour sessions. What changed relative to the official ACT trainer, and how it was verified, is in [docs/m1_training.md](docs/m1_training.md).
-
-## Results
-
-**Phase A baseline (100 demos, seed 1, 30k steps, Kaggle T4):** the final policy succeeds in **18/100** trials (95% CI 12–27%) and reaches the goal at some point in 29/100. A Mac CPU-simulator re-evaluation gives 16/100. One seed only; details and limits in [docs/phase_a_baseline.md](docs/phase_a_baseline.md).
-
-| Success during training | Example rollouts (success and failure) |
-|---|---|
-| ![success vs step](results/figures/fig2b_success_vs_step.png) | ![success](results/media/act_pickcube_rgb_baseline_100d_seed1/ep01_success.gif) ![failure](results/media/act_pickcube_rgb_baseline_100d_seed1/ep00_failure.gif) |
-
-**Why it fails** ([failure analysis](results/phase_a_failure_analysis/failure_analysis_report.md), 200 episodes per checkpoint, no retraining): the policy grasps the cube in 97% of episodes but brings it into the 2.5 cm goal tolerance in only 25%. In 68% it carries the cube to about 4 cm short of the goal (usually too low) and stops there. The bottleneck is goal-reaching precision, not grasping.
-
-**Learning from action-free demos, step 1** ([IDM label quality](results/action_free/idm/README.md), 1,000 demos, 15 runs): an inverse dynamics model trained on N labelled demos labels the other 900 demos' hidden actions. With 5–10 labelled demos its movement labels are worse than predicting no motion; from about 25 they become useful (vertical motion R² 0.63–0.81, gripper 88–95% correct), while motion along the camera's viewing axis stays hard to recover.
-
-Tables, figures and rollout GIFs are regenerated from the raw logs in `results/runs/` by `scripts/collect_results.py`, `scripts/plot_results.py` and `scripts/export_rollouts.py`; see [results/README.md](results/README.md).
-
-## Layout
+## Repository layout
 
 ```
-configs/      experiment configs
-scripts/      setup, data, train, evaluate, plot
-src/          data loading, models, evaluation, visualization
-tests/        dataset, model, metric and smoke tests
-results/      small metrics files, figures, short media
-docs/         methodology, audit, limitations
-experiments/  run manifests and status tracker
-third_party/  unmodified upstream ACT baseline (Apache-2.0)
+src/            data, models (ACT), training, evaluation & diagnostics, action-free (IDM), visualization
+scripts/        setup, data conversion, training, evaluation, failure analysis, sweeps, plotting
+configs/        experiment configs
+tests/          unit and end-to-end tests (resume, alignment, dataset integrity)
+results/        metrics, figures and short media regenerated from logged runs
+docs/           methodology, baseline report, literature review
+experiments/    plans and status tracker
+third_party/    unmodified ManiSkill ACT baseline (Apache-2.0)
 ```
 
-Large files (demo `.h5` files, checkpoints) are never committed.
+Large files (demonstrations, checkpoints) are never committed; every dataset has a regeneration command.
 
 ## Acknowledgements
 
-Built on [ManiSkill](https://github.com/haosulab/ManiSkill) (tag `v3.0.1`) and its ACT baseline (Apache-2.0, vendored in `third_party/maniskill_act/`). ACT is from Zhao et al., "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware", RSS 2023.
+Built on [ManiSkill 3](https://github.com/haosulab/ManiSkill) (tag `v3.0.1`) and its ACT baseline (Apache-2.0, vendored in `third_party/maniskill_act/`). ACT: Zhao et al., "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware", RSS 2023.

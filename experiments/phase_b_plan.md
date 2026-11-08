@@ -1,5 +1,7 @@
 # Phase B plan: data efficiency (agreed 2026-11-05, not started)
 
+> **Superseded (2026-11-08).** The data-efficiency question is now the labelled-only arm (A) of the label-budget study in [phase3_action_free_plan.md](phase3_action_free_plan.md), which uses the same seeded labelled subsets for every method. This plan is kept for its protocol details and compute notes.
+
 **Question:** how does final success change with 10, 25, 50 and 100 expert demonstrations, across 3 seeds?
 
 ## Protocol
