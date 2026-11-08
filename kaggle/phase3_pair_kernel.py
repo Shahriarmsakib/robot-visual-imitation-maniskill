@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
-SETTINGS = {"N": "25", "SEED": "0"}  # full run; a smoke test adds smaller sizes (see run_phase3_pair.sh)
+SETTINGS = {"N": "25", "SEED": "0", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "5.0"}  # ~4.5 h on T4 x2
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)
