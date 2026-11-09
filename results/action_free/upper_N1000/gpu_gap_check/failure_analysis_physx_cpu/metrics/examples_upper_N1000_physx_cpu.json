@@ -1,0 +1,16 @@
+{
+  "successful_rollout": {
+    "episode": 0,
+    "category": "success",
+    "rule": "lowest episode ID matching the category rule",
+    "file": "videos/successful_rollout.mp4"
+  },
+  "failed_grasp": null,
+  "dropped_cube": null,
+  "lost_success": {
+    "episode": 90,
+    "category": "reached_target_lost_success",
+    "rule": "lowest episode ID matching the category rule",
+    "file": "videos/lost_success.mp4"
+  }
+}

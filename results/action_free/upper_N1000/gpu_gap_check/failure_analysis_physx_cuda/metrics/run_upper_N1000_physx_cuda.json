@@ -1,0 +1,42 @@
+{
+  "label": "upper_N1000_physx_cuda",
+  "checkpoint": "/kaggle/input/notebooks/shahriarmsakib/phase3-upper-n1000/runs/phase3_upper_N1000_seed0/checkpoints/final.pt",
+  "checkpoint_step": 12000,
+  "checkpoint_sha256": "12e8425ae9cbafd21832d423a824482f58cc38434133ae47afa18803ef28eec5",
+  "run": "phase3_upper_N1000_seed0",
+  "env_id": "PickCube-v1",
+  "control_mode": "pd_ee_delta_pos",
+  "obs": "rgb (+ standard 29-d state)",
+  "max_episode_steps": 100,
+  "num_queries": 30,
+  "temporal_agg": true,
+  "sim_backend": "physx_cuda",
+  "device": "cuda",
+  "scene_seed": 10000,
+  "num_envs": 10,
+  "episode_id_rule": "episode = batch * num_envs + env_index; env i of the first batch is seeded scene_seed + i",
+  "thresholds": {
+    "approach_dist": 0.03,
+    "lift_height": 0.01,
+    "rest_height": 0.02,
+    "stable_lift_steps": 5,
+    "release_steps": 3
+  },
+  "diag_keys": [
+    "obj_x",
+    "obj_y",
+    "obj_z",
+    "goal_x",
+    "goal_y",
+    "goal_z",
+    "tcp_to_obj",
+    "obj_to_goal",
+    "gripper_width"
+  ],
+  "checks": {
+    "n_episodes": 100,
+    "final_success_matches_env_metric": true,
+    "success_once_matches_env_metric": true
+  },
+  "seconds": 99.2
+}

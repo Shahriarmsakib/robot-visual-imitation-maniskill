@@ -1,6 +1,6 @@
 # Phase 3, step 3: upper bound, ACT on all 1,000 true-labelled demos
 
-**Short answer: the 12k-step schedule is enough. The 0/100 at N = 25 comes from too few labels, not too few training steps.** With all 1,000 demos labelled and the same settings, the policy succeeds in **43/100** trials in the training-time evaluation (Kaggle, GPU simulator). It succeeds in **95/100** on the CPU simulator, which is the simulator the demos were recorded in. The two simulators disagree by a large margin for this checkpoint (see "Simulator gap" below). One seed.
+**Short answer: the 12k-step schedule is enough. The 0/100 at N = 25 comes from too few labels, not too few training steps.** With all 1,000 demos labelled and the same settings, the policy succeeds in **95/100** trials on the CPU simulator, the one the demos were recorded in, and in **43/100** in the training-time evaluation on the GPU simulator. A follow-up check traced the gap to the simulators themselves: on GPU the held cube drifts just outside the 2.5 cm goal tolerance, and even the expert demos' recorded actions fail 12% of the time (see "Simulator gap" below). One seed.
 
 ## Setup (Kaggle T4, 2026-11-09, code `05aace1`)
 
@@ -42,16 +42,27 @@ A second set of 100 CPU scenes (scene seed 20000, [folder](failure_analysis_scen
 
 ![upper vs A vs B](compare_N25_arms/figures/success_breakdown.png)
 
-## Simulator gap: 43/100 on GPU vs 90–95/100 on CPU
+## Simulator gap: 43/100 on GPU vs 90–96/100 on CPU (diagnosed)
 
-For the 100-demo baseline the two simulators agreed (18/100 GPU, 16/100 CPU; `docs/phase_a_baseline.md`). For this checkpoint they do not. What is known:
+For the 100-demo baseline the two simulators agreed (18/100 GPU, 16/100 CPU; `docs/phase_a_baseline.md`). For this checkpoint they do not. A follow-up Kaggle run (kernel `phase3-gpu-gap-check`, code `6690667`, 2026-11-09, ~10 min on one T4, no training; [files](gpu_gap_check/)) ran the stage breakdown on both simulators with the same weights (sha256 `12e8425a…`) and replayed the recorded demos on both.
 
-- The same weights are evaluated in both cases (the EMA policy stored in `final.pt`, sha256 `12e8425a…`).
-- Scenes differ between the backends, but two independent CPU scene sets (95 and 90) are both far above the GPU number (43), so scene sampling does not explain it.
-- On GPU the policy reaches the goal in 87/100 episodes but is successful at the last step in only 43. On CPU it reaches 97 and holds 95. Most of the gap is therefore about **holding the success state until the end of the episode**, not about reaching the goal. PickCube's success requires the cube within 2.5 cm of the goal **and** the robot to be nearly still.
-- All demos were replayed on `physx_cpu`. A policy that imitates CPU-simulator trajectories closely may not stay still at the goal under GPU physics. This is a hypothesis; it has not been tested yet, because the failure analysis only runs on the CPU simulator (macOS).
+| Check | `physx_cuda` (GPU) | `physx_cpu` (CPU) |
+|---|---|---|
+| Policy, success at end (100 episodes, scene seed 10000, 10 parallel envs) | **43** (reproduces the training-time evaluation exactly) | **96** on Linux; 95 on the Mac (same scenes, 99/100 episodes agree) |
+| Reached the goal at some point | 89 | 97 |
+| Robot still (static) at the last step | 100 | 100 |
+| Reached the goal, not successful at the end | 46, **all still holding the cube outside the goal** | 1 |
+| Median final cube-to-goal distance | 2.5 cm (lost episodes: 3.0 cm, range 2.5–4.4) | 1.0 cm |
+| Expert demos, recorded actions replayed open-loop (first 100) | **88/100** succeed | 100/100 succeed |
 
-Until this is resolved, results should be compared **within one backend**. Arms A, B and the upper bound are all compared on the same CPU scenes above; on GPU the comparison is 0 vs 0 vs 43.
+What this shows:
+
+- **Not the platform:** Linux CPU and Mac CPU give the same result on the same scenes.
+- **Not robot motion:** the earlier guess (the arm does not settle) was wrong. On GPU the robot is still at the end in every episode.
+- **The cube drifts out of the goal while held.** On GPU, 46 episodes bring the cube within 2.5 cm (closest: median 1.4 cm horizontally) and then slowly drift back out, mostly horizontally, ending just outside the tolerance (median 3.0 cm). See [distance over time](gpu_gap_check/failure_analysis_physx_cuda/figures/distance_over_time.png) and the [example video](gpu_gap_check/failure_analysis_physx_cuda/videos/lost_success.mp4).
+- **The two simulators respond differently to the same actions.** Even the expert's own recorded actions fail in 12 of 100 demos on GPU, with no learned policy involved. The demos were recorded and converted on `physx_cpu`, so the policy learned CPU-simulator dynamics; on GPU, the same commands place the cube a little off. The task's 2.5 cm tolerance turns that small offset into a large success gap. A plausible reason the 100-demo baseline showed no gap: it mostly failed earlier (short of the goal), before this end-of-episode precision mattered.
+
+Consequences for this project: the CPU simulator matches the training data, so CPU results are the in-distribution measure. GPU training-time numbers stay useful for comparing checkpoints and arms with each other, but not as absolute success rates. Arms are always compared within one simulator. GPU and CPU scenes differ (different random streams), so the GPU-vs-CPU rows above are not paired.
 
 ## Interpretation
 
@@ -63,7 +74,7 @@ Until this is resolved, results should be compared **within one backend**. Arms 
 ## Limits
 
 - One seed. The upper bound is far from both N = 25 arms on every stage, so the direction is clear, but the exact rates are not.
-- Large backend disagreement for this checkpoint, cause not yet established (above).
+- Large backend disagreement for this checkpoint. Its mechanism is identified (above), but no run has trained on GPU-recorded demos to confirm that this closes the gap.
 - The stage breakdown is from the CPU simulator only.
 
 ## Files
@@ -71,5 +82,6 @@ Until this is resolved, results should be compared **within one backend**. Arms 
 - `runs/phase3_upper_N1000_seed0/`: config, sessions (environment, git commit, dataset hash), metrics (loss and evaluations), per-trial evaluation arrays, `DONE`; `runs/train_upper.log`: training log; `runs/results_table.md`: auto-generated summary.
 - `failure_analysis/`: CPU stage breakdown, scene seed 10000 (same scenes as arms A and B).
 - `failure_analysis_scenes20000/`: the same on 100 other CPU scenes.
+- `gpu_gap_check/`: GPU and Linux-CPU stage breakdowns with example videos, and demo-replay results on both simulators.
 - `compare_N25_arms/`: combined summary and figures for upper vs A vs B; arm A and B episode files are in `../policy_N25/failure_analysis/metrics/`.
 - The checkpoint (`final.pt`, 64 MB) is not committed; it is in the Kaggle kernel output `shahriarmsakib/phase3-upper-n1000`.

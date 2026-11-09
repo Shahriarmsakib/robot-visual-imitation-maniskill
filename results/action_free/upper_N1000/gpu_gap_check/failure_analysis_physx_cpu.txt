@@ -1,0 +1,7 @@
+upper_N1000_physx_cpu (phase3_upper_N1000_seed0 @ step 12000, physx_cpu, seed 10000): 100 episodes in 99s
+  final success 96/100, success once 97/100, reached target 97/100, ever grasped 100/100, stable lift 96/100
+    96  Success at end
+     2  Grasped, lost grasp before reaching target
+     1  Grasped and held, never reached target
+     1  Reached target, success not held at end
+  checks: {'n_episodes': 100, 'final_success_matches_env_metric': True, 'success_once_matches_env_metric': True}

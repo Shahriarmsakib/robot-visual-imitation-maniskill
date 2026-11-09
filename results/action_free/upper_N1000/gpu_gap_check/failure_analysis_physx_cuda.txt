@@ -1,0 +1,7 @@
+upper_N1000_physx_cuda (phase3_upper_N1000_seed0 @ step 12000, physx_cuda, seed 10000): 100 episodes in 99s
+  final success 43/100, success once 87/100, reached target 89/100, ever grasped 100/100, stable lift 91/100
+    46  Reached target, success not held at end
+    43  Success at end
+     6  Grasped and held, never reached target
+     5  Grasped, lost grasp before reaching target
+  checks: {'n_episodes': 100, 'final_success_matches_env_metric': True, 'success_once_matches_env_metric': True}
