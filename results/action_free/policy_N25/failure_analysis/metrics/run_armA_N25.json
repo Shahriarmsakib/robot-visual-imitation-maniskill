@@ -1,0 +1,42 @@
+{
+  "label": "armA_N25",
+  "checkpoint": "runs/kaggle_phase3/runs/phase3_A_N25_seed0/checkpoints/final.pt",
+  "checkpoint_step": 12000,
+  "checkpoint_sha256": "a525651b22c140baffde5fd3753c692f36523b23b2ce31d980c56eef3a72025f",
+  "run": "phase3_A_N25_seed0",
+  "env_id": "PickCube-v1",
+  "control_mode": "pd_ee_delta_pos",
+  "obs": "rgb (+ standard 29-d state)",
+  "max_episode_steps": 100,
+  "num_queries": 30,
+  "temporal_agg": true,
+  "sim_backend": "physx_cpu",
+  "device": "mps",
+  "scene_seed": 10000,
+  "num_envs": 10,
+  "episode_id_rule": "episode = batch * num_envs + env_index; env i of the first batch is seeded scene_seed + i",
+  "thresholds": {
+    "approach_dist": 0.03,
+    "lift_height": 0.01,
+    "rest_height": 0.02,
+    "stable_lift_steps": 5,
+    "release_steps": 3
+  },
+  "diag_keys": [
+    "obj_x",
+    "obj_y",
+    "obj_z",
+    "goal_x",
+    "goal_y",
+    "goal_z",
+    "tcp_to_obj",
+    "obj_to_goal",
+    "gripper_width"
+  ],
+  "checks": {
+    "n_episodes": 100,
+    "final_success_matches_env_metric": true,
+    "success_once_matches_env_metric": true
+  },
+  "seconds": 40.6
+}

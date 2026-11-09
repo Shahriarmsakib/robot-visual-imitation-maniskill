@@ -9,6 +9,7 @@ Only runs with real logs appear as complete. Every result row needs a run ID, se
 | M2 logging, plotting, rollout export | Done (2026-11-03); figures are "pending" templates until a run completes | `results/README.md`, `pytest --run-slow` (19 passed) |
 | Phase A failure analysis | Done (2026-11-06) | `results/phase_a_failure_analysis/failure_analysis_report.md`: 97% grasp, 25% reach target, 16% final (200 eps, `physx_cpu`); step 20k beats 30k on paired scenes (45 vs 32, p = 0.002) |
 | Phase 3 step 1: IDM pseudo-label quality (action-free demos) | Done (2026-11-08) | `results/action_free/idm/README.md`: labels worse than none at N ≤ 10, useful from N ≈ 25 (z R² 0.63–0.81, gripper 88–95%); plan in `experiments/phase3_action_free_plan.md` |
+| Phase 3 step 2: policy at N = 25, labelled-only (A) vs + IDM pseudo-labels (B) | Done (2026-11-08, Kaggle, 1 seed) | `results/action_free/policy_N25/README.md`: both 0/100; stage breakdown A grasp 74 vs B 14 of 100 (paired p < 1e-12) |
 | M3 experiments | Not started | |
 | M4 publication | Not started | |
 

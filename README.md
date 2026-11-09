@@ -6,7 +6,7 @@ Robot demonstrations with recorded actions are expensive; video of the same beha
 
 The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goal position) with the official ACT policy from RGB images. Simulation is the point, not a limitation: every frame comes with the true action, object poses and camera calibration, so the study can measure what real-video work cannot. That includes how accurate pseudo-labels are, what latent actions encode, and *why* a policy fails.
 
-> **Status (2026-11-08).** Baseline and failure analysis done. Object-centric dataset pipeline done. Action-free study: pseudo-label quality done; first policy comparison running. Simulation only; nothing here claims real-robot transfer. Progress log: [experiments/status.md](experiments/status.md).
+> **Status (2026-11-08).** Baseline and failure analysis done. Object-centric dataset pipeline done. Action-free study: pseudo-label quality and the first policy comparison (N = 25) done. Simulation only; nothing here claims real-robot transfer. Progress log: [experiments/status.md](experiments/status.md).
 
 ## Research thread
 
@@ -14,7 +14,7 @@ The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goa
 |---|---|---|---|
 | **1. Baseline and diagnosis** | How good is the standard ACT RGB policy, and why does it fail? | Done | 18/100 success (published reference 28/100, best checkpoint). It grasps 97% of the time but places the cube in only 25% of episodes. The bottleneck is goal precision, not grasping |
 | **2. Object-centric data** | Can we extract synchronized RGB-D, ground-truth object/gripper geometry and camera calibration in ACT's action space? | Done | Validated on Mac and Linux; replay matches the recorded demos to 0.00 mm on Linux |
-| **3. Learning from action-free demos** | With only N labelled demos, does an IDM or a latent action model trained on the rest improve the policy? | In progress | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25; policy comparison at N = 25 running |
+| **3. Learning from action-free demos** | With only N labelled demos, does an IDM or a latent action model trained on the rest improve the policy? | In progress | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25; at N = 25 pseudo-labels hurt the policy (grasp 74% → 14%) |
 | **4. Object-centric latent actions** *(next)* | Do actions expressed relative to the cube and goal fix the precision bottleneck and make action-free learning robust? | Planned | — |
 | **5. Visual robustness** *(next)* | Which representation degrades least under camera, lighting and distractor shifts? | Planned | — |
 
@@ -34,9 +34,11 @@ An inverse dynamics model (IDM) trained on N labelled demos predicts the hidden 
 
 ![IDM label quality](results/action_free/idm/idm_label_quality.png)
 
-### 3. Does pseudo-labelling help the policy? *(running)*
+### 3. Does pseudo-labelling help the policy? Not at N = 25: noisy labels hurt
 
-At N = 25, ACT is trained on the 25 labelled demos alone (arm A), and on the same 25 plus 900 IDM-pseudo-labelled demos (arm B). Both use the same settings, seed and evaluation scenes. Results are added here when the run completes.
+At N = 25, ACT was trained on the 25 labelled demos alone (arm A) and on the same 25 plus 900 IDM-pseudo-labelled demos (arm B). Both used the same settings, seed and evaluation scenes; 12k steps each on Kaggle. Neither completes the task (0/100). The stage breakdown on 100 identical scenes separates them sharply: arm A **grasps the cube in 74%** of episodes, while arm B grasps in **14%** and mostly never reaches the cube (paired exact test p < 1e-12). At this budget the IDM's horizontal labels are worse than guessing, and training on them on 97% of the data pulled the policy off the cube. One seed; it shows label quality has to clear a threshold before pseudo-labelling helps ([details](results/action_free/policy_N25/README.md)).
+
+![A vs B stages](results/action_free/policy_N25/failure_analysis/figures/success_breakdown.png)
 
 ## Why this direction
 
