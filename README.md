@@ -14,7 +14,7 @@ The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goa
 |---|---|---|---|
 | **1. Baseline and diagnosis** | How good is the standard ACT RGB policy, and why does it fail? | Done | 18/100 success (published reference 28/100, best checkpoint). It grasps 97% of the time but places the cube in only 25% of episodes. The bottleneck is goal precision, not grasping |
 | **2. Object-centric data** | Can we extract synchronized RGB-D, ground-truth object/gripper geometry and camera calibration in ACT's action space? | Done | Validated on Mac and Linux; replay matches the recorded demos to 0.00 mm on Linux |
-| **3. Learning from action-free demos** | With only N labelled demos, does an IDM or a latent action model trained on the rest improve the policy? | In progress | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25; at N = 25 pseudo-labels hurt the policy (grasp 74% → 14%) |
+| **3. Learning from action-free demos** | With only N labelled demos, does an IDM or a latent action model trained on the rest improve the policy? | In progress | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25; at N = 25 pseudo-labels hurt the policy (grasp 74% → 14%). With all 1,000 labels the same schedule reaches 43/100 (GPU) and 95/100 (CPU), so N = 25 is label-limited |
 | **4. Object-centric latent actions** *(next)* | Do actions expressed relative to the cube and goal fix the precision bottleneck and make action-free learning robust? | Planned | — |
 | **5. Visual robustness** *(next)* | Which representation degrades least under camera, lighting and distractor shifts? | Planned | — |
 
@@ -34,11 +34,15 @@ An inverse dynamics model (IDM) trained on N labelled demos predicts the hidden 
 
 ![IDM label quality](results/action_free/idm/idm_label_quality.png)
 
-### 3. Does pseudo-labelling help the policy? Not at N = 25: noisy labels hurt
+### 3. Does pseudo-labelling help the policy? Not at N = 25: noisy labels hurt, and 25 labels are far below the 1,000-label upper bound
 
 At N = 25, ACT was trained on the 25 labelled demos alone (arm A) and on the same 25 plus 900 IDM-pseudo-labelled demos (arm B). Both used the same settings, seed and evaluation scenes; 12k steps each on Kaggle. Neither completes the task (0/100). The stage breakdown on 100 identical scenes separates them sharply: arm A **grasps the cube in 74%** of episodes, while arm B grasps in **14%** and mostly never reaches the cube (paired exact test p < 1e-12). At this budget the IDM's horizontal labels are worse than guessing, and training on them on 97% of the data pulled the policy off the cube. One seed; it shows label quality has to clear a threshold before pseudo-labelling helps ([details](results/action_free/policy_N25/README.md)).
 
 ![A vs B stages](results/action_free/policy_N25/failure_analysis/figures/success_breakdown.png)
+
+**Upper bound: the same schedule with all 1,000 demos labelled.** Same settings, seed and scenes. It succeeds in **43/100** training-time trials on the GPU simulator (95% CI 34–53%) and in **95/100** on the same 100 CPU scenes used for arms A and B (90/100 on another 100 CPU scenes). On those paired scenes it reaches the goal in 97 episodes versus 1 for arm A and 0 for arm B. So 12k steps is enough, and the N = 25 result is limited by labels, not by training length. One seed. The two simulators disagree strongly for this checkpoint; most GPU episodes reach the goal (87/100) but do not stay successful until the end. Our working hypothesis is a mismatch with the CPU-recorded demos, not yet tested ([details](results/action_free/upper_N1000/README.md)).
+
+![upper vs A vs B](results/action_free/upper_N1000/compare_N25_arms/figures/success_breakdown.png)
 
 ## Why this direction
 

@@ -26,6 +26,7 @@ def _grouped_bars(ax, groups, series, value_fn, horizontal=False):
         vals = np.array([0.0 if z else 100 * e["rate"] for e, z in zip(entries, empty)])
         lo = np.where(empty, 0, vals - np.array([0.0 if z else 100 * e["ci95"][0] for e, z in zip(entries, empty)]))
         hi = np.where(empty, 0, np.array([0.0 if z else 100 * e["ci95"][1] for e, z in zip(entries, empty)]) - vals)
+        lo, hi = np.clip(lo, 0, None), np.clip(hi, 0, None)  # a 0% or 100% rate can round to a tiny negative error
         off = pos + (j - (k - 1) / 2) * width
         if horizontal:
             ax.barh(off, vals, height=width * 0.92, color=_color(name), label=name, xerr=[lo, hi],

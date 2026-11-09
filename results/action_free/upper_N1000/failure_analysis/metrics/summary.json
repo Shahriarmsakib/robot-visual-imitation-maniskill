@@ -1,0 +1,397 @@
+{
+  "description": "Phase A failure analysis of the ACT RGB baseline on PickCube-v1 (simulation only).",
+  "checkpoints": {
+    "upper_N1000": {
+      "checkpoint_step": 12000,
+      "checkpoint_sha256": "12e8425ae9cbafd21832d423a824482f58cc38434133ae47afa18803ef28eec5",
+      "run": "phase3_upper_N1000_seed0",
+      "sim_backend": "physx_cpu",
+      "scene_seed": 10000,
+      "num_envs": 10,
+      "episode_id_rule": "episode = batch * num_envs + env_index; env i of the first batch is seeded scene_seed + i",
+      "checks": {
+        "n_episodes": 100,
+        "final_success_matches_env_metric": true,
+        "success_once_matches_env_metric": true
+      }
+    }
+  },
+  "same_scenes_across_checkpoints": true,
+  "thresholds": {
+    "approach_dist": 0.03,
+    "lift_height": 0.01,
+    "rest_height": 0.02,
+    "stable_lift_steps": 5,
+    "release_steps": 3
+  },
+  "category_definitions": {
+    "success": "Success at end",
+    "reached_target_lost_success": "Reached target, success not held at end",
+    "grasp_lost_before_target": "Grasped, lost grasp before reaching target",
+    "grasped_not_delivered": "Grasped and held, never reached target",
+    "approached_no_grasp": "Reached cube, never grasped",
+    "no_approach": "Never reached the cube",
+    "other": "Other / ambiguous"
+  },
+  "results": {
+    "upper_N1000": {
+      "n_episodes": 100,
+      "stages": {
+        "approached": {
+          "label": "Reached cube",
+          "definition": "TCP came within 3 cm of the cube centre at some step",
+          "count": 100,
+          "n": 100,
+          "rate": 1.0,
+          "ci95": [
+            0.9630051925239981,
+            0.9999999999999999
+          ]
+        },
+        "ever_grasped": {
+          "label": "Grasped",
+          "definition": "ManiSkill is_grasped was true at some step",
+          "count": 100,
+          "n": 100,
+          "rate": 1.0,
+          "ci95": [
+            0.9630051925239981,
+            0.9999999999999999
+          ]
+        },
+        "stable_lift": {
+          "label": "Stable lift",
+          "definition": "grasped and cube >= 1 cm above rest for >= 5 consecutive steps",
+          "count": 96,
+          "n": 100,
+          "rate": 0.96,
+          "ci95": [
+            0.9016278276739262,
+            0.984336949448152
+          ]
+        },
+        "reached_target": {
+          "label": "Reached target",
+          "definition": "cube within 2.5 cm of the goal (is_obj_placed) at some step",
+          "count": 97,
+          "n": 100,
+          "rate": 0.97,
+          "ci95": [
+            0.915479219195973,
+            0.9897456617765851
+          ]
+        },
+        "success_once": {
+          "label": "Success once",
+          "definition": "success (in target AND arm static) at some step",
+          "count": 97,
+          "n": 100,
+          "rate": 0.97,
+          "ci95": [
+            0.915479219195973,
+            0.9897456617765851
+          ]
+        },
+        "final_success": {
+          "label": "Success at end",
+          "definition": "success at the last step (step 100)",
+          "count": 95,
+          "n": 100,
+          "rate": 0.95,
+          "ci95": [
+            0.8882480347279118,
+            0.9784566385436864
+          ]
+        }
+      },
+      "categories": {
+        "success": {
+          "label": "Success at end",
+          "count": 95,
+          "n": 100,
+          "rate": 0.95,
+          "ci95": [
+            0.8882480347279118,
+            0.9784566385436864
+          ]
+        },
+        "reached_target_lost_success": {
+          "label": "Reached target, success not held at end",
+          "count": 2,
+          "n": 100,
+          "rate": 0.02,
+          "ci95": [
+            0.005501852234968185,
+            0.07001316294199365
+          ]
+        },
+        "grasp_lost_before_target": {
+          "label": "Grasped, lost grasp before reaching target",
+          "count": 2,
+          "n": 100,
+          "rate": 0.02,
+          "ci95": [
+            0.005501852234968185,
+            0.07001316294199365
+          ]
+        },
+        "grasped_not_delivered": {
+          "label": "Grasped and held, never reached target",
+          "count": 1,
+          "n": 100,
+          "rate": 0.01,
+          "ci95": [
+            0.0017673865655472645,
+            0.0544875247609346
+          ]
+        },
+        "approached_no_grasp": {
+          "label": "Reached cube, never grasped",
+          "count": 0,
+          "n": 100,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.03699480747600191
+          ]
+        },
+        "no_approach": {
+          "label": "Never reached the cube",
+          "count": 0,
+          "n": 100,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.03699480747600191
+          ]
+        },
+        "other": {
+          "label": "Other / ambiguous",
+          "count": 0,
+          "n": 100,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.03699480747600191
+          ]
+        }
+      },
+      "lost_success_reasons": {
+        "carried_out_of_target": 2
+      },
+      "lost_grasp_after_stable_lift": 1,
+      "conditional": {
+        "reached_target_given_grasped": {
+          "count": 97,
+          "n": 100,
+          "rate": 0.97,
+          "ci95": [
+            0.915479219195973,
+            0.9897456617765851
+          ]
+        },
+        "final_success_given_reached_target": {
+          "count": 95,
+          "n": 97,
+          "rate": 0.979381443298969,
+          "ci95": [
+            0.9279110074824457,
+            0.9943274337957568
+          ]
+        }
+      },
+      "held_missed_target": {
+        "n": 1,
+        "units": "cm",
+        "min_obj_to_goal": {
+          "median": 2.764587849378586,
+          "q25": 2.764587849378586,
+          "q75": 2.764587849378586
+        },
+        "closest_xy_err": {
+          "median": 1.8885755511976656,
+          "q25": 1.8885755511976656,
+          "q75": 1.8885755511976656
+        },
+        "closest_z_err_signed": {
+          "median": -2.0189672708511353,
+          "q25": -2.0189672708511353,
+          "q75": -2.0189672708511353
+        },
+        "final_xy_err": {
+          "median": 1.9799999794446035,
+          "q25": 1.9799999794446035,
+          "q75": 1.9799999794446035
+        },
+        "final_z_err_signed": {
+          "median": -2.175687253475189,
+          "q25": -2.175687253475189,
+          "q75": -2.175687253475189
+        },
+        "cube_below_goal_at_closest": 1,
+        "z_err_larger_than_xy_err_at_closest": 1,
+        "closest_within_5cm": 1,
+        "arm_static_at_end": 1,
+        "obj_to_goal_median_cm_at_step": {
+          "25": 26.56092643737793,
+          "50": 26.560938358306885,
+          "75": 9.883365780115128,
+          "100": 2.941770851612091
+        },
+        "change_last_20_steps_cm_median": -1.7412163317203522
+      },
+      "by_goal_height": [
+        {
+          "goal_height_cm": [
+            0.0,
+            7.5
+          ],
+          "final_success": {
+            "count": 16,
+            "n": 16,
+            "rate": 1.0,
+            "ci95": [
+              0.8063865817272802,
+              1.0
+            ]
+          },
+          "reached_target": {
+            "count": 16,
+            "n": 16,
+            "rate": 1.0,
+            "ci95": [
+              0.8063865817272802,
+              1.0
+            ]
+          },
+          "stable_lift": {
+            "count": 14,
+            "n": 16,
+            "rate": 0.875,
+            "ci95": [
+              0.6397666856325173,
+              0.9650232506629428
+            ]
+          }
+        },
+        {
+          "goal_height_cm": [
+            7.5,
+            15.0
+          ],
+          "final_success": {
+            "count": 31,
+            "n": 33,
+            "rate": 0.9393939393939394,
+            "ci95": [
+              0.8039341828220181,
+              0.9832194695709291
+            ]
+          },
+          "reached_target": {
+            "count": 33,
+            "n": 33,
+            "rate": 1.0,
+            "ci95": [
+              0.8957265699643882,
+              1.0
+            ]
+          },
+          "stable_lift": {
+            "count": 33,
+            "n": 33,
+            "rate": 1.0,
+            "ci95": [
+              0.8957265699643882,
+              1.0
+            ]
+          }
+        },
+        {
+          "goal_height_cm": [
+            15.0,
+            22.5
+          ],
+          "final_success": {
+            "count": 22,
+            "n": 23,
+            "rate": 0.9565217391304348,
+            "ci95": [
+              0.7900841350594088,
+              0.9922835330378734
+            ]
+          },
+          "reached_target": {
+            "count": 22,
+            "n": 23,
+            "rate": 0.9565217391304348,
+            "ci95": [
+              0.7900841350594088,
+              0.9922835330378734
+            ]
+          },
+          "stable_lift": {
+            "count": 22,
+            "n": 23,
+            "rate": 0.9565217391304348,
+            "ci95": [
+              0.7900841350594088,
+              0.9922835330378734
+            ]
+          }
+        },
+        {
+          "goal_height_cm": [
+            22.5,
+            31.0
+          ],
+          "final_success": {
+            "count": 26,
+            "n": 28,
+            "rate": 0.9285714285714286,
+            "ci95": [
+              0.7735426157408214,
+              0.9801883525522292
+            ]
+          },
+          "reached_target": {
+            "count": 26,
+            "n": 28,
+            "rate": 0.9285714285714286,
+            "ci95": [
+              0.7735426157408214,
+              0.9801883525522292
+            ]
+          },
+          "stable_lift": {
+            "count": 27,
+            "n": 28,
+            "rate": 0.9642857142857143,
+            "ci95": [
+              0.8228742388150135,
+              0.9936676435024582
+            ]
+          }
+        }
+      ],
+      "timing_steps": {
+        "t_grasp": {
+          "median": 42.0,
+          "n": 100
+        },
+        "t_lift": {
+          "median": 54.0,
+          "n": 97
+        },
+        "t_reach": {
+          "median": 71.0,
+          "n": 97
+        },
+        "t_success": {
+          "median": 73.0,
+          "n": 97
+        }
+      }
+    }
+  }
+}
