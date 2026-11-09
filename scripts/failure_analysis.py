@@ -53,13 +53,15 @@ def main():
     parser.add_argument("--num-envs", type=int, default=10)
     parser.add_argument("--seed", type=int, default=None, help="scene seed (default: the run's eval_seed)")
     parser.add_argument("--device", default="auto")
+    parser.add_argument("--sim-backend", default="physx_cpu", choices=["physx_cpu", "physx_cuda"],
+                        help="physx_cuda needs an NVIDIA GPU (e.g. Kaggle); macOS only has physx_cpu")
     parser.add_argument("--out", type=Path, default=Path("results/phase_a_failure_analysis"))
     parser.add_argument("--videos", action="store_true", help="render and save one MP4 per video category")
     parser.add_argument("--video-size", type=int, default=256)
     parser.add_argument("--fps", type=int, default=20)
     args = parser.parse_args()
 
-    sim_backend = "physx_cpu"  # the only backend available on macOS; recorded in the outputs
+    sim_backend = args.sim_backend  # recorded in the outputs
     device = select_device(args.device)
     agent, cfg, norm_stats, ckpt_step = load_policy(args.checkpoint, device)
     seed = cfg.eval_seed if args.seed is None else args.seed
@@ -80,15 +82,19 @@ def main():
         if ts == 0:
             state["frames"] = [[] for _ in range(n_envs)]
         if need_frames():
-            for i, frame in enumerate(envs.call("render")):
-                f = np.asarray(common.to_numpy(frame))
-                state["frames"][i].append(f.reshape(-1, *f.shape[-3:])[0])
+            if sim_backend == "physx_cpu":
+                frames = [np.asarray(common.to_numpy(fr)) for fr in envs.call("render")]
+                frames = [f.reshape(-1, *f.shape[-3:])[0] for f in frames]
+            else:  # one batched GPU env: render() returns (num_envs, H, W, 3)
+                frames = np.asarray(common.to_numpy(envs.render()))
+            for i in range(n_envs):
+                state["frames"][i].append(frames[i])
 
     def info_hook(info, step, truncated):
         src = info["final_info"] if truncated.any() else info  # last step: the finished episode's own info
         for k in STEP_KEYS:
             key = k if k in ("success", "is_obj_placed", "is_robot_static", "is_grasped") else f"diag_{k}"
-            state["buf"][k][step - 1] = np.asarray(src[key], dtype=np.float64).reshape(-1)
+            state["buf"][k][step - 1] = np.asarray(common.to_numpy(src[key]), dtype=np.float64).reshape(-1)
         if not truncated.any():
             return
         assert step == T, f"episode ended at step {step}, expected {T}"
