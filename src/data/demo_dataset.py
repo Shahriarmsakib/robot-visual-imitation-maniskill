@@ -3,7 +3,11 @@
 Derived from `SmallDemoDataset_ACTPolicy` in ManiSkill v3.0.1
 examples/baselines/act/train_rgbd.py (Apache-2.0). Changes: control mode is a
 constructor argument instead of a global, and the episode keys used are recorded
-so each run documents exactly which demonstrations it trained on.
+so each run documents exactly which demonstrations it trained on. RGB frames are kept in memory
+at their recorded size and resized to 224x224 when a sample is read (the original resized every frame up
+front, which needs ~3x the memory: ~11.7 GB instead of ~3.8 GB for 1,000 PickCube demos at 128x128).
+The resize is the same operation on the same uint8 frames, so samples are unchanged
+(checked by scripts/check_lazy_resize.py).
 """
 import numpy as np
 import torch
@@ -28,7 +32,8 @@ def episode_keys(path, num_traj=None):
 
 
 class ACTDemoDataset(Dataset):
-    """Holds every (observation, action chunk) pair in memory, images resized to 224x224 uint8."""
+    """Holds every (observation, action chunk) pair in memory; RGB stays at recorded size and is resized to 224x224
+    uint8 on access."""
 
     def __init__(self, data_path, num_queries, control_mode, num_traj=None, include_depth=False):
         self.keys = episode_keys(data_path, num_traj)
@@ -85,7 +90,8 @@ class ACTDemoDataset(Dataset):
             state = (state - self.norm_stats["state_mean"][0]) / self.norm_stats["state_std"][0]
             act_seq = (act_seq - self.norm_stats["action_mean"]) / self.norm_stats["action_std"]
 
-        obs = dict(state=state, rgb=self.trajectories["observations"][traj_idx]["rgb"][ts])
+        rgb = self.transforms(self.trajectories["observations"][traj_idx]["rgb"][ts])  # (num_cams, 3, 224, 224)
+        obs = dict(state=state, rgb=rgb)
         if self.include_depth:
             obs["depth"] = self.trajectories["observations"][traj_idx]["depth"][ts]
         return {"observations": obs, "actions": act_seq}
@@ -96,11 +102,11 @@ class ACTDemoDataset(Dataset):
         images_rgb, images_depth = [], []
         for cam_data in sensor_data.values():
             rgb = torch.from_numpy(cam_data["rgb"])  # (ep_len, H, W, 3)
-            images_rgb.append(self.transforms(rgb.permute(0, 3, 1, 2)))  # (ep_len, 3, 224, 224)
+            images_rgb.append(rgb.permute(0, 3, 1, 2))  # (ep_len, 3, H, W); resized in __getitem__
             if self.include_depth:
                 depth = torch.Tensor(cam_data["depth"].astype(np.float32) / 1024).to(torch.float16)
                 images_depth.append(self.transforms(depth.permute(0, 3, 1, 2)))
-        rgb = torch.stack(images_rgb, dim=1)  # (ep_len, num_cams, 3, 224, 224), uint8
+        rgb = torch.stack(images_rgb, dim=1)  # (ep_len, num_cams, 3, H, W), uint8
 
         # Some extras (e.g. is_grasped) are 1-D; give them a feature axis before flattening.
         obs_dict["extra"] = {k: v[:, None] if len(v.shape) == 1 else v for k, v in obs_dict["extra"].items()}

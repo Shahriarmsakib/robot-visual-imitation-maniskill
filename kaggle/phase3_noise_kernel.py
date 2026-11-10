@@ -11,7 +11,7 @@ import sys
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
 SETTINGS = {"N": "100", "SEED": "0", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "6.0",
             "TAG1": "xy025", "ARGS1": "--xy-r2 0.25",
-            "TAG2": "zg_idm", "ARGS2": "--z-r2 0.81 --grip-flip 0.06"}  # session 1, ~4 h on T4 x2
+            "TAG2": "xy050", "ARGS2": "--xy-r2 0.5"}  # session 2 (xy025 rerun after the OOM in session 1), ~4 h
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)

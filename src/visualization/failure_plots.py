@@ -57,7 +57,10 @@ def success_breakdown(summaries, stages, out_dir, name="success_breakdown"):
     _grouped_bars(ax, [(k, lbl.replace(" ", "\n", 1)) for k, lbl, _ in stages], list(summaries.items()),
                   lambda s, k: s["stages"][k])
     ax.set_ylabel("episodes (%)")
-    ax.legend(loc="upper right", title="checkpoint", title_fontsize=8, fontsize=8)
+    if len(summaries) > 3:  # inside the axes it would cover the right-hand bars
+        ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1.0), title="checkpoint", title_fontsize=8, fontsize=8)
+    else:
+        ax.legend(loc="upper right", title="checkpoint", title_fontsize=8, fontsize=8)
     n = next(iter(summaries.values()))["n_episodes"]
     ax.set_title(f"Where episodes drop out of the pick-and-place pipeline (n = {n} per checkpoint)", loc="left")
     ax.text(0, -0.25, "Each bar: share of episodes where the event happened at least once (last bar: at step 100). "

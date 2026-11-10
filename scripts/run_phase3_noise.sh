@@ -65,6 +65,13 @@ stamp "labels and datasets: $TAG1 [$ARGS1]${TAG2:+, $TAG2 [$ARGS2]}"
 NE1=$(build "$TAG1" "$ARGS1")
 [ -n "$TAG2" ] && NE2=$(build "$TAG2" "$ARGS2")
 
+# The loader resizes frames on access (keeps two 1,000-demo runs within the machine's RAM); stop here if that
+# ever differs from the old up-front resize on this machine's torch build.
+stamp "check: resize-on-access matches the old loader"
+python scripts/check_lazy_resize.py --demo-path "data/action_free/sets/noise_${TAG1}_N${N}_seed${SEED}.h5" \
+  --num-demos 50 2>&1 | tail -3
+[ "${PIPESTATUS[0]}" = "0" ] || { stamp "resize check failed, not training"; exit 1; }
+
 stamp "training: $TAG1 ($NE1 episodes) on GPU 0${TAG2:+, $TAG2 ($NE2 episodes) on GPU 1}, $ITERS steps each"
 set +e
 train "$TAG1" 0 "$NE1" & P1=$!

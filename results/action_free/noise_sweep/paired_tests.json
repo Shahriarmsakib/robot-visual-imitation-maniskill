@@ -1,0 +1,126 @@
+{
+ "counts": {
+  "ZG": {
+   "approached": 100,
+   "ever_grasped": 100,
+   "stable_lift": 95,
+   "reached_target": 93,
+   "success_once": 93,
+   "final_success": 90
+  },
+  "A100": {
+   "approached": 97,
+   "ever_grasped": 96,
+   "stable_lift": 90,
+   "reached_target": 11,
+   "success_once": 4,
+   "final_success": 3
+  },
+  "B100": {
+   "approached": 9,
+   "ever_grasped": 12,
+   "stable_lift": 7,
+   "reached_target": 0,
+   "success_once": 0,
+   "final_success": 0
+  },
+  "U1000": {
+   "approached": 100,
+   "ever_grasped": 100,
+   "stable_lift": 96,
+   "reached_target": 97,
+   "success_once": 97,
+   "final_success": 95
+  }
+ },
+ "ZG_vs_A100_approached": [
+  3,
+  0,
+  0.25
+ ],
+ "ZG_vs_A100_ever_grasped": [
+  4,
+  0,
+  0.125
+ ],
+ "ZG_vs_A100_stable_lift": [
+  7,
+  2,
+  0.1796875
+ ],
+ "ZG_vs_A100_reached_target": [
+  82,
+  0,
+  4.1359030627651384e-25
+ ],
+ "ZG_vs_A100_success_once": [
+  89,
+  0,
+  3.2311742677852644e-27
+ ],
+ "ZG_vs_A100_final_success": [
+  87,
+  0,
+  1.2924697071141057e-26
+ ],
+ "ZG_vs_B100_approached": [
+  91,
+  0,
+  8.077935669463161e-28
+ ],
+ "ZG_vs_B100_ever_grasped": [
+  88,
+  0,
+  6.462348535570529e-27
+ ],
+ "ZG_vs_B100_stable_lift": [
+  88,
+  0,
+  6.462348535570529e-27
+ ],
+ "ZG_vs_B100_reached_target": [
+  93,
+  0,
+  2.0194839173657902e-28
+ ],
+ "ZG_vs_B100_success_once": [
+  93,
+  0,
+  2.0194839173657902e-28
+ ],
+ "ZG_vs_B100_final_success": [
+  90,
+  0,
+  1.6155871338926322e-27
+ ],
+ "U1000_vs_ZG_approached": [
+  0,
+  0,
+  1.0
+ ],
+ "U1000_vs_ZG_ever_grasped": [
+  0,
+  0,
+  1.0
+ ],
+ "U1000_vs_ZG_stable_lift": [
+  1,
+  0,
+  1.0
+ ],
+ "U1000_vs_ZG_reached_target": [
+  5,
+  1,
+  0.21875
+ ],
+ "U1000_vs_ZG_success_once": [
+  5,
+  1,
+  0.21875
+ ],
+ "U1000_vs_ZG_final_success": [
+  6,
+  1,
+  0.125
+ ]
+}

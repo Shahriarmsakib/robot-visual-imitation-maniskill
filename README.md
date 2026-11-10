@@ -48,6 +48,8 @@ At N = 25, ACT was trained on the 25 labelled demos alone (arm A) and on the sam
 
 ![label budgets](results/action_free/policy_N100/label_budget_compare/figures/success_breakdown.png)
 
+**Which label errors matter? First result of a controlled noise sweep.** Here arm B is trained on the 900 demos' *true* actions with known errors added. With the IDM's level of error on vertical motion (R² 0.81) and the gripper (6% of steps flipped), but true horizontal labels, the policy succeeds in **90/100** CPU episodes, against 95/100 with perfect labels (paired 6 vs 1, p = 0.125) and 0/100 with the real IDM labels. The vertical and gripper errors therefore do not explain the collapse. The matching test for horizontal errors (R² 0.25) was killed by Kaggle for running out of memory and has to be rerun. One seed; the added noise is independent across steps, unlike the IDM's errors ([details](results/action_free/noise_sweep/README.md)).
+
 ## Why this direction
 
 - **Grounded in current work.** Latent action models (LAPO, ICLR 2024; LAPA, ICLR 2025; CLAM, 2025; LAOM, ICML 2025) and IDM pseudo-labelling (VPT, 2022; Morin et al., ICML 2026) are an active route to learning from video. Recent studies disagree on when each works ([literature review](docs/literature_action_free_video.md)).

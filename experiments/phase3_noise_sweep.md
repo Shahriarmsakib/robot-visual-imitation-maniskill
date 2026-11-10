@@ -38,3 +38,10 @@ the key conditions follow once the threshold region is known.
   the two at matched size.
 - One seed per condition at first; claims about thresholds wait for seeds 1–2.
 - Results are read on the CPU simulator, which matches the demo recordings (see `results/action_free/upper_N1000/`).
+
+## Session log
+
+- Session 1 (2026-11-10, code fee7bf4): `zg_idm` complete (CPU 90/100). `xy025` was killed out of memory, because two
+  1,000-demo runs in parallel held ~23 GB of pre-resized frames. The loader now resizes on access (same pixels,
+  `scripts/check_lazy_resize.py`), and `xy025` is rerun first in the next session. Results:
+  `results/action_free/noise_sweep/README.md`.
