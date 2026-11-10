@@ -48,7 +48,9 @@ At N = 25, ACT was trained on the 25 labelled demos alone (arm A) and on the sam
 
 ![label budgets](results/action_free/policy_N100/label_budget_compare/figures/success_breakdown.png)
 
-**Which label errors matter? First result of a controlled noise sweep.** Here arm B is trained on the 900 demos' *true* actions with known errors added. With the IDM's level of error on vertical motion (R² 0.81) and the gripper (6% of steps flipped), but true horizontal labels, the policy succeeds in **90/100** CPU episodes, against 95/100 with perfect labels (paired 6 vs 1, p = 0.125) and 0/100 with the real IDM labels. The vertical and gripper errors therefore do not explain the collapse. The matching test for horizontal errors (R² 0.25) was killed by Kaggle for running out of memory and has to be rerun. One seed; the added noise is independent across steps, unlike the IDM's errors ([details](results/action_free/noise_sweep/README.md)).
+**Which label errors matter? A controlled noise sweep.** Here arm B is trained on the 900 demos' *true* actions with known errors added. Errors as large as the IDM's are nearly harmless when they are random and independent across steps. With horizontal labels at R² 0.25 the policy succeeds in **93/100** CPU episodes, and the same with R² 0.5 (93/100) or with vertical + gripper labels at the IDM's level (90/100). Perfect labels give 95/100 (paired differences not significant), and the real IDM labels give 0/100. The IDM's errors differ in structure: it shrinks horizontal motion (slope 0.27–0.47 against the true action) and its errors persist from step to step (autocorrelation 0.78–0.95). Over a 30-step action chunk its horizontal displacement therefore has R² 0.21–0.68, while random noise averages out to 0.94–0.97. So per-step R² hides what matters to the policy. One seed per condition; shrinkage and correlated noise are tested next ([details](results/action_free/noise_sweep/README.md)).
+
+![noise sweep](results/action_free/noise_sweep/compare_N100/figures/success_breakdown.png)
 
 ## Why this direction
 

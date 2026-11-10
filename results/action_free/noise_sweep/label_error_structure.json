@@ -1,0 +1,226 @@
+{
+ "idm_N100_seed0": {
+  "step_r2": [
+   0.103,
+   0.442,
+   0.763
+  ],
+  "bias": [
+   -0.02,
+   0.0002,
+   -0.0128
+  ],
+  "slope_pred_on_true": [
+   0.353,
+   0.559,
+   0.718
+  ],
+  "err_lag1_autocorr": [
+   0.913,
+   0.87,
+   0.896
+  ],
+  "chunk30_displacement_r2": [
+   0.216,
+   0.58,
+   0.84
+  ],
+  "episode_offset_share_of_err_var": [
+   0.123,
+   0.144,
+   0.122
+  ]
+ },
+ "idm_N100_seed1": {
+  "step_r2": [
+   0.095,
+   0.576,
+   0.831
+  ],
+  "bias": [
+   0.0005,
+   -0.0118,
+   0.0035
+  ],
+  "slope_pred_on_true": [
+   0.468,
+   0.677,
+   0.847
+  ],
+  "err_lag1_autocorr": [
+   0.893,
+   0.778,
+   0.822
+  ],
+  "chunk30_displacement_r2": [
+   0.298,
+   0.68,
+   0.908
+  ],
+  "episode_offset_share_of_err_var": [
+   0.087,
+   0.101,
+   0.094
+  ]
+ },
+ "idm_N100_seed2": {
+  "step_r2": [
+   0.189,
+   0.323,
+   0.837
+  ],
+  "bias": [
+   0.0139,
+   -0.0164,
+   -0.0034
+  ],
+  "slope_pred_on_true": [
+   0.274,
+   0.478,
+   0.891
+  ],
+  "err_lag1_autocorr": [
+   0.952,
+   0.905,
+   0.876
+  ],
+  "chunk30_displacement_r2": [
+   0.252,
+   0.317,
+   0.913
+  ],
+  "episode_offset_share_of_err_var": [
+   0.11,
+   0.181,
+   0.112
+  ]
+ },
+ "idm_N25_seed0": {
+  "step_r2": [
+   -0.061,
+   0.235,
+   0.704
+  ],
+  "bias": [
+   0.0053,
+   -0.0068,
+   0.0091
+  ],
+  "slope_pred_on_true": [
+   0.474,
+   0.763,
+   0.786
+  ],
+  "err_lag1_autocorr": [
+   0.853,
+   0.821,
+   0.858
+  ],
+  "chunk30_displacement_r2": [
+   0.211,
+   0.532,
+   0.781
+  ],
+  "episode_offset_share_of_err_var": [
+   0.124,
+   0.098,
+   0.12
+  ]
+ },
+ "noise_xy025": {
+  "step_r2": [
+   0.249,
+   0.249,
+   1.0
+  ],
+  "bias": [
+   -0.0001,
+   0.0001,
+   0.0
+  ],
+  "slope_pred_on_true": [
+   0.998,
+   0.997,
+   1.0
+  ],
+  "err_lag1_autocorr": [
+   -0.0,
+   -0.002,
+   null
+  ],
+  "chunk30_displacement_r2": [
+   0.95,
+   0.939,
+   1.0
+  ],
+  "episode_offset_share_of_err_var": [
+   0.013,
+   0.013,
+   null
+  ]
+ },
+ "noise_xy050": {
+  "step_r2": [
+   0.499,
+   0.499,
+   1.0
+  ],
+  "bias": [
+   -0.0001,
+   0.0001,
+   0.0
+  ],
+  "slope_pred_on_true": [
+   0.998,
+   0.998,
+   1.0
+  ],
+  "err_lag1_autocorr": [
+   -0.0,
+   -0.002,
+   null
+  ],
+  "chunk30_displacement_r2": [
+   0.967,
+   0.959,
+   1.0
+  ],
+  "episode_offset_share_of_err_var": [
+   0.013,
+   0.013,
+   null
+  ]
+ },
+ "noise_zg_idm": {
+  "step_r2": [
+   1.0,
+   1.0,
+   0.81
+  ],
+  "bias": [
+   0.0,
+   0.0,
+   0.0003
+  ],
+  "slope_pred_on_true": [
+   1.0,
+   1.0,
+   0.997
+  ],
+  "err_lag1_autocorr": [
+   null,
+   null,
+   0.003
+  ],
+  "chunk30_displacement_r2": [
+   1.0,
+   1.0,
+   0.987
+  ],
+  "episode_offset_share_of_err_var": [
+   null,
+   null,
+   0.012
+  ]
+ }
+}

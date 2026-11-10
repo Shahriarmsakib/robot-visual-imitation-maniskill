@@ -1,0 +1,10 @@
+[07:49:45] setup
+[07:50:51] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+[08:11:26] labels and datasets: xy025 [--xy-r2 0.25], xy050 [--xy-r2 0.5]
+[08:11:36] check: resize-on-access matches the old loader
+3760 samples from 50 episodes | frame shape (1, 3, 224, 224) torch.uint8 | stored frame (1, 3, 128, 128) | torch 2.11.0+cu130
+differing samples 0, differing pixel values 0
+PASS
+[08:11:59] training: xy025 (1000 episodes) on GPU 0, xy050 (1000 episodes) on GPU 1, 12000 steps each
+[11:38:52] training finished: xy025 exit 0, xy050 exit 0 (0 = done, 3 = stopped by time budget)
+[11:39:00] done

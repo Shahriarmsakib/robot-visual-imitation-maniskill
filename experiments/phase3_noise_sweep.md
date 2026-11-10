@@ -21,16 +21,20 @@ so the gap is entirely label quality. This sweep measures policy success against
 
 ## Sessions (about 4 GPU-hours each; quota 30 h/week)
 
-| Session | GPU 0 | GPU 1 | What it answers |
-|---|---|---|---|
-| 1 | `xy025`: x, y at R² 0.25 (IDM level), z and gripper true | `zg_idm`: z R² 0.81 + 6% gripper flips (IDM level), x, y true | Which dimensions break arm B |
-| 2 | `xy050`: x, y at R² 0.5 | `xy075`: x, y at R² 0.75 | Threshold on horizontal quality |
-| 3 | `xy090`: x, y at R² 0.9 | `bias`: IDM-sized mean bias only | Threshold continued; does bias alone hurt |
-| 4 | `all_idm`: all dims at IDM level, i.i.d. | (repeat of the most informative condition, seed 1) | Does the IDM's error *structure* matter beyond its size |
+| Session | GPU 0 | GPU 1 | What it answers | Status |
+|---|---|---|---|---|
+| 1 | `xy025`: x, y at R² 0.25 (IDM level), z and gripper true | `zg_idm`: z R² 0.81 + 6% gripper flips (IDM level), x, y true | Which dimensions break arm B | `zg_idm` 90/100 CPU; `xy025` killed (out of memory) |
+| 2 | `xy025` (rerun) | `xy050`: x, y at R² 0.5 | Does horizontal noise of the IDM's size break it | both 93/100 CPU: no |
+| 3 | `xy_shrink04`: x, y scaled by 0.4, no noise | `xy025_ar09`: x, y at R² 0.25, noise AR(1) with ρ = 0.9 | Which of the IDM's two error properties breaks it | prepared |
+| 4 | `all_idm`-like: shrink + correlated noise together, or a repeat with seed 1 | | Decided after session 3 | |
 
-The order after session 1 depends on its result: if `xy025` collapses like arm B and `zg_idm` does not, the sweep
-continues along horizontal quality (sessions 2–3); otherwise it moves to the other dimensions. Seeds 1 and 2 for
-the key conditions follow once the threshold region is known.
+Sessions 1–2 changed the plan. Independent noise of the IDM's size is harmless (`results/action_free/noise_sweep/`),
+but the IDM's errors are structured: horizontal labels are shrunk (slope 0.27–0.47) and the errors are strongly
+autocorrelated (0.78–0.95), as measured by `scripts/label_error_structure.py`. Session 3 tests each property alone,
+with no other error. Checked offline on the 900 demos: `--xy-scale 0.4` gives slope 0.40 and 30-step
+displacement R² 0.64; `--xy-r2 0.25 --ar1 0.9` gives slope 1.0, autocorrelation 0.90 and 30-step displacement R²
+0.19–0.34 (the IDM: 0.21–0.68). The original sessions 3–4 (`xy075`, `xy090`, `bias`) are dropped; with R² 0.25
+already harmless they would not be informative.
 
 ## Caveats fixed in advance
 
@@ -45,3 +49,5 @@ the key conditions follow once the threshold region is known.
   1,000-demo runs in parallel held ~23 GB of pre-resized frames. The loader now resizes on access (same pixels,
   `scripts/check_lazy_resize.py`), and `xy025` is rerun first in the next session. Results:
   `results/action_free/noise_sweep/README.md`.
+- Session 2 (2026-11-10, code f585784): resize check PASS on Kaggle (torch 2.11); `xy025` and `xy050` both 93/100
+  on CPU, GPU final 29 and 33/100.

@@ -10,8 +10,8 @@ import sys
 
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
 SETTINGS = {"N": "100", "SEED": "0", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "6.0",
-            "TAG1": "xy025", "ARGS1": "--xy-r2 0.25",
-            "TAG2": "xy050", "ARGS2": "--xy-r2 0.5"}  # session 2 (xy025 rerun after the OOM in session 1), ~4 h
+            "TAG1": "xy_shrink04", "ARGS1": "--xy-scale 0.4",
+            "TAG2": "xy025_ar09", "ARGS2": "--xy-r2 0.25 --ar1 0.9"}  # session 3: IDM-like error structure, ~4 h
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)
