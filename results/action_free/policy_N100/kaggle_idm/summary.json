@@ -1,0 +1,49 @@
+{
+  "h5": "data/action_free/conversion/trajectory.rgb.pd_ee_delta_pos.physx_cpu.h5",
+  "h5_sha256": "1b7ccfdacddc1109438110fdc4cff54c5e7d0334dbe946b1036026c47c5ba8fb",
+  "device": "cuda",
+  "steps": 3000,
+  "offsets": [
+    0,
+    1,
+    2
+  ],
+  "labelled_pool": [
+    0,
+    99
+  ],
+  "action_free_pool": [
+    100,
+    999
+  ],
+  "action_free_transitions": 70256,
+  "by_n": {
+    "100": {
+      "x_r2": {
+        "mean": 0.23226481676101685,
+        "std": 0.0,
+        "n_seeds": 1
+      },
+      "y_r2": {
+        "mean": 0.28846967220306396,
+        "std": 0.0,
+        "n_seeds": 1
+      },
+      "z_r2": {
+        "mean": 0.8062023520469666,
+        "std": 0.0,
+        "n_seeds": 1
+      },
+      "xyz_mae": {
+        "mean": 0.041865743696689606,
+        "std": 0.0,
+        "n_seeds": 1
+      },
+      "gripper_acc": {
+        "mean": 0.9431365292644045,
+        "std": 0.0,
+        "n_seeds": 1
+      }
+    }
+  }
+}

@@ -11,7 +11,8 @@ CKPT_COLOR = {}  # label -> colour, assigned in fixed slot order by first appear
 
 def _color(label):
     if label not in CKPT_COLOR:
-        CKPT_COLOR[label] = SLOTS[len(CKPT_COLOR) % len(SLOTS)]
+        palette = [*SLOTS, MAGENTA]  # 5 distinct colours before any repeat
+        CKPT_COLOR[label] = palette[len(CKPT_COLOR) % len(palette)]
     return CKPT_COLOR[label]
 
 

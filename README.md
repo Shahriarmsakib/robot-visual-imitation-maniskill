@@ -14,7 +14,7 @@ The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goa
 |---|---|---|---|
 | **1. Baseline and diagnosis** | How good is the standard ACT RGB policy, and why does it fail? | Done | 18/100 success (published reference 28/100, best checkpoint). It grasps 97% of the time but places the cube in only 25% of episodes. The bottleneck is goal precision, not grasping |
 | **2. Object-centric data** | Can we extract synchronized RGB-D, ground-truth object/gripper geometry and camera calibration in ACT's action space? | Done | Validated on Mac and Linux; replay matches the recorded demos to 0.00 mm on Linux |
-| **3. Learning from action-free demos** | With only N labelled demos, does an IDM or a latent action model trained on the rest improve the policy? | In progress | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25; at N = 25 pseudo-labels hurt the policy (grasp 74% → 14%). With all 1,000 labels the same schedule reaches 43/100 (GPU) and 95/100 (CPU), so N = 25 is label-limited |
+| **3. Learning from action-free demos** | With only N labelled demos, does an IDM or a latent action model trained on the rest improve the policy? | In progress | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25; at N = 25 pseudo-labels hurt the policy (grasp 74% → 14%). With all 1,000 labels the same schedule reaches 43/100 (GPU) and 95/100 (CPU), so N = 25 is label-limited. At N = 100 pseudo-labels still collapse the policy (reached cube 97% → 9%) |
 | **4. Object-centric latent actions** *(next)* | Do actions expressed relative to the cube and goal fix the precision bottleneck and make action-free learning robust? | Planned | — |
 | **5. Visual robustness** *(next)* | Which representation degrades least under camera, lighting and distractor shifts? | Planned | — |
 
@@ -43,6 +43,10 @@ At N = 25, ACT was trained on the 25 labelled demos alone (arm A) and on the sam
 **Upper bound: the same schedule with all 1,000 demos labelled.** Same settings, seed and scenes. It succeeds in **43/100** training-time trials on the GPU simulator (95% CI 34–53%) and in **95/100** on the same 100 CPU scenes used for arms A and B (90/100 on another 100 CPU scenes). On those paired scenes it reaches the goal in 97 episodes versus 1 for arm A and 0 for arm B. So 12k steps is enough, and the N = 25 result is limited by labels, not by training length. One seed. The two simulators disagree strongly for this checkpoint. A follow-up check found that the robot does settle on GPU, but the held cube drifts just outside the 2.5 cm goal (median 3.0 cm) in 46 episodes. Even the expert demos' recorded actions fail 12/100 times on GPU vs 0/100 on CPU, so the CPU-recorded demos do not transfer exactly between simulators. CPU results are therefore the in-distribution measure ([details](results/action_free/upper_N1000/README.md)).
 
 ![upper vs A vs B](results/action_free/upper_N1000/compare_N25_arms/figures/success_breakdown.png)
+
+**At N = 100 the result is the same.** The IDM's labels improve (vertical R² 0.81, gripper 94%), but horizontal motion stays poorly labelled (R² 0.2–0.3). The pseudo-labelled policy again rarely reaches the cube (9/100), against 97/100 for the policy trained on the 100 labelled demos alone (paired p < 1e-25). That arm now approaches, grasps and lifts reliably (90–97%) but places the cube only rarely (3/100 success, CPU simulator). The sharpest contrast: the upper bound and the N = 100 pseudo-label arm train on the *same* 1,000 demos and images, and differ only in the action labels of 900 of them; 95/100 vs 0/100. One seed; a check of the pseudo-label pipeline with true labels is still to do ([details](results/action_free/policy_N100/README.md)).
+
+![label budgets](results/action_free/policy_N100/label_budget_compare/figures/success_breakdown.png)
 
 ## Why this direction
 
