@@ -69,13 +69,18 @@ Median closest gripper-to-cube distance: A100 0.8 cm, B100 6.0 cm. Median final 
 ## Limits
 
 - One seed per arm.
-- The pseudo-label pipeline itself has not been checked end-to-end with *true* labels in place of IDM labels. Arm B failing similarly at N = 25 and N = 100 is consistent with label noise, but a pipeline error (e.g. misaligned labels) would look similar. An "oracle" arm B (same dataset builder, true actions for the 900 demos) should reproduce the upper bound and would rule this out.
 - Stage breakdown on the CPU simulator (the simulator the demos were recorded in; see `../upper_N1000/README.md` for the GPU/CPU gap).
+
+## Pipeline check: arm B with true labels is the upper bound
+
+A pipeline bug (for example labels attached to the wrong demo or time step) would look like label noise. To rule it out, `scripts/make_oracle_labels.py` builds arm B through the same code (`build_pseudo_dataset.py`), with the true actions of the 900 demos as "pseudo-labels". The resulting file, read in the training loader's episode order, is **identical in every field** (images, state, actions) to the source demo file the upper bound trained on (1,000 episodes, 0 differing; run on the Mac, 2026-11-10). With these delta-position actions training applies no normalisation, so arm B with perfect labels is exactly the upper-bound run (95/100 on CPU). The gap between arm B and the upper bound therefore comes from the pseudo-labels, not from the data pipeline. No GPU run was needed.
+
+**Label bias (an observation, not yet a cause).** The same script compares mean actions. The N = 100 IDM labels (Mac copy, seed 0) have a mean x action of −0.021 against −0.001 for the true actions, and z −0.014 against −0.001: a small constant push in every step. The N = 25 labels are much less biased (x +0.004, y −0.006, z +0.008) but noisier, and arm B failed just as badly with them. So bias alone does not explain the collapse. The Kaggle-side labels used in training were not checked for bias.
 
 ## Next experiments this motivates
 
-1. **Oracle check of the arm B pipeline** (one arm, ~3.5 h): build arm B with the true actions as "pseudo-labels". Expect ~95/100 like the upper bound; anything else points to a pipeline bug.
-2. **Partial pseudo-labels:** keep the IDM's reliable outputs (vertical motion, gripper) and drop or down-weight the horizontal ones, or train only on the action-free frames where the IDM is confident.
+1. **Partial pseudo-labels:** keep the IDM's reliable outputs (vertical motion, gripper) and drop or down-weight the horizontal ones, or train only on the action-free frames where the IDM is confident.
+2. **Bias-corrected pseudo-labels:** shift the IDM's labels so their per-dimension mean matches that of the labelled demos (uses only labelled data); a cheap test of how much the bias matters.
 3. **Latent action models**, which learn from the action-free demos without committing to explicit, possibly wrong action labels.
 
 ## Files
