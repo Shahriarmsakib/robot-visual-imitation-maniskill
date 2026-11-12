@@ -1,0 +1,46 @@
+Cloning into '/tmp/code'...
+d0797df Noise sweep session 2: i.i.d. label noise is harmless, IDM errors are structured; prepare session 3
+[22:50:20] setup
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.51.0 requires google-cloud-bigquery-storage\u003c3.0.0,>=2.30.0, which is not installed.
+kaggle-environments 1.33.3 requires gymnasium==1.2.0, but you have gymnasium 1.4.0 which is incompatible.
+ydata-profiling 4.18.4 requires matplotlib\u003c=3.10,>=3.5, but you have matplotlib 3.11.2 which is incompatible.
+dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.
+tensorflow 2.21.0 requires h5py\u003c3.15.0,>=3.11.0, but you have h5py 3.16.0 which is incompatible.
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+mani-skill 3.0.1 requires mplib==0.1.1; platform_system == "Linux", which is not installed.
+mani_skill 3.0.1 sapien 3.0.3
+torch 2.11.0+cu130 cuda True Tesla T4
+[22:51:43] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+Downloading demonstrations to /tmp/code/data/demos - 1/1, PickCube-v1
+Replayed 1000 episodes, 1000/1000=100.00% demos saved
+labelled ids: 100
+[23:16:28] labels and datasets: xy_shrink04 [--xy-scale 0.4], xy025_ar09 [--xy-r2 0.25 --ar1 0.9]
+wrote data/action_free/pseudo_labels/noise_xy_shrink04.npz: 900 episodes | achieved R2 x 0.640 y 0.640 z 1.000 | gripper acc 1.000
+wrote data/action_free/sets/noise_xy_shrink04_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+wrote data/action_free/pseudo_labels/noise_xy025_ar09.npz: 900 episodes | achieved R2 x 0.253 y 0.242 z 1.000 | gripper acc 1.000
+wrote data/action_free/sets/noise_xy025_ar09_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+[23:16:41] check: resize-on-access matches the old loader
+3760 samples from 50 episodes | frame shape (1, 3, 224, 224) torch.uint8 | stored frame (1, 3, 128, 128) | torch 2.11.0+cu130
+differing samples 0, differing pixel values 0
+PASS
+[23:17:08] training: xy_shrink04 (1000 episodes) on GPU 0, xy025_ar09 (1000 episodes) on GPU 1, 12000 steps each
+scripts/run_phase3_noise.sh: line 56:   698 Bus error               (core dumped) CUDA_VISIBLE_DEVICES="$2" python scripts/train.py --config configs/baseline_act_rgb_100d.json --demo-path "data/action_free/sets/noise_${1}_N${N}_seed${SEED}.h5" --num-demos "$3" --seed "$SEED" --exp-name "phase3_noise_${1}_N${N}_seed${SEED}" --total-iters "$ITERS" --eval-freq "$EVAL_FREQ" --save-freq "$EVAL_FREQ" --num-eval-episodes "$EVAL_EPS" --max-hours "$MAX_HOURS" --runs-dir "$OUT/runs" > "$OUT/train_${1}.log" 2>&1
+[02:39:12] training finished: xy_shrink04 exit 0, xy025_ar09 exit 135 (0 = done, 3 = stopped by time budget)
+| Run | Demos | Seed | Steps | Status | Final success_at_end | Final success_once | 95% CI (at_end) | Best at_end (step) | Backend | Commit |
+|---|---|---|---|---|---|---|---|---|---|---|
+| phase3_noise_xy_shrink04_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 2/100 (2%) | 3/100 (3%) | 1%–7% | 2% (8000) | physx_cuda | d0797df |
+Final = evaluation of the final model of a completed run (headline number). Best = highest success_at_end over all evaluations; it is selected on the evaluation scenes and therefore optimistic.
+Wrote 1 runs, 4 evaluations to /kaggle/working/metrics/
+wrote /kaggle/working/figures/fig2_training_loss.png, /kaggle/working/figures/fig2_training_loss.pdf
+wrote /kaggle/working/figures/fig2b_success_vs_step.png, /kaggle/working/figures/fig2b_success_vs_step.pdf
+wrote /kaggle/working/figures/fig3_data_efficiency.png, /kaggle/working/figures/fig3_data_efficiency.pdf
+--- xy_shrink04
+Run phase3_noise_xy_shrink04_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (91s)
+[eval] step 4000: success_once 1/100, success_at_end 1/100 (94s)
+[eval] step 8000: success_once 4/100, success_at_end 2/100 (93s)
+[eval] step 12000: success_once 3/100, success_at_end 2/100 (89s)
+--- xy025_ar09
+[02:39:19] done

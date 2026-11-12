@@ -1,6 +1,13 @@
-# Phase 3: label-noise sweep (sessions 1–2)
+# Phase 3: label-noise sweep (sessions 1–3)
 
-**Short answer: the *size* of the IDM's label errors is not what breaks arm B; their *structure* is.** Arm B
+**Short answer: the *size* of the IDM's label errors is not what breaks arm B. Shrinking the horizontal motion is
+enough to break it.** Session 3 trained arm B on the true actions with x and y simply scaled by 0.4, with no noise and
+z and the gripper exact. It succeeds in **1/100** CPU episodes and reaches the cube in only 24/100. That is close
+to arm B with the IDM's labels (0/100, 9/100 reached), although these labels have a higher per-step R² (0.64)
+than the random-noise labels that work. The other session-3 condition (noise correlated over time) crashed before
+training and has no result yet. One training seed per condition.
+
+Sessions 1–2 showed that random errors of the IDM's size are harmless. Arm B
 trained on the 900 action-free demos' true actions plus independent random noise as large as the IDM's error
 does about as well as with perfect labels. That holds with horizontal labels at R² 0.25 (93/100 on the CPU
 simulator) or 0.5 (93/100), and with vertical + gripper labels at the IDM's level (90/100). Perfect labels give
@@ -23,6 +30,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `zg_idm` | z: noise to R² 0.81; gripper flipped on 6% of steps; x, y true | x 1.0, y 1.0, z 0.810, gripper 94.0% | 1 (2026-11-10, code `fee7bf4`) |
 | `xy025` | x, y: noise to R² 0.25; z, gripper true | x 0.249, y 0.249, z 1.0, gripper 100% | 2 (2026-11-10, code `f585784`); killed out of memory in session 1 |
 | `xy050` | x, y: noise to R² 0.5; z, gripper true | x 0.499, y 0.499, z 1.0, gripper 100% | 2 |
+| `xy_shrink04` | x, y: true action × 0.4, no noise; z, gripper true | x 0.640, y 0.640, z 1.0, gripper 100% | 3 (2026-11-10, code `d0797df`) |
+| `xy025_ar09` | x, y: noise to R² 0.25, AR(1) over time with ρ = 0.9; z, gripper true | x 0.253, y 0.242, z 1.0, gripper 100% | 3: crashed before training (bus error), no result |
 | Reference: IDM at N = 100 (`../policy_N100/`) | learned labels (Kaggle copy used by arm B) | x 0.23, y 0.29, z 0.81, gripper 94.3% | |
 
 ## Results
@@ -34,10 +43,11 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `xy025` | 0 / 0 | 12 / 51 | 26 / 72 | **29 / 74** (95% CI 21–39% at end) |
 | `xy050` | 0 / 0 | 12 / 54 | 26 / 74 | **33 / 80** (CI 25–43%) |
 | `zg_idm` | 0 / 0 | 19 / 62 | 30 / 84 | **31 / 82** (CI 23–41%) |
+| `xy_shrink04` | 0 / 0 | 1 / 1 | 2 / 4 | **2 / 3** (CI 1–7%) |
 | Upper bound, all true labels (`../upper_N1000/`) | 0 / 0 | 19 / 74 | 33 / 84 | 43 / 87 (CI 34–53%) |
 | Arm B, IDM pseudo-labels (`../policy_N100/`) | 0 / 0 | 1 / 1 | 0 / 1 | 1 / 1 |
 
-On the GPU simulator all three noise conditions end 10–14 episodes below the upper bound. These runs are unpaired,
+On the GPU simulator the three random-noise conditions end 10–14 episodes below the upper bound. These runs are unpaired,
 the CIs overlap, and the GPU simulator understates every policy trained on these CPU-recorded demos
 (`../upper_N1000/gpu_gap_check/`). The paired CPU comparison below is the main measure.
 
@@ -49,6 +59,7 @@ upper bound; `failure_analysis/`, comparison in `compare_N100/`):
 | `xy025` (noisy x, y at R² 0.25) | 100 | 100 | 93 | 95 | 95 | **93** |
 | `xy050` (noisy x, y at R² 0.5) | 100 | 100 | 94 | 95 | 95 | **93** |
 | `zg_idm` (noisy z + gripper) | 100 | 100 | 95 | 93 | 93 | **90** |
+| `xy_shrink04` (x, y × 0.4, no noise) | 24 | 26 | 18 | 1 | 1 | **1** |
 | Upper bound (all true) | 100 | 100 | 96 | 97 | 97 | 95 |
 | Arm A, 100 labelled only | 97 | 96 | 90 | 11 | 4 | 3 |
 | Arm B, + IDM pseudo-labels | 9 | 12 | 7 | 0 | 0 | 0 |
@@ -67,6 +78,19 @@ upper bound; `failure_analysis/`, comparison in `compare_N100/`):
 | `xy025` vs arm B | 95 vs 0, p = 5e-29 | 93 vs 0, p = 2e-28 |
 | `xy025` vs arm A | 84 vs 0, p = 1e-25 | 90 vs 0, p = 2e-27 |
 | `zg_idm` vs arm B | 93 vs 0, p = 2e-28 | 90 vs 0, p = 2e-27 |
+| Upper bound vs `xy_shrink04` | 96 vs 0, p = 3e-29 | 94 vs 0, p = 1e-28 |
+| `xy025` vs `xy_shrink04` | 94 vs 0, p = 1e-28 | 92 vs 0, p = 4e-28 |
+| Arm A vs `xy_shrink04` | 10 vs 0, p = 0.002 | 3 vs 1, p = 0.63 |
+| `xy_shrink04` vs arm B | 1 vs 0, p = 1 | 1 vs 0, p = 1 |
+
+Reaching the cube (paired): upper bound vs `xy_shrink04` 76 vs 0 (p = 3e-23); arm A vs `xy_shrink04` 73 vs 0
+(p = 2e-22); `xy_shrink04` vs arm B 23 vs 8 (p = 0.011).
+
+The `xy_shrink04` episodes break down as follows (`compare_N100/figures/failure_categories.png`): 73 neither grasped
+the cube nor brought the gripper within 3 cm of its centre, 1 came that close but never grasped, 18 grasped and held but never reached the target, 7 lost the grasp
+before the target, and 1 succeeded. (A grasp can register without the 3 cm approach, so 26 grasped although only 24
+"reached the cube".) Adding the 900 shrunk demos makes the policy worse than training on the 100
+labelled demos alone (arm A reaches the cube in 97/100). This is the same pattern as arm B with IDM labels.
 
 ## Why random noise is harmless and the IDM's errors are not
 
@@ -82,6 +106,8 @@ same range. Values for x / y:
 | IDM N = 100, seed 2 | 0.19 / 0.32 | 0.27 / 0.48 | 0.95 / 0.91 | 0.25 / 0.32 |
 | `xy025` (random noise) | 0.25 / 0.25 | 1.00 / 1.00 | 0.00 / 0.00 | 0.95 / 0.94 |
 | `xy050` (random noise) | 0.50 / 0.50 | 1.00 / 1.00 | 0.00 / 0.00 | 0.97 / 0.96 |
+| `xy_shrink04` (scaled, no noise) | 0.64 / 0.64 | 0.40 / 0.40 | 0.99 / 0.99 | 0.64 / 0.64 |
+| `xy025_ar09` (correlated noise; not trained yet) | 0.25 / 0.24 | 1.01 / 1.00 | 0.90 / 0.90 | 0.34 / 0.19 |
 
 Two differences stand out:
 
@@ -91,15 +117,18 @@ Two differences stand out:
   chunk. Random noise is independent, so over the 30 steps ACT predicts at once it averages out: the summed
   displacement is still accurate (R² 0.94–0.97), even at per-step R² 0.25. For the IDM it is not (0.21–0.68).
 
-Per-step R² therefore hides what matters to this policy. These two properties fit arm B's behaviour (it
-approaches the cube in only 9/100 episodes and then drifts), but the sweep has not yet tested them directly. The
-next conditions do that: horizontal labels shrunk by the IDM's factor without noise, and noise that is
-correlated over time at the IDM's autocorrelation.
+Per-step R² therefore hides what matters to this policy. Session 3 tested the first property directly.
+Shrinkage alone, at a factor inside the IDM's range, gives 1/100, even though its labels have a higher step R²
+(0.64) than random noise that gives 93/100. A plausible reading: the 900 shrunk demos teach the policy that the
+arm moves 40% as far sideways as it does, so it under-reaches. This is an interpretation, not tested. The second
+property (correlated noise without shrinkage) is still untested, because that run crashed (below). Whether it also
+breaks the policy decides whether shrinkage is *the* cause or *one* cause.
 
 ## Caveats
 
 - One training seed and one noise seed per condition; 100 evaluation scenes.
 - The error-structure numbers come from the Mac IDM copies, not the exact labels arm B trained on.
+- One shrink factor (0.4) was tested; where between 0.4 and 1.0 the policy starts to fail is unknown.
 - Results are read on the CPU simulator, which matches how the demos were recorded.
 
 ## Session 1: `xy025` killed out of memory, and the fix
@@ -115,11 +144,22 @@ differing pixels over 7,720 samples on the Mac (torch 2.6) and over 3,760 sample
 training (torch 2.11; `runs/session2_kernel_summary.txt`). Training speed was unchanged (0.92–1.01 s/step in
 session 2, against 0.96 for the upper bound).
 
+## Session 3: `xy025_ar09` crashed before training
+
+Both runs passed the resize check (0 differing pixels over 3,760 samples, `runs/session3_kernel_summary.txt`) and
+started training together. `xy025_ar09` died with a bus error (exit 135). It had written its session record, but its
+log stops after the ResNet weights download, before its first evaluation (`runs/xy025_ar09_session3_crash/`).
+`xy_shrink04` on the other GPU ran to completion. The cause is not confirmed. Python's output was buffered, so the
+log probably lost the last lines. One candidate is the two processes downloading the PhysX GPU library into the same
+folder at the same moment. Both runs did that in session 2 without a crash, so this is a guess. Bus errors are
+also typical when shared memory runs out.
+
 ## Files
 
 - `labels/`: corruption settings and achieved label quality of each condition (from `make_noisy_labels.py`).
 - `runs/<condition>/`: config, sessions, metrics and training log from the Kaggle output (checkpoints not
-  committed); `runs/xy025_session1_oom/`: the killed session-1 attempt; `runs/session2_kernel_summary.txt`.
+  committed); `runs/xy025_session1_oom/`: the killed session-1 attempt; `runs/xy025_ar09_session3_crash/`: the crashed
+  session-3 run; `runs/session{2,3}_kernel_summary.txt`.
 - `failure_analysis/`: CPU stage analysis of each final checkpoint (`scripts/failure_analysis.py`,
   100 episodes, 10 envs, scene seed 10000).
 - `compare_N100/`: combined summary and figures with arm B (N = 100) and the upper bound.

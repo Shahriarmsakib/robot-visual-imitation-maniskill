@@ -72,6 +72,15 @@ python scripts/check_lazy_resize.py --demo-path "data/action_free/sets/noise_${T
   --num-demos 50 2>&1 | tail -3
 [ "${PIPESTATUS[0]}" = "0" ] || { stamp "resize check failed, not training"; exit 1; }
 
+# SAPIEN downloads the PhysX GPU library on first use and unzips it over any copy already there. Two runs starting
+# together can both download it and one can overwrite the file while the other loads it (a candidate for session 3's
+# bus error), so load it once here first.
+if command -v nvidia-smi >/dev/null; then
+  stamp "PhysX GPU library: load once before the parallel runs"
+  python -c "import sapien; sapien.physx.enable_gpu(); print('PhysX GPU library ready')"
+fi
+export PYTHONUNBUFFERED=1  # a crashed run's log keeps its last lines
+
 stamp "training: $TAG1 ($NE1 episodes) on GPU 0${TAG2:+, $TAG2 ($NE2 episodes) on GPU 1}, $ITERS steps each"
 set +e
 train "$TAG1" 0 "$NE1" & P1=$!

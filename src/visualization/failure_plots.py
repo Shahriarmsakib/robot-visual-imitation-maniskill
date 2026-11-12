@@ -6,12 +6,13 @@ from src.visualization.plots import INK, INK_2, MUTED, SLOTS, plt, save, style
 from src.visualization.rollouts import _font
 
 MAGENTA = "#e87ba4"  # categorical slot 5
+VIOLET = "#7d5bc9"  # categorical slot 6
 CKPT_COLOR = {}  # label -> colour, assigned in fixed slot order by first appearance
 
 
 def _color(label):
     if label not in CKPT_COLOR:
-        palette = [*SLOTS, MAGENTA]  # 5 distinct colours before any repeat
+        palette = [*SLOTS, MAGENTA, VIOLET]  # 6 distinct colours before any repeat
         CKPT_COLOR[label] = palette[len(CKPT_COLOR) % len(palette)]
     return CKPT_COLOR[label]
 

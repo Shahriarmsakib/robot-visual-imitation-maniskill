@@ -25,8 +25,8 @@ so the gap is entirely label quality. This sweep measures policy success against
 |---|---|---|---|---|
 | 1 | `xy025`: x, y at R² 0.25 (IDM level), z and gripper true | `zg_idm`: z R² 0.81 + 6% gripper flips (IDM level), x, y true | Which dimensions break arm B | `zg_idm` 90/100 CPU; `xy025` killed (out of memory) |
 | 2 | `xy025` (rerun) | `xy050`: x, y at R² 0.5 | Does horizontal noise of the IDM's size break it | both 93/100 CPU: no |
-| 3 | `xy_shrink04`: x, y scaled by 0.4, no noise | `xy025_ar09`: x, y at R² 0.25, noise AR(1) with ρ = 0.9 | Which of the IDM's two error properties breaks it | prepared |
-| 4 | `all_idm`-like: shrink + correlated noise together, or a repeat with seed 1 | | Decided after session 3 | |
+| 3 | `xy_shrink04`: x, y scaled by 0.4, no noise | `xy025_ar09`: x, y at R² 0.25, noise AR(1) with ρ = 0.9 | Which of the IDM's two error properties breaks it | `xy_shrink04` 1/100 CPU: shrinkage alone breaks it; `xy025_ar09` crashed before training |
+| 4 | `xy025_ar09` (rerun) | open: a milder shrink (e.g. `--xy-scale 0.7`), or `xy_shrink04` with training seed 1 | Does correlated noise alone also break it; how much shrinkage is too much | not launched |
 
 Sessions 1–2 changed the plan. Independent noise of the IDM's size is harmless (`results/action_free/noise_sweep/`),
 but the IDM's errors are structured: horizontal labels are shrunk (slope 0.27–0.47) and the errors are strongly
@@ -51,3 +51,7 @@ already harmless they would not be informative.
   `results/action_free/noise_sweep/README.md`.
 - Session 2 (2026-11-10, code f585784): resize check PASS on Kaggle (torch 2.11); `xy025` and `xy050` both 93/100
   on CPU, GPU final 29 and 33/100.
+- Session 3 (2026-11-10, code d0797df): resize check PASS. `xy_shrink04` complete: GPU final 2/100, CPU 1/100
+  (reached cube 24/100), close to arm B with IDM labels (0/100). `xy025_ar09` died with a bus error before its
+  first evaluation. The likely but unconfirmed cause is both runs unpacking SAPIEN's PhysX GPU library at once. The
+  runner now loads that library once before the parallel start and runs Python unbuffered.
