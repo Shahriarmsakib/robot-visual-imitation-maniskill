@@ -26,7 +26,7 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 1 | `xy025`: x, y at R² 0.25 (IDM level), z and gripper true | `zg_idm`: z R² 0.81 + 6% gripper flips (IDM level), x, y true | Which dimensions break arm B | `zg_idm` 90/100 CPU; `xy025` killed (out of memory) |
 | 2 | `xy025` (rerun) | `xy050`: x, y at R² 0.5 | Does horizontal noise of the IDM's size break it | both 93/100 CPU: no |
 | 3 | `xy_shrink04`: x, y scaled by 0.4, no noise | `xy025_ar09`: x, y at R² 0.25, noise AR(1) with ρ = 0.9 | Which of the IDM's two error properties breaks it | `xy_shrink04` 1/100 CPU: shrinkage alone breaks it; `xy025_ar09` crashed before training |
-| 4 | `xy025_ar09` (rerun) | open: a milder shrink (e.g. `--xy-scale 0.7`), or `xy_shrink04` with training seed 1 | Does correlated noise alone also break it; how much shrinkage is too much | not launched |
+| 4 | `xy025_ar09` (rerun) | `xy_shrink07`: x, y scaled by 0.7, no noise (step R² 0.91) | Does correlated noise alone also break it; how much shrinkage is too much | launched 2026-11-13 |
 
 Sessions 1–2 changed the plan. Independent noise of the IDM's size is harmless (`results/action_free/noise_sweep/`),
 but the IDM's errors are structured: horizontal labels are shrunk (slope 0.27–0.47) and the errors are strongly
