@@ -1,0 +1,55 @@
+Cloning into '/tmp/code'...
+73a79d3 Noise sweep session 4: rerun correlated noise (xy025_ar09), add milder shrink (xy_shrink07)
+[03:26:06] setup
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.51.0 requires google-cloud-bigquery-storage\u003c3.0.0,>=2.30.0, which is not installed.
+kaggle-environments 1.33.3 requires gymnasium==1.2.0, but you have gymnasium 1.4.0 which is incompatible.
+ydata-profiling 4.18.4 requires matplotlib\u003c=3.10,>=3.5, but you have matplotlib 3.11.2 which is incompatible.
+dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.
+tensorflow 2.21.0 requires h5py\u003c3.15.0,>=3.11.0, but you have h5py 3.16.0 which is incompatible.
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+mani-skill 3.0.1 requires mplib==0.1.1; platform_system == "Linux", which is not installed.
+mani_skill 3.0.1 sapien 3.0.3
+torch 2.11.0+cu130 cuda True Tesla T4
+[03:27:28] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+Downloading demonstrations to /tmp/code/data/demos - 1/1, PickCube-v1
+Replayed 1000 episodes, 1000/1000=100.00% demos saved
+labelled ids: 100
+[03:47:58] labels and datasets: xy025_ar09 [--xy-r2 0.25 --ar1 0.9], xy_shrink07 [--xy-scale 0.7]
+wrote data/action_free/pseudo_labels/noise_xy025_ar09.npz: 900 episodes | achieved R2 x 0.253 y 0.242 z 1.000 | gripper acc 1.000
+wrote data/action_free/sets/noise_xy025_ar09_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+wrote data/action_free/pseudo_labels/noise_xy_shrink07.npz: 900 episodes | achieved R2 x 0.910 y 0.910 z 1.000 | gripper acc 1.000
+wrote data/action_free/sets/noise_xy_shrink07_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+[03:48:09] check: resize-on-access matches the old loader
+3760 samples from 50 episodes | frame shape (1, 3, 224, 224) torch.uint8 | stored frame (1, 3, 128, 128) | torch 2.11.0+cu130
+differing samples 0, differing pixel values 0
+PASS
+[03:48:32] PhysX GPU library: load once before the parallel runs
+Downloading PhysX GPU library to /root/.sapien/physx/105.1-physx-5.3.1.patch0 from Github. This can take several minutes. If it fails to download, please manually download fhttps://github.com/sapien-sim/physx-precompiled/releases/download/105.1-physx-5.3.1.patch0/linux-so.zip and unzip at /root/.sapien/physx/105.1-physx-5.3.1.patch0.
+Download complete.
+PhysX GPU library ready
+[03:48:36] training: xy025_ar09 (1000 episodes) on GPU 0, xy_shrink07 (1000 episodes) on GPU 1, 12000 steps each
+[06:54:04] training finished: xy025_ar09 exit 0, xy_shrink07 exit 0 (0 = done, 3 = stopped by time budget)
+| Run | Demos | Seed | Steps | Status | Final success_at_end | Final success_once | 95% CI (at_end) | Best at_end (step) | Backend | Commit |
+|---|---|---|---|---|---|---|---|---|---|---|
+| phase3_noise_xy025_ar09_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 27/100 (27%) | 47/100 (47%) | 19%–36% | 27% (12000) | physx_cuda | 73a79d3 |
+| phase3_noise_xy_shrink07_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 20/100 (20%) | 31/100 (31%) | 13%–29% | 22% (8000) | physx_cuda | 73a79d3 |
+Final = evaluation of the final model of a completed run (headline number). Best = highest success_at_end over all evaluations; it is selected on the evaluation scenes and therefore optimistic.
+Wrote 2 runs, 8 evaluations to /kaggle/working/metrics/
+wrote /kaggle/working/figures/fig2_training_loss.png, /kaggle/working/figures/fig2_training_loss.pdf
+wrote /kaggle/working/figures/fig2b_success_vs_step.png, /kaggle/working/figures/fig2b_success_vs_step.pdf
+wrote /kaggle/working/figures/fig3_data_efficiency.png, /kaggle/working/figures/fig3_data_efficiency.pdf
+--- xy025_ar09
+Run phase3_noise_xy025_ar09_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (92s)
+[eval] step 4000: success_once 45/100, success_at_end 14/100 (89s)
+[eval] step 8000: success_once 55/100, success_at_end 25/100 (90s)
+[eval] step 12000: success_once 47/100, success_at_end 27/100 (86s)
+--- xy_shrink07
+Run phase3_noise_xy_shrink07_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (91s)
+[eval] step 4000: success_once 25/100, success_at_end 14/100 (89s)
+[eval] step 8000: success_once 36/100, success_at_end 22/100 (89s)
+[eval] step 12000: success_once 31/100, success_at_end 20/100 (92s)
+[06:54:11] done

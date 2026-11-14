@@ -254,5 +254,37 @@
    0.214,
    null
   ]
+ },
+ "noise_xy_shrink07": {
+  "step_r2": [
+   0.91,
+   0.91,
+   1.0
+  ],
+  "bias": [
+   0.0004,
+   -0.0001,
+   0.0
+  ],
+  "slope_pred_on_true": [
+   0.7,
+   0.7,
+   1.0
+  ],
+  "err_lag1_autocorr": [
+   0.993,
+   0.99,
+   null
+  ],
+  "chunk30_displacement_r2": [
+   0.91,
+   0.91,
+   1.0
+  ],
+  "episode_offset_share_of_err_var": [
+   0.095,
+   0.095,
+   null
+  ]
  }
 }
