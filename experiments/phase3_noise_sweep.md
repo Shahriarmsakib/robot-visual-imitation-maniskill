@@ -27,6 +27,7 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 2 | `xy025` (rerun) | `xy050`: x, y at R² 0.5 | Does horizontal noise of the IDM's size break it | both 93/100 CPU: no |
 | 3 | `xy_shrink04`: x, y scaled by 0.4, no noise | `xy025_ar09`: x, y at R² 0.25, noise AR(1) with ρ = 0.9 | Which of the IDM's two error properties breaks it | `xy_shrink04` 1/100 CPU: shrinkage alone breaks it; `xy025_ar09` crashed before training |
 | 4 | `xy025_ar09` (rerun) | `xy_shrink07`: x, y scaled by 0.7, no noise (step R² 0.91) | Does correlated noise alone also break it; how much shrinkage is too much | `xy025_ar09` 52/100 CPU, `xy_shrink07` 25/100: both hurt alone |
+| 5 | `pos_cnn`: gripper position estimated from each image by a CNN, actions from position differences | `fusion`: Kalman/RTS smoother of CNN positions and IDM motion | Do labels with correct scale and cancelling errors (chunk R² 0.98–0.99 offline, `results/action_free/labeller_smoke/`) give a working policy; which matters more, scale (`pos_cnn`) or step accuracy (`fusion`) | prepared |
 
 Sessions 1–2 changed the plan. Independent noise of the IDM's size is harmless (`results/action_free/noise_sweep/`),
 but the IDM's errors are structured: horizontal labels are shrunk (slope 0.27–0.47) and the errors are strongly

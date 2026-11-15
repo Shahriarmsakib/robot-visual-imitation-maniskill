@@ -7,7 +7,8 @@
 # Usage (from the repo root):
 #   OUT=/kaggle/working TAG1=xy025 ARGS1="--xy-r2 0.25" TAG2=zg_idm ARGS2="--z-r2 0.81 --grip-flip 0.06" \
 #     bash scripts/run_phase3_noise.sh
-# Smoke test: DEMO_COUNT=130 MAX_FREE=30 ITERS=100 EVAL_FREQ=50 EVAL_EPS=10
+# Learned labellers instead of injected noise: ARGS1="labeller:pos_cnn" ARGS2="labeller:fusion" (scripts/labeller_smoke.py)
+# Smoke test: DEMO_COUNT=130 MAX_FREE=30 ITERS=100 EVAL_FREQ=50 EVAL_EPS=10 (LABELLER_STEPS=50 for labellers)
 set -euo pipefail
 
 N="${N:-100}"
@@ -19,6 +20,7 @@ ITERS="${ITERS:-12000}"
 EVAL_FREQ="${EVAL_FREQ:-4000}"
 EVAL_EPS="${EVAL_EPS:-100}"
 MAX_HOURS="${MAX_HOURS:-6.0}"
+LABELLER_STEPS="${LABELLER_STEPS:-3000}"
 OUT="${OUT:-results/phase3_noise}"
 SKIP_SETUP="${SKIP_SETUP:-0}"
 TAG1="${TAG1:?set TAG1}"; ARGS1="${ARGS1:?set ARGS1}"
@@ -45,10 +47,20 @@ fi
 SPLIT="$OUT/splits/N${N}_seed${SEED}.json"
 python -c "from src.action_free.data import save_split; print('labelled ids:', len(save_split('$SPLIT', $N, $SEED)))"
 
-build() {  # $1 tag, $2 corruption args -> prints the number of episodes
+build() {  # $1 tag, $2 corruption args or "labeller:<name>" -> prints the number of episodes
   local labels="data/action_free/pseudo_labels/noise_${1}.npz" set="data/action_free/sets/noise_${1}_N${N}_seed${SEED}.h5"
-  # shellcheck disable=SC2086
-  python scripts/make_noisy_labels.py --out "$labels" --seed "$NOISE_SEED" ${MAX_FREE:+--max-action-free "$MAX_FREE"} $2 >&2
+  if [[ "$2" == labeller:* ]]; then
+    # Learned labellers (scripts/labeller_smoke.py): trained once on labelled demos 0-79, calibrated on 80-99;
+    # writes idm, idm_rescale, pos_oracle, pos_cnn and fusion labels for every action-free demo.
+    local dir=data/action_free/pseudo_labels/labeller
+    [ -f "$dir/${2#labeller:}.npz" ] || python scripts/labeller_smoke.py --out "$dir" --steps "$LABELLER_STEPS" \
+      ${MAX_FREE:+--max-free "$MAX_FREE"} >&2
+    labels="$dir/${2#labeller:}.npz"
+    mkdir -p "$OUT/labels"; cp "$dir/calibration.json" "$OUT/labels/labeller_calibration.json"
+  else
+    # shellcheck disable=SC2086
+    python scripts/make_noisy_labels.py --out "$labels" --seed "$NOISE_SEED" ${MAX_FREE:+--max-action-free "$MAX_FREE"} $2 >&2
+  fi
   mkdir -p "$OUT/labels"; cp "${labels%.npz}.json" "$OUT/labels/noise_${1}.json"
   python scripts/build_pseudo_dataset.py --split "$SPLIT" --pseudo "$labels" --out "$set" >&2
   python -c "import json; print(len(json.load(open('${set%.h5}.json'))['episodes']))"
