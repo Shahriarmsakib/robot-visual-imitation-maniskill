@@ -1,4 +1,4 @@
-# Phase 3: label-noise sweep (sessions 1–5)
+# Phase 3: label-noise sweep (sessions 1–6)
 
 **Short answer: the *size* of the IDM's label errors is not what breaks arm B; their *structure* is, and each of
 its two structural flaws hurts on its own.** Random, step-independent errors as large as the IDM's are nearly
@@ -36,6 +36,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `xy_shrink07` | x, y: true action × 0.7, no noise; z, gripper true | x 0.910, y 0.910, z 1.0, gripper 100% | 4 |
 | `pos_cnn` | learned: gripper position from each image (CNN), actions from position differences; gripper from the IDM | x 0.214, y 0.606, z 0.773, gripper 92.3% | 5 (2026-11-15, code `71d2895`) |
 | `fusion` | learned: Kalman/RTS smoother of CNN positions and IDM motion; gripper from the IDM | x 0.886, y 0.949, z 0.955, gripper 92.3% | 5 |
+| `fusion_truegrip` | `fusion` x, y, z (rebuilt in session 6) + the true gripper command (diagnostic) | x 0.799, y 0.919, z 0.921, gripper 100% | 6 (2026-11-16, code `c4a69fc`) |
+| `fusion_gripw` | same x, y, z + gripper from the finger opening estimated in each image | x 0.799, y 0.919, z 0.921, gripper 95.8% | 6 |
 | Reference: IDM at N = 100 (`../policy_N100/`) | learned labels (Kaggle copy used by arm B) | x 0.23, y 0.29, z 0.81, gripper 94.3% | |
 
 ## Results
@@ -52,6 +54,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `xy025_ar09` | 0 / 0 | 14 / 45 | 25 / 55 | **27 / 47** (CI 19–36%) |
 | `pos_cnn` | 0 / 0 | 5 / 24 | 14 / 57 | **13 / 54** (CI 8–21%) |
 | `fusion` | 0 / 0 | 12 / 59 | 16 / 56 | **17 / 57** (CI 11–26%) |
+| `fusion_truegrip` | 0 / 0 | 11 / 38 | 15 / 61 | **21 / 65** (CI 14–30%) |
+| `fusion_gripw` | 0 / 0 | 9 / 31 | 17 / 55 | **23 / 64** (CI 16–32%) |
 | Upper bound, all true labels (`../upper_N1000/`) | 0 / 0 | 19 / 74 | 33 / 84 | 43 / 87 (CI 34–53%) |
 | Arm B, IDM pseudo-labels (`../policy_N100/`) | 0 / 0 | 1 / 1 | 0 / 1 | 1 / 1 |
 
@@ -72,6 +76,8 @@ upper bound; `failure_analysis/`, comparison in `compare_N100/`):
 | `xy025_ar09` (x, y noise at R² 0.25, correlated over time) | 77 | 78 | 63 | 59 | 59 | **52** |
 | `pos_cnn` (learned: positions from images) | 99 | 97 | 87 | 66 | 66 | **50** |
 | `fusion` (learned: positions + IDM motion) | 100 | 99 | 90 | 79 | 79 | **57** |
+| `fusion_truegrip` (fusion x, y, z + true gripper) | 100 | 100 | 90 | 71 | 71 | **60** |
+| `fusion_gripw` (fusion x, y, z + finger-width gripper) | 99 | 93 | 84 | 61 | 61 | **53** |
 | Upper bound (all true) | 100 | 100 | 96 | 97 | 97 | 95 |
 | Arm A, 100 labelled only | 97 | 96 | 90 | 11 | 4 | 3 |
 | Arm B, + IDM pseudo-labels | 9 | 12 | 7 | 0 | 0 | 0 |
@@ -190,6 +196,38 @@ demos 0–79, calibrated on 80–99; held-out IDM slope 0.30 / 0.35 / 0.64, CNN 
   - the Kaggle-built labels themselves, which differ somewhat from the Mac labels (x step R² 0.21 vs 0.42) and
     whose structure was not measured.
 
+## Session 6: fixing the gripper labels removes the drops, not the gap
+
+The diagnosis after session 5 (`../labeller_smoke/README.md`) found the IDM's gripper labels wrong in 22.8% of
+steps while the cube is held at the goal, and the policies releasing the cube there. Session 6 kept `fusion` x, y, z
+and changed only the gripper channel (`compare_gripper/`):
+
+![gripper](compare_gripper/figures/success_breakdown.png)
+
+| Comparison (paired, CPU) | Grasped | Reached target | Success at end |
+|---|---|---|---|
+| `fusion_truegrip` vs `fusion` | 1 vs 0 | 6 vs 14, p = 0.12 | 19 vs 16, p = 0.74 |
+| `fusion_gripw` vs `fusion` | 1 vs 7, p = 0.07 | 4 vs 22, p = 5e-4 | 16 vs 20, p = 0.62 |
+| `fusion_truegrip` vs `fusion_gripw` | 7 vs 0, p = 0.016 | 14 vs 4, p = 0.03 | 13 vs 6, p = 0.17 |
+| Upper bound vs `fusion_truegrip` | 0 vs 0 | 26 vs 0, p = 3e-8 | 36 vs 1, p = 6e-10 |
+| `fusion_gripw` vs arm B | 83 vs 2, p = 2e-22 | 61 vs 0, p = 9e-19 | 53 vs 0, p = 2e-16 |
+
+- **The gripper fix works as intended but does not raise success.** With true gripper labels, no episode releases
+  the cube after reaching the goal (20 with `fusion`), yet success at end is 60 vs 57 (paired 19 vs 16, p = 0.74).
+  The episodes that used to drop the cube now stop short instead: 29 grasp and hold it but never reach the goal
+  (20 with `fusion`), ending a median 2.3 cm off sideways and 2.6 cm too low (all 29 below the goal).
+- **The image-only gripper (`fusion_gripw`) is close to the true one at the end** (53 vs 60, p = 0.17) but misses
+  more grasps (93 vs 100, p = 0.016), consistent with its higher error while approaching (7.3% vs the IDM's 4.7%).
+- **The remaining gap is goal precision**, the same failure as the baseline ACT policy (thread 1): the cube is
+  carried short and low. The motion labels show a small systematic shortfall in z while carrying (mean error
+  −0.005 action units per step; summed over the carry −0.15 units, about 0.6 cm at 3.9 cm per unit; 68% of episodes
+  short), which random noise does not have. That is smaller than the 2.6 cm miss, so it can be at most part of
+  the cause; untested.
+- Caveat: the `fusion` x, y, z labels were rebuilt in this session and are not identical to session 5's (x step R²
+  0.80 vs 0.89; GPU training is not bit-reproducible), so `fusion_truegrip` vs `fusion` also differs slightly in
+  x, y, z. Their structure (`label_error_structure_session6.json`): slope 0.93 / 0.97 / 0.97, error autocorrelation
+  0.48 / 0.49 / 0.56, chunk R² 0.98 / 0.99 / 0.99.
+
 ## Caveats
 
 - One training seed and one noise seed per condition; 100 evaluation scenes.
@@ -228,11 +266,13 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
 - `labels/`: corruption settings and achieved label quality of each condition (from `make_noisy_labels.py`).
 - `runs/<condition>/`: config, sessions, metrics and training log from the Kaggle output (checkpoints not
   committed); `runs/xy025_session1_oom/`: the killed session-1 attempt; `runs/xy025_ar09_session3_crash/`: the crashed
-  session-3 run; `runs/session{2,3,4,5}_kernel_summary.txt`.
+  session-3 run; `runs/session{2,3,4,5,6}_kernel_summary.txt`.
 - `failure_analysis/`: CPU stage analysis of each final checkpoint (`scripts/failure_analysis.py`,
   100 episodes, 10 envs, scene seed 10000).
 - `compare_N100/`: combined summary and figures with arm B (N = 100) and the upper bound (sessions 1–3).
 - `compare_structure/`: random vs correlated noise vs shrinkage, with arm B and the upper bound (sessions 2–4).
 - `compare_labellers/`: learned labellers (`pos_cnn`, `fusion`) with random noise, arms A and B and the upper bound (session 5).
+- `compare_gripper/`: gripper-label variants of `fusion` (session 6).
+- `label_error_structure_session6.json`: structure of the exact session-6 labels (Kaggle).
 - `paired_tests.json`: counts and exact McNemar tests (each entry: only-first, only-second, p).
 - `label_error_structure.json`: label error statistics (IDM vs controlled noise).

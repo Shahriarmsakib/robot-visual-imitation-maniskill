@@ -28,7 +28,7 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 3 | `xy_shrink04`: x, y scaled by 0.4, no noise | `xy025_ar09`: x, y at R² 0.25, noise AR(1) with ρ = 0.9 | Which of the IDM's two error properties breaks it | `xy_shrink04` 1/100 CPU: shrinkage alone breaks it; `xy025_ar09` crashed before training |
 | 4 | `xy025_ar09` (rerun) | `xy_shrink07`: x, y scaled by 0.7, no noise (step R² 0.91) | Does correlated noise alone also break it; how much shrinkage is too much | `xy025_ar09` 52/100 CPU, `xy_shrink07` 25/100: both hurt alone |
 | 5 | `pos_cnn`: gripper position estimated from each image by a CNN, actions from position differences | `fusion`: Kalman/RTS smoother of CNN positions and IDM motion | Do labels with correct scale and cancelling errors (chunk R² 0.98–0.99 offline, `results/action_free/labeller_smoke/`) give a working policy; which matters more, scale (`pos_cnn`) or step accuracy (`fusion`) | `pos_cnn` 50/100, `fusion` 57/100 CPU: rescues arm B (0), below upper (95); label scores did not predict the gap |
-| 6 | `fusion_truegrip`: `fusion` x, y, z + the true gripper command (diagnostic) | `fusion_gripw`: `fusion` x, y, z + gripper from the finger opening estimated in each image | How much of the 57 → 95 gap do the IDM's gripper labels cause (wrong in 22.8% of steps holding at the goal); does the image-only finger-width fix (1.1%) recover it | prepared |
+| 6 | `fusion_truegrip`: `fusion` x, y, z + the true gripper command (diagnostic) | `fusion_gripw`: `fusion` x, y, z + gripper from the finger opening estimated in each image | How much of the 57 → 95 gap do the IDM's gripper labels cause (wrong in 22.8% of steps holding at the goal); does the image-only finger-width fix (1.1%) recover it | `fusion_truegrip` 60/100, `fusion_gripw` 53/100 CPU: drops gone, success unchanged; gap is goal precision |
 
 Sessions 1–2 changed the plan. Independent noise of the IDM's size is harmless (`results/action_free/noise_sweep/`),
 but the IDM's errors are structured: horizontal labels are shrunk (slope 0.27–0.47) and the errors are strongly
@@ -63,3 +63,6 @@ already harmless they would not be informative.
 - Session 5 (2026-11-15, code 71d2895): labellers built in the kernel; both runs completed. CPU success at end
   `pos_cnn` 50/100, `fusion` 57/100 (arm B 0, upper 95, `xy025` 93); reached target 66 / 79. GPU final 13 / 17.
   The chunk / slope label scores predicted `pos_cnn` ≥ `xy025`; it was not.
+- Session 6 (2026-11-16, code c4a69fc): labels npz kept in the output. True gripper labels remove the drops
+  (20 -> 0) but success at end 60 vs 57 (p = 0.74); finger-width gripper 53/100 (more missed grasps). Failures
+  shift to stopping short and low (median 2.3 cm sideways, 2.6 cm low). GPU final 21 / 23.

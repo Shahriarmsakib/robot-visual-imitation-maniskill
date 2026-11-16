@@ -99,8 +99,10 @@ Built into `scripts/labeller_smoke.py` as `fusion_gripw` (same models, 3,000 ste
 in 7.3% of *approach*, 1.9% of *carry* and **1.1% of *hold*** steps (IDM 4.7 / 7.6 / 22.8%); overall accuracy 95.2%
 vs 92.8%. Held-out finger-opening error and the map's fit are in the labeller's `calibration.json`.
 
-**Next test (session 6, one Kaggle session):** `fusion` x, y, z with (a) `fusion_truegrip`, the true gripper command,
-which isolates how much of the gap the gripper causes, and (b) `fusion_gripw`, the image-only fix.
+**Session 6 result (2026-11-16):** with the true gripper (`fusion_truegrip`) the drops disappear but success at end
+is 60/100 vs 57 (p = 0.74); with the finger-width gripper (`fusion_gripw`) 53/100. The episodes that dropped the
+cube now stop short and low, so the gripper was not the main cause of the gap; the remaining failure is goal
+precision (`../noise_sweep/README.md`, session 6).
 
 ## Caveats
 

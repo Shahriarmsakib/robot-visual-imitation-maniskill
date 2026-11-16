@@ -1,0 +1,73 @@
+Cloning into '/tmp/code'...
+c4a69fc Session 6: gripper labels from finger opening; diagnosis of the 50-57/100 gap
+[05:35:17] setup
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.51.0 requires google-cloud-bigquery-storage\u003c3.0.0,>=2.30.0, which is not installed.
+kaggle-environments 1.33.3 requires gymnasium==1.2.0, but you have gymnasium 1.4.0 which is incompatible.
+ydata-profiling 4.18.4 requires matplotlib\u003c=3.10,>=3.5, but you have matplotlib 3.11.2 which is incompatible.
+dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.
+tensorflow 2.21.0 requires h5py\u003c3.15.0,>=3.11.0, but you have h5py 3.16.0 which is incompatible.
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+mani-skill 3.0.1 requires mplib==0.1.1; platform_system == "Linux", which is not installed.
+mani_skill 3.0.1 sapien 3.0.3
+torch 2.11.0+cu130 cuda True Tesla T4
+[05:36:24] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+Downloading demonstrations to /tmp/code/data/demos - 1/1, PickCube-v1
+Replayed 1000 episodes, 1000/1000=100.00% demos saved
+labelled ids: 100
+[05:56:24] labels and datasets: fusion_truegrip [labeller:fusion_truegrip], fusion_gripw [labeller:fusion_gripw]
+loaded labelled (3s), device cuda
+position->action map R2 (true positions, labelled) [0.998 1.    1.   ]; action->motion map R2 [0.998 1.    1.   ]
+IDM trained (71s), loss 0.0622
+position CNN trained (129s), loss 0.0121
+finger-opening CNN trained (186s), loss 0.0022; opening->command map accuracy on recorded openings 1.0000
+held-out IDM slope [0.32 0.2  0.9 ] | CNN pos err sd (mm) [7.  3.7 7.7] | IDM motion err sd (mm) [2.96 2.9  2.91]
+  labelled 150/900 (195s)
+  labelled 300/900 (203s)
+  labelled 450/900 (212s)
+  labelled 600/900 (220s)
+  labelled 750/900 (228s)
+  labelled 900/900 (237s)
+idm: R2 x -0.226 y -0.223 z 0.665 | gripper acc 0.918
+idm_rescale: R2 x -8.830 y -16.770 z 0.595 | gripper acc 0.918
+pos_oracle: R2 x 0.998 y 1.000 z 1.000 | gripper acc 0.918
+pos_cnn: R2 x -0.755 y 0.400 z 0.604 | gripper acc 0.918
+fusion: R2 x 0.799 y 0.919 z 0.921 | gripper acc 0.918
+fusion_gripw: R2 x 0.799 y 0.919 z 0.921 | gripper acc 0.958
+fusion_truegrip: R2 x 0.799 y 0.919 z 0.921 | gripper acc 1.000
+done (237s)
+wrote data/action_free/sets/noise_fusion_truegrip_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+wrote data/action_free/sets/noise_fusion_gripw_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+[06:00:31] check: resize-on-access matches the old loader
+3760 samples from 50 episodes | frame shape (1, 3, 224, 224) torch.uint8 | stored frame (1, 3, 128, 128) | torch 2.11.0+cu130
+differing samples 0, differing pixel values 0
+PASS
+[06:00:48] PhysX GPU library: load once before the parallel runs
+Downloading PhysX GPU library to /root/.sapien/physx/105.1-physx-5.3.1.patch0 from Github. This can take several minutes. If it fails to download, please manually download fhttps://github.com/sapien-sim/physx-precompiled/releases/download/105.1-physx-5.3.1.patch0/linux-so.zip and unzip at /root/.sapien/physx/105.1-physx-5.3.1.patch0.
+Download complete.
+PhysX GPU library ready
+[06:00:55] training: fusion_truegrip (1000 episodes) on GPU 0, fusion_gripw (1000 episodes) on GPU 1, 12000 steps each
+[09:13:38] training finished: fusion_truegrip exit 0, fusion_gripw exit 0 (0 = done, 3 = stopped by time budget)
+| Run | Demos | Seed | Steps | Status | Final success_at_end | Final success_once | 95% CI (at_end) | Best at_end (step) | Backend | Commit |
+|---|---|---|---|---|---|---|---|---|---|---|
+| phase3_noise_fusion_gripw_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 23/100 (23%) | 64/100 (64%) | 16%–32% | 23% (12000) | physx_cuda | c4a69fc |
+| phase3_noise_fusion_truegrip_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 21/100 (21%) | 65/100 (65%) | 14%–30% | 21% (12000) | physx_cuda | c4a69fc |
+Final = evaluation of the final model of a completed run (headline number). Best = highest success_at_end over all evaluations; it is selected on the evaluation scenes and therefore optimistic.
+Wrote 2 runs, 8 evaluations to /kaggle/working/metrics/
+wrote /kaggle/working/figures/fig2_training_loss.png, /kaggle/working/figures/fig2_training_loss.pdf
+wrote /kaggle/working/figures/fig2b_success_vs_step.png, /kaggle/working/figures/fig2b_success_vs_step.pdf
+wrote /kaggle/working/figures/fig3_data_efficiency.png, /kaggle/working/figures/fig3_data_efficiency.pdf
+--- fusion_truegrip
+Run phase3_noise_fusion_truegrip_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (88s)
+[eval] step 4000: success_once 38/100, success_at_end 11/100 (90s)
+[eval] step 8000: success_once 61/100, success_at_end 15/100 (91s)
+[eval] step 12000: success_once 65/100, success_at_end 21/100 (88s)
+--- fusion_gripw
+Run phase3_noise_fusion_gripw_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (85s)
+[eval] step 4000: success_once 31/100, success_at_end 9/100 (89s)
+[eval] step 8000: success_once 55/100, success_at_end 17/100 (89s)
+[eval] step 12000: success_once 64/100, success_at_end 23/100 (90s)
+[09:13:45] done

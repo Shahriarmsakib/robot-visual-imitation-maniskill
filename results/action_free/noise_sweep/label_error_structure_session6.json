@@ -1,0 +1,66 @@
+{
+ "fusion_kaggle_s6": {
+  "step_r2": [
+   0.799,
+   0.919,
+   0.921
+  ],
+  "bias": [
+   -0.0008,
+   -0.0008,
+   0.0006
+  ],
+  "slope_pred_on_true": [
+   0.93,
+   0.969,
+   0.97
+  ],
+  "err_lag1_autocorr": [
+   0.484,
+   0.488,
+   0.555
+  ],
+  "chunk30_displacement_r2": [
+   0.981,
+   0.992,
+   0.991
+  ],
+  "episode_offset_share_of_err_var": [
+   0.015,
+   0.013,
+   0.022
+  ]
+ },
+ "fusion_gripw_kaggle_s6": {
+  "step_r2": [
+   0.799,
+   0.919,
+   0.921
+  ],
+  "bias": [
+   -0.0008,
+   -0.0008,
+   0.0006
+  ],
+  "slope_pred_on_true": [
+   0.93,
+   0.969,
+   0.97
+  ],
+  "err_lag1_autocorr": [
+   0.484,
+   0.488,
+   0.555
+  ],
+  "chunk30_displacement_r2": [
+   0.981,
+   0.992,
+   0.991
+  ],
+  "episode_offset_share_of_err_var": [
+   0.015,
+   0.013,
+   0.022
+  ]
+ }
+}

@@ -80,6 +80,22 @@
    "success_once": 79,
    "final_success": 57
   },
+  "FTG": {
+   "approached": 100,
+   "ever_grasped": 100,
+   "stable_lift": 90,
+   "reached_target": 71,
+   "success_once": 71,
+   "final_success": 60
+  },
+  "FGW": {
+   "approached": 99,
+   "ever_grasped": 93,
+   "stable_lift": 84,
+   "reached_target": 61,
+   "success_once": 61,
+   "final_success": 53
+  },
   "U1000": {
    "approached": 100,
    "ever_grasped": 100,
@@ -928,5 +944,185 @@
   41,
   5,
   4.405936238072172e-08
+ ],
+ "FTG_vs_FUS_approached": [
+  0,
+  0,
+  1.0
+ ],
+ "FTG_vs_FUS_ever_grasped": [
+  1,
+  0,
+  1.0
+ ],
+ "FTG_vs_FUS_stable_lift": [
+  4,
+  4,
+  1.0
+ ],
+ "FTG_vs_FUS_reached_target": [
+  6,
+  14,
+  0.11531829833984375
+ ],
+ "FTG_vs_FUS_success_once": [
+  6,
+  14,
+  0.11531829833984375
+ ],
+ "FTG_vs_FUS_final_success": [
+  19,
+  16,
+  0.735878800856881
+ ],
+ "FGW_vs_FUS_approached": [
+  0,
+  1,
+  1.0
+ ],
+ "FGW_vs_FUS_ever_grasped": [
+  1,
+  7,
+  0.0703125
+ ],
+ "FGW_vs_FUS_stable_lift": [
+  4,
+  10,
+  0.1795654296875
+ ],
+ "FGW_vs_FUS_reached_target": [
+  4,
+  22,
+  0.0005335211753845215
+ ],
+ "FGW_vs_FUS_success_once": [
+  4,
+  22,
+  0.0005335211753845215
+ ],
+ "FGW_vs_FUS_final_success": [
+  16,
+  20,
+  0.617719317029696
+ ],
+ "FTG_vs_FGW_approached": [
+  1,
+  0,
+  1.0
+ ],
+ "FTG_vs_FGW_ever_grasped": [
+  7,
+  0,
+  0.015625
+ ],
+ "FTG_vs_FGW_stable_lift": [
+  7,
+  1,
+  0.0703125
+ ],
+ "FTG_vs_FGW_reached_target": [
+  14,
+  4,
+  0.0308837890625
+ ],
+ "FTG_vs_FGW_success_once": [
+  14,
+  4,
+  0.0308837890625
+ ],
+ "FTG_vs_FGW_final_success": [
+  13,
+  6,
+  0.1670684814453125
+ ],
+ "U1000_vs_FTG_approached": [
+  0,
+  0,
+  1.0
+ ],
+ "U1000_vs_FTG_ever_grasped": [
+  0,
+  0,
+  1.0
+ ],
+ "U1000_vs_FTG_stable_lift": [
+  6,
+  0,
+  0.03125
+ ],
+ "U1000_vs_FTG_reached_target": [
+  26,
+  0,
+  2.9802322387695312e-08
+ ],
+ "U1000_vs_FTG_success_once": [
+  26,
+  0,
+  2.9802322387695312e-08
+ ],
+ "U1000_vs_FTG_final_success": [
+  36,
+  1,
+  5.529727786779404e-10
+ ],
+ "U1000_vs_FGW_approached": [
+  1,
+  0,
+  1.0
+ ],
+ "U1000_vs_FGW_ever_grasped": [
+  7,
+  0,
+  0.015625
+ ],
+ "U1000_vs_FGW_stable_lift": [
+  12,
+  0,
+  0.00048828125
+ ],
+ "U1000_vs_FGW_reached_target": [
+  36,
+  0,
+  2.9103830456733704e-11
+ ],
+ "U1000_vs_FGW_success_once": [
+  36,
+  0,
+  2.9103830456733704e-11
+ ],
+ "U1000_vs_FGW_final_success": [
+  42,
+  0,
+  4.547473508864641e-13
+ ],
+ "FGW_vs_B100_approached": [
+  91,
+  1,
+  3.75624008630037e-26
+ ],
+ "FGW_vs_B100_ever_grasped": [
+  83,
+  2,
+  1.8901076996836682e-22
+ ],
+ "FGW_vs_B100_stable_lift": [
+  79,
+  2,
+  2.747893994901158e-21
+ ],
+ "FGW_vs_B100_reached_target": [
+  61,
+  0,
+  8.673617379884035e-19
+ ],
+ "FGW_vs_B100_success_once": [
+  61,
+  0,
+  8.673617379884035e-19
+ ],
+ "FGW_vs_B100_final_success": [
+  53,
+  0,
+  2.220446049250313e-16
  ]
 }
