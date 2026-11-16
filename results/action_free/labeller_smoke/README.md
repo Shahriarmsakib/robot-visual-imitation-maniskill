@@ -1,6 +1,12 @@
 # Labeller smoke test: label structure only, no policy training (2026-11-15)
 
-**Short answer: labels built from estimated gripper positions avoid both flaws that break arm B, and rescaling the
+**Policy results (session 5, 2026-11-15): position-based labels rescue arm B but do not reach the upper bound, and
+the label scores below did not predict that gap.** Trained on `pos_cnn` labels the policy succeeds in **50/100** CPU
+episodes and on `fusion` labels in **57/100**, against 0/100 with IDM labels and 95/100 with true labels
+(`../noise_sweep/README.md`, session 5). By the label scores, `pos_cnn` (chunk R² 0.98–0.99, slope 0.97–0.98)
+should have done at least as well as random x, y noise (chunk R² 0.94–0.95, 93/100); it did not.
+
+**Label measurements: labels built from estimated gripper positions avoid both flaws that break arm B, and rescaling the
 IDM does not.** A small CNN that estimates the gripper position in each image, with actions taken as differences
 of positions, gives labels with the right scale (slope 0.97–0.98) and errors that cancel instead of persisting
 (lag-1 autocorrelation −0.07 / −0.33). Over a 30-step chunk its displacement R² is 0.98–0.99, better than the
@@ -55,8 +61,11 @@ IDM-implied motion error SD 2.6 / 2.3 / 2.7 mm per step.
 
 ## Caveats
 
-- Label measurements only; the link from these metrics to policy success rests on the noise sweep (six
-  conditions, one seed each).
+- The labels used for the session-5 policies were built on Kaggle (GPU) and differ somewhat from the Mac labels
+  scored here: achieved step R² for `pos_cnn` x / y / z 0.21 / 0.61 / 0.77 on Kaggle vs 0.42 / 0.66 / 0.79 on the Mac;
+  `fusion` 0.89 / 0.95 / 0.96 vs 0.90 / 0.95 / 0.96 (`../noise_sweep/labels/`). Their slope and chunk scores were
+  not measured (the Kaggle npz files were not kept).
+- The chunk and slope scores did not predict the policy result for these labellers (see the short answer).
 - The setting matters. In this pipeline the action-free demos keep their recorded robot state, so `pos_oracle`
   is available in "robot logs without commanded actions". For video-only data (e.g. human or internet video),
   only image-based labellers (`idm`, `pos_cnn`, `fusion`) apply.

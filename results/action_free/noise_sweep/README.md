@@ -1,4 +1,4 @@
-# Phase 3: label-noise sweep (sessions 1–4)
+# Phase 3: label-noise sweep (sessions 1–5)
 
 **Short answer: the *size* of the IDM's label errors is not what breaks arm B; their *structure* is, and each of
 its two structural flaws hurts on its own.** Random, step-independent errors as large as the IDM's are nearly
@@ -34,6 +34,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `xy_shrink04` | x, y: true action × 0.4, no noise; z, gripper true | x 0.640, y 0.640, z 1.0, gripper 100% | 3 (2026-11-10, code `d0797df`) |
 | `xy025_ar09` | x, y: noise to R² 0.25, AR(1) over time with ρ = 0.9; z, gripper true | x 0.253, y 0.242, z 1.0, gripper 100% | 4 (2026-11-13, code `73a79d3`); crashed before training in session 3 |
 | `xy_shrink07` | x, y: true action × 0.7, no noise; z, gripper true | x 0.910, y 0.910, z 1.0, gripper 100% | 4 |
+| `pos_cnn` | learned: gripper position from each image (CNN), actions from position differences; gripper from the IDM | x 0.214, y 0.606, z 0.773, gripper 92.3% | 5 (2026-11-15, code `71d2895`) |
+| `fusion` | learned: Kalman/RTS smoother of CNN positions and IDM motion; gripper from the IDM | x 0.886, y 0.949, z 0.955, gripper 92.3% | 5 |
 | Reference: IDM at N = 100 (`../policy_N100/`) | learned labels (Kaggle copy used by arm B) | x 0.23, y 0.29, z 0.81, gripper 94.3% | |
 
 ## Results
@@ -48,6 +50,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `xy_shrink04` | 0 / 0 | 1 / 1 | 2 / 4 | **2 / 3** (CI 1–7%) |
 | `xy_shrink07` | 0 / 0 | 14 / 25 | 22 / 36 | **20 / 31** (CI 13–29%) |
 | `xy025_ar09` | 0 / 0 | 14 / 45 | 25 / 55 | **27 / 47** (CI 19–36%) |
+| `pos_cnn` | 0 / 0 | 5 / 24 | 14 / 57 | **13 / 54** (CI 8–21%) |
+| `fusion` | 0 / 0 | 12 / 59 | 16 / 56 | **17 / 57** (CI 11–26%) |
 | Upper bound, all true labels (`../upper_N1000/`) | 0 / 0 | 19 / 74 | 33 / 84 | 43 / 87 (CI 34–53%) |
 | Arm B, IDM pseudo-labels (`../policy_N100/`) | 0 / 0 | 1 / 1 | 0 / 1 | 1 / 1 |
 
@@ -66,6 +70,8 @@ upper bound; `failure_analysis/`, comparison in `compare_N100/`):
 | `xy_shrink07` (x, y × 0.7, no noise) | 87 | 83 | 70 | 27 | 27 | **25** |
 | `xy_shrink04` (x, y × 0.4, no noise) | 24 | 26 | 18 | 1 | 1 | **1** |
 | `xy025_ar09` (x, y noise at R² 0.25, correlated over time) | 77 | 78 | 63 | 59 | 59 | **52** |
+| `pos_cnn` (learned: positions from images) | 99 | 97 | 87 | 66 | 66 | **50** |
+| `fusion` (learned: positions + IDM motion) | 100 | 99 | 90 | 79 | 79 | **57** |
 | Upper bound (all true) | 100 | 100 | 96 | 97 | 97 | 95 |
 | Arm A, 100 labelled only | 97 | 96 | 90 | 11 | 4 | 3 |
 | Arm B, + IDM pseudo-labels | 9 | 12 | 7 | 0 | 0 | 0 |
@@ -148,6 +154,42 @@ alone:
 - Neither flaw alone reproduces arm B's 0/100; the IDM labels have both, with slope 0.27–0.47 (around and below the
   stronger shrink tested) and autocorrelation 0.78–0.95. Whether the combination fully explains arm B is not tested.
 
+## Session 5: learned position-based labellers
+
+The labellers of `../labeller_smoke/` were run inside the Kaggle kernel (IDM and position CNN trained on labelled
+demos 0–79, calibrated on 80–99; held-out IDM slope 0.30 / 0.35 / 0.64, CNN position error SD 5.3 / 3.6 / 4.8 mm,
+`labels/session5_labeller_calibration.json`) and arm B was trained on their labels (`compare_labellers/`):
+
+![labellers](compare_labellers/figures/success_breakdown.png)
+
+| Comparison (paired, CPU) | Reached target | Success at end |
+|---|---|---|
+| `pos_cnn` vs arm B (IDM labels) | 66 vs 0, p = 3e-20 | 50 vs 0, p = 2e-15 |
+| `fusion` vs arm B | 79 vs 0, p = 3e-24 | 57 vs 0, p = 1e-17 |
+| `pos_cnn` vs arm A (100 labelled only) | 56 vs 1, p = 8e-16 | 48 vs 1, p = 2e-13 |
+| `fusion` vs arm A | 68 vs 0, p = 7e-21 | 55 vs 1, p = 2e-15 |
+| Upper bound vs `pos_cnn` | 31 vs 0, p = 9e-10 | 45 vs 0, p = 6e-14 |
+| Upper bound vs `fusion` | 19 vs 1, p = 4e-5 | 39 vs 1, p = 7e-11 |
+| `fusion` vs `pos_cnn` | 15 vs 2, p = 0.002 | 12 vs 5, p = 0.14 |
+| `xy025` (random noise) vs `fusion` | 19 vs 3, p = 9e-4 | 41 vs 5, p = 4e-8 |
+
+- **Position-based labels rescue arm B.** The policy now reaches and grasps the cube as reliably as the upper
+  bound (99–100 / 97–99) and gets the cube to the goal in 66–79 episodes, against 0 with IDM labels and 11 for arm A.
+- **They do not close the gap.** Success at end is 50–57 against 95. Most remaining failures are at the goal:
+  16–22 episodes reach it but do not hold it at the end, and 20–31 never reach it after grasping.
+- **Fusion gets to the goal more often** (79 vs 66, p = 0.002); final success is not clearly different (57 vs 50).
+- **The label scores did not predict this.** Scored on the Mac (`../labeller_smoke/`), `pos_cnn` labels had the right
+  scale (slope 0.97–0.98) and chunk R² 0.98–0.99, at least as good as the random-noise labels of `xy025` (93/100),
+  yet the policy reached 50/100. Something not captured by slope, persistence or chunk R² hurts. Untested
+  candidates:
+  - noise on all three axes plus 7.7% gripper errors at once (`xy025` had exact z and gripper; `zg_idm`, with z and
+    gripper noise but exact x, y, reached 90);
+  - errors that depend on where the gripper is (systematic in parts of the workspace, e.g. near the goal) rather
+    than being independent of the scene;
+  - label noise while the arm should hold still at the goal;
+  - the Kaggle-built labels themselves, which differ somewhat from the Mac labels (x step R² 0.21 vs 0.42) and
+    whose structure was not measured.
+
 ## Caveats
 
 - One training seed and one noise seed per condition; 100 evaluation scenes.
@@ -186,10 +228,11 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
 - `labels/`: corruption settings and achieved label quality of each condition (from `make_noisy_labels.py`).
 - `runs/<condition>/`: config, sessions, metrics and training log from the Kaggle output (checkpoints not
   committed); `runs/xy025_session1_oom/`: the killed session-1 attempt; `runs/xy025_ar09_session3_crash/`: the crashed
-  session-3 run; `runs/session{2,3,4}_kernel_summary.txt`.
+  session-3 run; `runs/session{2,3,4,5}_kernel_summary.txt`.
 - `failure_analysis/`: CPU stage analysis of each final checkpoint (`scripts/failure_analysis.py`,
   100 episodes, 10 envs, scene seed 10000).
 - `compare_N100/`: combined summary and figures with arm B (N = 100) and the upper bound (sessions 1–3).
 - `compare_structure/`: random vs correlated noise vs shrinkage, with arm B and the upper bound (sessions 2–4).
+- `compare_labellers/`: learned labellers (`pos_cnn`, `fusion`) with random noise, arms A and B and the upper bound (session 5).
 - `paired_tests.json`: counts and exact McNemar tests (each entry: only-first, only-second, p).
 - `label_error_structure.json`: label error statistics (IDM vs controlled noise).

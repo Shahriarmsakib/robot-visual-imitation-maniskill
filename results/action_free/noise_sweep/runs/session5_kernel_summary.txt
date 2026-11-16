@@ -1,0 +1,70 @@
+Cloning into '/tmp/code'...
+71d2895 Session 5: learned position-based labellers (pos_cnn, fusion) and label smoke test
+[21:59:07] setup
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.51.0 requires google-cloud-bigquery-storage\u003c3.0.0,>=2.30.0, which is not installed.
+kaggle-environments 1.33.3 requires gymnasium==1.2.0, but you have gymnasium 1.4.0 which is incompatible.
+ydata-profiling 4.18.4 requires matplotlib\u003c=3.10,>=3.5, but you have matplotlib 3.11.2 which is incompatible.
+dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.
+tensorflow 2.21.0 requires h5py\u003c3.15.0,>=3.11.0, but you have h5py 3.16.0 which is incompatible.
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+mani-skill 3.0.1 requires mplib==0.1.1; platform_system == "Linux", which is not installed.
+mani_skill 3.0.1 sapien 3.0.3
+torch 2.11.0+cu130 cuda True Tesla T4
+[22:00:13] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+Downloading demonstrations to /tmp/code/data/demos - 1/1, PickCube-v1
+Replayed 1000 episodes, 1000/1000=100.00% demos saved
+labelled ids: 100
+[22:19:21] labels and datasets: pos_cnn [labeller:pos_cnn], fusion [labeller:fusion]
+loaded labelled (3s), device cuda
+position->action map R2 (true positions, labelled) [0.998 1.    1.   ]; action->motion map R2 [0.998 1.    1.   ]
+IDM trained (71s), loss 0.0050
+position CNN trained (125s), loss 0.0018
+held-out IDM slope [0.302 0.345 0.636] | CNN pos err sd (mm) [5.3 3.6 4.8] | IDM motion err sd (mm) [2.54 2.09 2.74]
+  labelled 150/900 (133s)
+  labelled 300/900 (141s)
+  labelled 450/900 (149s)
+  labelled 600/900 (157s)
+  labelled 750/900 (165s)
+  labelled 900/900 (173s)
+idm: R2 x 0.213 y 0.252 z 0.718 | gripper acc 0.923
+idm_rescale: R2 x -4.086 y -1.317 z 0.627 | gripper acc 0.923
+pos_oracle: R2 x 0.998 y 1.000 z 1.000 | gripper acc 0.923
+pos_cnn: R2 x 0.214 y 0.606 z 0.773 | gripper acc 0.923
+fusion: R2 x 0.886 y 0.949 z 0.955 | gripper acc 0.923
+done (173s)
+wrote data/action_free/sets/noise_pos_cnn_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+wrote data/action_free/sets/noise_fusion_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+[22:22:24] check: resize-on-access matches the old loader
+3760 samples from 50 episodes | frame shape (1, 3, 224, 224) torch.uint8 | stored frame (1, 3, 128, 128) | torch 2.11.0+cu130
+differing samples 0, differing pixel values 0
+PASS
+[22:22:42] PhysX GPU library: load once before the parallel runs
+Downloading PhysX GPU library to /root/.sapien/physx/105.1-physx-5.3.1.patch0 from Github. This can take several minutes. If it fails to download, please manually download fhttps://github.com/sapien-sim/physx-precompiled/releases/download/105.1-physx-5.3.1.patch0/linux-so.zip and unzip at /root/.sapien/physx/105.1-physx-5.3.1.patch0.
+Download complete.
+PhysX GPU library ready
+[22:22:45] training: pos_cnn (1000 episodes) on GPU 0, fusion (1000 episodes) on GPU 1, 12000 steps each
+[02:02:55] training finished: pos_cnn exit 0, fusion exit 0 (0 = done, 3 = stopped by time budget)
+| Run | Demos | Seed | Steps | Status | Final success_at_end | Final success_once | 95% CI (at_end) | Best at_end (step) | Backend | Commit |
+|---|---|---|---|---|---|---|---|---|---|---|
+| phase3_noise_fusion_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 17/100 (17%) | 57/100 (57%) | 11%–26% | 17% (12000) | physx_cuda | 71d2895 |
+| phase3_noise_pos_cnn_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 13/100 (13%) | 54/100 (54%) | 8%–21% | 14% (8000) | physx_cuda | 71d2895 |
+Final = evaluation of the final model of a completed run (headline number). Best = highest success_at_end over all evaluations; it is selected on the evaluation scenes and therefore optimistic.
+Wrote 2 runs, 8 evaluations to /kaggle/working/metrics/
+wrote /kaggle/working/figures/fig2_training_loss.png, /kaggle/working/figures/fig2_training_loss.pdf
+wrote /kaggle/working/figures/fig2b_success_vs_step.png, /kaggle/working/figures/fig2b_success_vs_step.pdf
+wrote /kaggle/working/figures/fig3_data_efficiency.png, /kaggle/working/figures/fig3_data_efficiency.pdf
+--- pos_cnn
+Run phase3_noise_pos_cnn_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (86s)
+[eval] step 4000: success_once 24/100, success_at_end 5/100 (89s)
+[eval] step 8000: success_once 57/100, success_at_end 14/100 (90s)
+[eval] step 12000: success_once 54/100, success_at_end 13/100 (89s)
+--- fusion
+Run phase3_noise_fusion_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (84s)
+[eval] step 4000: success_once 59/100, success_at_end 12/100 (91s)
+[eval] step 8000: success_once 56/100, success_at_end 16/100 (91s)
+[eval] step 12000: success_once 57/100, success_at_end 17/100 (85s)
+[02:03:02] done

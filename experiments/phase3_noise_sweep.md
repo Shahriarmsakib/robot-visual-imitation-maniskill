@@ -27,7 +27,7 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 2 | `xy025` (rerun) | `xy050`: x, y at R² 0.5 | Does horizontal noise of the IDM's size break it | both 93/100 CPU: no |
 | 3 | `xy_shrink04`: x, y scaled by 0.4, no noise | `xy025_ar09`: x, y at R² 0.25, noise AR(1) with ρ = 0.9 | Which of the IDM's two error properties breaks it | `xy_shrink04` 1/100 CPU: shrinkage alone breaks it; `xy025_ar09` crashed before training |
 | 4 | `xy025_ar09` (rerun) | `xy_shrink07`: x, y scaled by 0.7, no noise (step R² 0.91) | Does correlated noise alone also break it; how much shrinkage is too much | `xy025_ar09` 52/100 CPU, `xy_shrink07` 25/100: both hurt alone |
-| 5 | `pos_cnn`: gripper position estimated from each image by a CNN, actions from position differences | `fusion`: Kalman/RTS smoother of CNN positions and IDM motion | Do labels with correct scale and cancelling errors (chunk R² 0.98–0.99 offline, `results/action_free/labeller_smoke/`) give a working policy; which matters more, scale (`pos_cnn`) or step accuracy (`fusion`) | prepared |
+| 5 | `pos_cnn`: gripper position estimated from each image by a CNN, actions from position differences | `fusion`: Kalman/RTS smoother of CNN positions and IDM motion | Do labels with correct scale and cancelling errors (chunk R² 0.98–0.99 offline, `results/action_free/labeller_smoke/`) give a working policy; which matters more, scale (`pos_cnn`) or step accuracy (`fusion`) | `pos_cnn` 50/100, `fusion` 57/100 CPU: rescues arm B (0), below upper (95); label scores did not predict the gap |
 
 Sessions 1–2 changed the plan. Independent noise of the IDM's size is harmless (`results/action_free/noise_sweep/`),
 but the IDM's errors are structured: horizontal labels are shrunk (slope 0.27–0.47) and the errors are strongly
@@ -59,3 +59,6 @@ already harmless they would not be informative.
 - Session 4 (2026-11-13, code 73a79d3): PhysX library pre-loaded, both runs completed. `xy025_ar09` (correlated
   noise, R² 0.25): CPU 52/100 vs 93 for independent noise of the same size (paired 42 vs 1). `xy_shrink07` (×0.7,
   step R² 0.91): CPU 25/100, reaches and grasps the cube but rarely the goal. GPU final 27 and 20/100.
+- Session 5 (2026-11-15, code 71d2895): labellers built in the kernel; both runs completed. CPU success at end
+  `pos_cnn` 50/100, `fusion` 57/100 (arm B 0, upper 95, `xy025` 93); reached target 66 / 79. GPU final 13 / 17.
+  The chunk / slope label scores predicted `pos_cnn` ≥ `xy025`; it was not.
