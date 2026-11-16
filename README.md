@@ -6,7 +6,7 @@ Robot demonstrations with recorded actions are expensive; video of the same beha
 
 The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goal position) with the official ACT policy from RGB images. Simulation is the point, not a limitation: every frame comes with the true action, object poses and camera calibration, so the study can measure what real-video work cannot. That includes how accurate pseudo-labels are, what latent actions encode, and *why* a policy fails.
 
-> **Status (2026-11-08).** Baseline and failure analysis done. Object-centric dataset pipeline done. Action-free study: pseudo-label quality and the first policy comparison (N = 25) done. Simulation only; nothing here claims real-robot transfer. Progress log: [experiments/status.md](experiments/status.md).
+> **Status (2026-11-16).** Baseline and failure analysis done. Object-centric dataset pipeline done. Action-free study: inverse-dynamics (IDM) pseudo-labels collapse the policy (0/100 vs 95/100 with true labels). A controlled label-noise sweep shows why: the *structure* of label errors (shrunk motion, errors that persist over time, gripper errors concentrated at the goal) matters, not their size. Labels built from the gripper position estimated in each image lift the policy from 0/100 to 57/100; a gripper-label fix is being tested now. One training seed per condition; simulation only, nothing here claims real-robot transfer. Progress log: [experiments/status.md](experiments/status.md).
 
 ## Research thread
 
@@ -14,9 +14,11 @@ The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goa
 |---|---|---|---|
 | **1. Baseline and diagnosis** | How good is the standard ACT RGB policy, and why does it fail? | Done | 18/100 success (published reference 28/100, best checkpoint). It grasps 97% of the time but places the cube in only 25% of episodes. The bottleneck is goal precision, not grasping |
 | **2. Object-centric data** | Can we extract synchronized RGB-D, ground-truth object/gripper geometry and camera calibration in ACT's action space? | Done | Validated on Mac and Linux; replay matches the recorded demos to 0.00 mm on Linux |
-| **3. Learning from action-free demos** | With only N labelled demos, does an IDM or a latent action model trained on the rest improve the policy? | In progress | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25; at N = 25 pseudo-labels hurt the policy (grasp 74% → 14%). With all 1,000 labels the same schedule reaches 43/100 (GPU) and 95/100 (CPU), so N = 25 is label-limited. At N = 100 pseudo-labels still collapse the policy (reached cube 97% → 9%) |
-| **4. Object-centric latent actions** *(next)* | Do actions expressed relative to the cube and goal fix the precision bottleneck and make action-free learning robust? | Planned | — |
-| **5. Visual robustness** *(next)* | Which representation degrades least under camera, lighting and distractor shifts? | Planned | — |
+| **3. Learning from action-free demos** | With only N labelled demos, does an IDM trained on them improve the policy? | Done for N = 25, 100 | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25 by per-step accuracy, yet they collapse the policy: at N = 100 it reaches the cube in 9/100 episodes vs 97/100 without them, and succeeds 0/100 vs 95/100 with all 1,000 true labels |
+| **3b. What makes pseudo-labels useful?** | Which label errors break the policy, and can labels be built to avoid them? | In progress | Random errors as large as the IDM's are harmless (93/100). Shrunk motion (×0.7: 25/100, ×0.4: 1/100), time-correlated noise (52/100) and gripper errors concentrated at the goal break it. Labels from the gripper position estimated in each image: 50–57/100. Gripper fix running |
+| **4. Video-only data and generality** *(next)* | Do position-based labels work when the action-free demos have no robot state at all, and on other tasks, with ≥ 3 seeds? | Planned | — |
+| **5. Object-centric latent actions** *(later)* | Do actions expressed relative to the cube and goal fix the precision bottleneck and make action-free learning robust? | Planned | — |
+| **6. Visual robustness** *(later)* | Which representation degrades least under camera, lighting and distractor shifts? | Planned | — |
 
 ## Key results
 
@@ -34,7 +36,7 @@ An inverse dynamics model (IDM) trained on N labelled demos predicts the hidden 
 
 ![IDM label quality](results/action_free/idm/idm_label_quality.png)
 
-### 3. Does pseudo-labelling help the policy? Not at N = 25: noisy labels hurt, and 25 labels are far below the 1,000-label upper bound
+### 3. Does pseudo-labelling help the policy? No: IDM labels collapse it, at N = 25 and N = 100
 
 At N = 25, ACT was trained on the 25 labelled demos alone (arm A) and on the same 25 plus 900 IDM-pseudo-labelled demos (arm B). Both used the same settings, seed and evaluation scenes; 12k steps each on Kaggle. Neither completes the task (0/100). The stage breakdown on 100 identical scenes separates them sharply: arm A **grasps the cube in 74%** of episodes, while arm B grasps in **14%** and mostly never reaches the cube (paired exact test p < 1e-12). At this budget the IDM's horizontal labels are worse than guessing, and training on them on 97% of the data pulled the policy off the cube. One seed; it shows label quality has to clear a threshold before pseudo-labelling helps ([details](results/action_free/policy_N25/README.md)).
 
@@ -48,9 +50,29 @@ At N = 25, ACT was trained on the 25 labelled demos alone (arm A) and on the sam
 
 ![label budgets](results/action_free/policy_N100/label_budget_compare/figures/success_breakdown.png)
 
-**Which label errors matter? A controlled noise sweep.** Here arm B is trained on the 900 demos' *true* actions with known errors added. Errors as large as the IDM's are nearly harmless when they are random and independent across steps. With horizontal labels at R² 0.25 the policy succeeds in **93/100** CPU episodes, and the same with R² 0.5 (93/100) or with vertical + gripper labels at the IDM's level (90/100). Perfect labels give 95/100 (paired differences not significant), and the real IDM labels give 0/100. The IDM's errors differ in structure: it shrinks horizontal motion (slope 0.27–0.47 against the true action) and its errors persist from step to step (autocorrelation 0.78–0.95). Over a 30-step action chunk its horizontal displacement therefore has R² 0.21–0.68, while random noise averages out to 0.94–0.97. So per-step R² hides what matters to the policy. Direct tests then isolated each property. True labels with the horizontal part simply scaled down, with no noise, give **25/100** at ×0.7 (per-step R² 0.91) and **1/100** at ×0.4 (R² 0.64). Noise of the harmless size but correlated over time gives **52/100**, against 93/100 when independent. Both flaws hurt on their own, and the IDM's labels have both. Labels built instead from the gripper position estimated in each image (differenced into actions) avoid both flaws and lift the policy from 0/100 to **50/100**, or **57/100** when fused with the IDM's motion estimate; still well below 95/100, and our label scores did not predict that gap. One seed per condition ([details](results/action_free/noise_sweep/README.md), [labellers](results/action_free/labeller_smoke/README.md)).
+### 4. Which label errors matter? Structure, not size
+
+**A controlled noise sweep.** Arm B (N = 100) is trained on the 900 demos' *true* actions with known errors added, so label quality is set exactly. CPU success at end on the same 100 scenes, one seed each:
+
+| Labels for the 900 action-free demos | Per-step R² (x, y) | Success |
+|---|---|---|
+| True actions (upper bound) | 1.0 | 95 |
+| Random noise on x, y | 0.25 / 0.5 | 93 / 93 |
+| Random noise on z + 6% gripper flips (IDM level) | x, y exact | 90 |
+| Noise of the same size, correlated over time | 0.25 | 52 |
+| x, y scaled by 0.7, no noise | 0.91 | 25 |
+| x, y scaled by 0.4, no noise | 0.64 | 1 |
+| IDM pseudo-labels | about 0.2–0.3 | 0 |
+
+Errors as large as the IDM's are harmless when random: over a 30-step action chunk they average out. The IDM's errors are not random. It shrinks horizontal motion (slope 0.27–0.47 against the true action) and its errors persist from step to step (autocorrelation 0.78–0.95), and each of these flaws breaks the policy on its own, even at high per-step R² ([details](results/action_free/noise_sweep/README.md)).
 
 ![noise sweep](results/action_free/noise_sweep/compare_structure/figures/success_breakdown.png)
+
+**Labels built from estimated positions.** The action in this task is almost exactly a function of how the gripper moves (with recorded positions, a linear map recovers it with R² 0.998–1.0). So instead of an IDM, a small CNN estimates the gripper position in each image (trained on the 100 labelled demos), and actions are taken as differences of positions. These labels have the right scale and errors that cancel instead of persisting. Trained on them, the policy reaches and grasps the cube in 97–100% of episodes and succeeds in **50/100**, or **57/100** when the positions are fused with the IDM's motion estimate in a Kalman smoother, against 0/100 with IDM labels ([details](results/action_free/labeller_smoke/README.md)).
+
+![labellers](results/action_free/noise_sweep/compare_labellers/figures/success_breakdown.png)
+
+**Why not 95?** Most remaining failures release the cube at the goal. Both labellers still take the gripper channel from the IDM, which says "open" in 22.8% of steps while the cube is held still at the goal (random flips at that overall rate are harmless). Estimating the finger opening from each image instead cuts those errors to 1.1%. The policy effect of that fix is being tested now, against a run with the true gripper labels. The label scores used so far (slope, chunk-level R²) did not predict the 50–57/100 result, so they are incomplete; finding a score that predicts policy success is part of the next step.
 
 ## Why this direction
 
@@ -71,6 +93,8 @@ python scripts/failure_analysis.py <checkpoint> --label step30000 --videos      
 python scripts/build_objectcentric_ee_delta.py                                  # thread 2 dataset
 python scripts/idm_sweep.py --offsets 0 1 2                                     # thread 3 IDM label quality
 OUT=results/phase3_run bash scripts/run_phase3_pair.sh                          # thread 3 policy pair (2 GPUs)
+python scripts/labeller_smoke.py --out results/labellers                        # thread 3b learned labellers (IDM, position CNN, fusion)
+OUT=results/noise TAG1=xy025 ARGS1="--xy-r2 0.25" TAG2=fusion ARGS2="labeller:fusion" bash scripts/run_phase3_noise.sh  # thread 3b policies (2 GPUs)
 ```
 
 Full runs are meant for a CUDA GPU. Training resumes exactly from checkpoints, and evaluation scenes are fully reproducible (`enhanced_determinism`). Kaggle runners: [notebooks/kaggle_train.ipynb](notebooks/kaggle_train.ipynb), [kaggle/phase3_pair_kernel.py](kaggle/phase3_pair_kernel.py).
