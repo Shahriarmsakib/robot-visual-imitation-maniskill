@@ -15,6 +15,7 @@ Labellers (x, y, z; the gripper channel is the IDM's unless named otherwise):
                    finger joints) in each image (trained on 0-79), a logistic map from the opening over t..t+3 to
                    the command is fit on recorded openings of demos 0-99
   fusion_truegrip  fusion x, y, z + the TRUE gripper command (diagnostic only: reads the action-free demos' actions)
+  posrec_truegrip  recorded positions -> the same map, TRUE gripper (diagnostic: is position-to-action lossless?)
 Writes one npz per labeller (traj_<id> -> (T, 4)) plus a json with its achieved label quality on the action-free
 demos (scored against their true actions, which no labeller reads), for scripts/build_pseudo_dataset.py and
 scripts/label_error_structure.py. Used by scripts/run_phase3_noise.sh with ARGS="labeller:<name>".
@@ -216,7 +217,8 @@ def main():
           "| IDM motion err sd (mm)", np.round(np.sqrt(Q) * 1000, 2), flush=True)
 
     # 5) label the action-free demos
-    labs = {k: {} for k in ["idm", "idm_rescale", "pos_oracle", "pos_cnn", "fusion", "fusion_gripw", "fusion_truegrip"]}
+    labs = {k: {} for k in ["idm", "idm_rescale", "pos_oracle", "pos_cnn", "fusion", "fusion_gripw", "fusion_truegrip",
+                            "posrec_truegrip"]}
     true = {}
     for n, i in enumerate(free_ids):
         fr, a, p = load(f, i)
@@ -234,6 +236,8 @@ def main():
         gw = np.where(grip_map(grip_features(wid_pred(fr)[:, 0])), 1.0, -1.0)[:, None]
         labs["fusion_gripw"][f"traj_{i}"] = np.concatenate([fu[:, :3], gw], 1).astype(np.float32)
         labs["fusion_truegrip"][f"traj_{i}"] = np.concatenate([fu[:, :3], a[:, 3:4]], 1).astype(np.float32)
+        tg = a[:, 3:4]
+        labs["posrec_truegrip"][f"traj_{i}"] = np.concatenate([to_act(p)[:, :3], tg], 1).astype(np.float32)
         if (n + 1) % 150 == 0:
             print(f"  labelled {n + 1}/{len(free_ids)} ({time.time() - t0:.0f}s)", flush=True)
     keys = list(true)
