@@ -57,6 +57,7 @@ build() {  # $1 tag, $2 corruption args or "labeller:<name>" -> prints the numbe
       ${MAX_FREE:+--max-free "$MAX_FREE"} >&2
     labels="$dir/${2#labeller:}.npz"
     mkdir -p "$OUT/labels"; cp "$dir/calibration.json" "$OUT/labels/labeller_calibration.json"
+    cp "$labels" "$OUT/labels/noise_${1}.npz"  # keep the exact labels the policy trains on (a few MB)
   else
     # shellcheck disable=SC2086
     python scripts/make_noisy_labels.py --out "$labels" --seed "$NOISE_SEED" ${MAX_FREE:+--max-action-free "$MAX_FREE"} $2 >&2

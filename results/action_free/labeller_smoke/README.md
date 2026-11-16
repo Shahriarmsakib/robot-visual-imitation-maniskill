@@ -59,6 +59,49 @@ IDM-implied motion error SD 2.6 / 2.3 / 2.7 mm per step.
   (step R² −6.2 on x). The slope estimated on 20 held-out demos also overshoots on x (1.45). Shrinkage cannot be
   undone after the fact here, because the IDM's predictions carry too little signal on x and y.
 
+## Why position-based labels stop at 50–57/100: diagnosis (2026-11-16)
+
+Mac-only checks on the session-5 policies (CPU episodes) and on the Mac-built labels (same method as Kaggle; the
+Kaggle label files were not kept).
+
+**1. The policies let go of the cube at the goal.** The failure analysis flags 14 (`pos_cnn`) and 20 (`fusion`)
+episodes as "released or dropped after reaching the target", against none for the upper bound and `xy025`. Nearly
+all failed episodes that grasped the cube end with it below the goal (47 / 47 and 41 / 42).
+
+**2. The gripper labels say "open" while holding at the goal.** Both labellers take their gripper channel from the
+IDM. Phases on the 900 demos from the recorded state: *approach* (not grasped), *carry* (grasped), *hold* (grasped,
+cube within 2.5 cm of the goal).
+
+| Gripper labels | Approach wrong | Carry wrong | Hold wrong |
+|---|---|---|---|
+| IDM (used by `pos_cnn`, `fusion`) | 4.7% | 7.6% | **22.8%** (1,258 of 5,506 steps, all "open" for a closed gripper) |
+| `zg_idm` (random 6% flips; 90/100 policy) | 6.2% | 5.9% | 5.6% |
+| Finger width from images (CNN), see 4 | 11.8% | 2.8% | **1.9%** |
+
+In the last 10 steps of each episode the IDM's gripper label is wrong 16.9% of the time. A plausible reason:
+while the arm holds still, consecutive frames barely change, so the IDM cannot see the command. Random flips at
+the same overall rate (`zg_idm`) were nearly harmless, so again it is the *structure* (errors concentrated in one
+phase) that matters.
+
+**3. The x, y, z labels are not the main problem.** Mean label error (bias) is below 0.01 in every phase, and
+gripper position explains at most 5% of the error variance (quadratic fit), so the errors do not depend on where
+the gripper is. During *hold* the error SD (`pos_cnn` 0.064 / 0.046 / 0.086, `fusion` 0.032 / 0.022 / 0.044) is
+similar to `xy025`'s (0.055 / 0.057) on x, y, but z is noisy too, which `xy025` never was.
+
+**4. A position-style fix for the gripper.** `scripts/gripper_label_smoke.py` estimates the finger opening
+(sum of the two finger joints) from each image with the same CNN trunk (trained on demos 0–79; held-out error SD
+9.1 mm over a 37–80 mm range) and maps the opening over t … t+3 to the command with a logistic fit on demos 0–99.
+With recorded openings the map is exact (100%). With estimated openings, *hold* errors fall from 22.8% to 1.9% and
+*carry* errors from 7.6% to 2.8%, but *approach* errors rise from 4.7% to 11.8% (closing too early or late around
+the grasp). Policy effect untested.
+
+Built into `scripts/labeller_smoke.py` as `fusion_gripw` (same models, 3,000 steps, Mac): gripper labels wrong
+in 7.3% of *approach*, 1.9% of *carry* and **1.1% of *hold*** steps (IDM 4.7 / 7.6 / 22.8%); overall accuracy 95.2%
+vs 92.8%. Held-out finger-opening error and the map's fit are in the labeller's `calibration.json`.
+
+**Next test (session 6, one Kaggle session):** `fusion` x, y, z with (a) `fusion_truegrip`, the true gripper command,
+which isolates how much of the gap the gripper causes, and (b) `fusion_gripw`, the image-only fix.
+
 ## Caveats
 
 - The labels used for the session-5 policies were built on Kaggle (GPU) and differ somewhat from the Mac labels

@@ -10,8 +10,8 @@ import sys
 
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
 SETTINGS = {"N": "100", "SEED": "0", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "6.0",
-            "TAG1": "pos_cnn", "ARGS1": "labeller:pos_cnn",
-            "TAG2": "fusion", "ARGS2": "labeller:fusion"}  # session 5: learned position-based labellers, ~4 h
+            "TAG1": "fusion_truegrip", "ARGS1": "labeller:fusion_truegrip",
+            "TAG2": "fusion_gripw", "ARGS2": "labeller:fusion_gripw"}  # session 6: gripper labels, ~4 h
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)

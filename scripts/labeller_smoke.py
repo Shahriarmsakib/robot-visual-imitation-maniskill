@@ -4,13 +4,17 @@ Protocol (no leakage): models train on labelled demos 0-79; calibration (rescali
 labelled demos 80-99; the 900 action-free demos' true actions and positions are used only for scoring
 (except `pos_oracle`, which reads their recorded gripper positions on purpose, as the proprio reference).
 
-Labellers (x, y, z; the gripper channel is always the IDM's):
+Labellers (x, y, z; the gripper channel is the IDM's unless named otherwise):
   idm          image IDM on (o_t, o_t+1), trained on demos 0-79 (same recipe as the study)
   idm_rescale  idm with each axis rescaled so its slope on held-out demos 80-99 is 1 (bias correction)
   pos_oracle   recorded gripper positions, differenced and mapped to actions by a linear map fit on demos 0-99
   pos_cnn      gripper position estimated from each image by a CNN (trained on 0-79), then the same map
   fusion       Kalman/RTS smoother: IDM motion as the process model + CNN positions as measurements;
                noise levels from held-out demos 80-99; then the same position-to-action map
+  fusion_gripw     fusion x, y, z + gripper from the finger opening: a CNN estimates the opening (sum of the two
+                   finger joints) in each image (trained on 0-79), a logistic map from the opening over t..t+3 to
+                   the command is fit on recorded openings of demos 0-99
+  fusion_truegrip  fusion x, y, z + the TRUE gripper command (diagnostic only: reads the action-free demos' actions)
 Writes one npz per labeller (traj_<id> -> (T, 4)) plus a json with its achieved label quality on the action-free
 demos (scored against their true actions, which no labeller reads), for scripts/build_pseudo_dataset.py and
 scripts/label_error_structure.py. Used by scripts/run_phase3_noise.sh with ARGS="labeller:<name>".
@@ -42,6 +46,10 @@ def load(f, i, frames=True):
             g["actions"][:].astype(np.float32), g["obs/extra/tcp_pose"][:, :3].astype(np.float64))
 
 
+def finger_opening(f, i):
+    return f[f"traj_{i}/obs/agent/qpos"][:, 7:9].sum(1).astype(np.float64)
+
+
 def disp_features(p):
     """p (T+1, 3) -> features (T, 3*len(LAGS)+1): displacement windows around each transition, zero-padded."""
     d = np.diff(p, axis=0)  # (T, 3), d[t] = p[t+1] - p[t]
@@ -60,26 +68,27 @@ def fit_ridge(X, Y, lam=1e-6):
 
 
 class PosCNN(nn.Module):
-    """Same trunk as the IDM, one frame in, gripper xyz (normalised) out."""
+    """Same trunk as the IDM, one frame in, `out` values (normalised gripper xyz, or finger opening) out."""
 
-    def __init__(self, width=32):
+    def __init__(self, width=32, out=3):
         super().__init__()
 
         def block(i, o, k):
             return nn.Sequential(nn.Conv2d(i, o, k, 2, k // 2), nn.GroupNorm(8, o), nn.ReLU())
         self.conv = nn.Sequential(block(3, width, 5), block(width, 2 * width, 3), block(2 * width, 4 * width, 3),
                                   block(4 * width, 4 * width, 3))
-        self.head = nn.Sequential(nn.Flatten(), nn.Linear(4 * width * 64, 256), nn.ReLU(), nn.Linear(256, 3))
+        self.head = nn.Sequential(nn.Flatten(), nn.Linear(4 * width * 64, 256), nn.ReLU(), nn.Linear(256, out))
 
     def forward(self, x):
         return self.head(self.conv(x.permute(0, 3, 1, 2).float() / 255.0))
 
 
 def train_pos(frames, pos, device, steps, seed=0):
+    """Regress pos (N, d) from single frames; returns (predict(frames) -> (N, d), final loss)."""
     torch.manual_seed(seed)
     mu, sd = pos.mean(0), pos.std(0)
     X, Y = torch.as_tensor(frames), torch.as_tensor(((pos - mu) / sd).astype(np.float32))
-    m = PosCNN().to(device)
+    m = PosCNN(out=Y.shape[1]).to(device)
     opt = torch.optim.Adam(m.parameters(), lr=1e-3)
     gen = torch.Generator().manual_seed(seed)
     for _ in range(steps):
@@ -93,6 +102,34 @@ def train_pos(frames, pos, device, steps, seed=0):
         out = [m(torch.as_tensor(fr[i:i + 512], device=device)).cpu().numpy() for i in range(0, len(fr), 512)]
         return np.concatenate(out) * sd + mu
     return predict, float(loss.item())
+
+
+GRIP_LEADS = (0, 1, 2, 3)
+
+
+def grip_features(w):
+    """Finger opening w (T+1,) -> (T, 8): opening at t..t+3 (clamped at the end), their 3 differences, bias."""
+    T = len(w) - 1
+    cols = [w[np.minimum(np.arange(T) + k, T)] for k in GRIP_LEADS]
+    cols += [cols[i + 1] - cols[i] for i in range(len(cols) - 1)]
+    return np.stack(cols + [np.ones(T)], 1)
+
+
+def fit_grip_map(X, y):
+    """Logistic regression (L-BFGS) from grip_features to the command (True = open); returns predict(X) -> bool."""
+    Xt, yt = torch.as_tensor(X, dtype=torch.float64), torch.as_tensor(y, dtype=torch.float64)
+    mu, sd = Xt[:, :-1].mean(0), Xt[:, :-1].std(0) + 1e-8
+    norm = lambda Z: torch.cat([(Z[:, :-1] - mu) / sd, Z[:, -1:]], 1)
+    w = torch.zeros(X.shape[1], dtype=torch.float64, requires_grad=True)
+    opt = torch.optim.LBFGS([w], lr=0.5, max_iter=3000)
+
+    def closure():
+        opt.zero_grad()
+        loss = F.binary_cross_entropy_with_logits(norm(Xt) @ w, yt)
+        loss.backward()
+        return loss
+    opt.step(closure)
+    return lambda Z: (norm(torch.as_tensor(Z, dtype=torch.float64)) @ w > 0).detach().numpy()
 
 
 def rts(z, v, R, Q):
@@ -152,6 +189,14 @@ def main():
     pos_pred, ploss = train_pos(np.concatenate([fr for fr, _, _ in tr]), np.concatenate([p for _, _, p in tr]),
                                 dev, args.steps)
     print(f"position CNN trained ({time.time() - t0:.0f}s), loss {ploss:.4f}", flush=True)
+    wid_pred, wloss = train_pos(np.concatenate([fr for fr, _, _ in tr]),
+                                np.concatenate([finger_opening(f, i) for i in TRAIN])[:, None], dev, args.steps)
+    grip_map = fit_grip_map(np.concatenate([grip_features(finger_opening(f, i)) for i in list(TRAIN) + list(CAL)]),
+                            np.concatenate([a[:, 3] > 0 for _, a, _ in tr + cal]))
+    grip_fit = float(np.mean(grip_map(np.concatenate([grip_features(finger_opening(f, i)) for i in list(TRAIN) + list(CAL)]))
+                             == np.concatenate([a[:, 3] > 0 for _, a, _ in tr + cal])))
+    print(f"finger-opening CNN trained ({time.time() - t0:.0f}s), loss {wloss:.4f}; opening->command map accuracy "
+          f"on recorded openings {grip_fit:.4f}", flush=True)
 
     # 4) calibration on held-out demos 80-99
     ci = [idm.predict(fr) for fr, _, _ in cal]
@@ -162,14 +207,16 @@ def main():
     R = np.concatenate([z - p for z, (_, _, p) in zip(zc, cal)]).var(0)
     vc = [act_features(x) @ Wm for x in ci]
     Q = np.concatenate([v - np.diff(p, axis=0) for v, (_, _, p) in zip(vc, cal)]).var(0)
-    cal_info = {"idm_slope_heldout": slope.tolist(), "pos_cnn_err_var": R.tolist(), "idm_motion_err_var": Q.tolist(),
+    wc = np.concatenate([wid_pred(fr)[:, 0] - finger_opening(f, i) for (fr, _, _), i in zip(cal, CAL)])
+    cal_info = {"finger_opening_err_sd_heldout": float(wc.std()), "grip_map_fit_acc_recorded": grip_fit,
+                "idm_slope_heldout": slope.tolist(), "pos_cnn_err_var": R.tolist(), "idm_motion_err_var": Q.tolist(),
                 "pos_to_action_fit_r2": fit_r2.tolist(), "action_to_motion_fit_r2": motion_r2.tolist(),
                 "idm_train": info, "pos_cnn_final_loss": ploss}
     print("held-out IDM slope", np.round(slope, 3), "| CNN pos err sd (mm)", np.round(np.sqrt(R) * 1000, 1),
           "| IDM motion err sd (mm)", np.round(np.sqrt(Q) * 1000, 2), flush=True)
 
     # 5) label the action-free demos
-    labs = {k: {} for k in ["idm", "idm_rescale", "pos_oracle", "pos_cnn", "fusion"]}
+    labs = {k: {} for k in ["idm", "idm_rescale", "pos_oracle", "pos_cnn", "fusion", "fusion_gripw", "fusion_truegrip"]}
     true = {}
     for n, i in enumerate(free_ids):
         fr, a, p = load(f, i)
@@ -182,7 +229,11 @@ def main():
         labs["pos_oracle"][f"traj_{i}"] = to_act(p)
         z = pos_pred(fr)
         labs["pos_cnn"][f"traj_{i}"] = to_act(z)
-        labs["fusion"][f"traj_{i}"] = to_act(rts(z, act_features(li) @ Wm, R, Q))
+        fu = to_act(rts(z, act_features(li) @ Wm, R, Q))
+        labs["fusion"][f"traj_{i}"] = fu
+        gw = np.where(grip_map(grip_features(wid_pred(fr)[:, 0])), 1.0, -1.0)[:, None]
+        labs["fusion_gripw"][f"traj_{i}"] = np.concatenate([fu[:, :3], gw], 1).astype(np.float32)
+        labs["fusion_truegrip"][f"traj_{i}"] = np.concatenate([fu[:, :3], a[:, 3:4]], 1).astype(np.float32)
         if (n + 1) % 150 == 0:
             print(f"  labelled {n + 1}/{len(free_ids)} ({time.time() - t0:.0f}s)", flush=True)
     keys = list(true)
