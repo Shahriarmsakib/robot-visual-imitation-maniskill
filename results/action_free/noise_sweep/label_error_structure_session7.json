@@ -1,0 +1,66 @@
+{
+ "posrec_truegrip": {
+  "step_r2": [
+   0.998,
+   1.0,
+   1.0
+  ],
+  "bias": [
+   0.0001,
+   -0.0,
+   0.0
+  ],
+  "slope_pred_on_true": [
+   0.998,
+   1.0,
+   0.999
+  ],
+  "err_lag1_autocorr": [
+   0.9,
+   0.862,
+   0.868
+  ],
+  "chunk30_displacement_r2": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "episode_offset_share_of_err_var": [
+   0.029,
+   0.193,
+   0.074
+  ]
+ },
+ "xyz_cnnlevel": {
+  "step_r2": [
+   0.419,
+   0.659,
+   0.79
+  ],
+  "bias": [
+   -0.0001,
+   0.0001,
+   0.0003
+  ],
+  "slope_pred_on_true": [
+   0.998,
+   0.998,
+   0.997
+  ],
+  "err_lag1_autocorr": [
+   -0.0,
+   -0.002,
+   0.003
+  ],
+  "chunk30_displacement_r2": [
+   0.961,
+   0.972,
+   0.986
+  ],
+  "episode_offset_share_of_err_var": [
+   0.013,
+   0.013,
+   0.012
+  ]
+ }
+}

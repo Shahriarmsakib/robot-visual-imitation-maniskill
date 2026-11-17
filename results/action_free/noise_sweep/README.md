@@ -1,4 +1,4 @@
-# Phase 3: label-noise sweep (sessions 1–6)
+# Phase 3: label-noise sweep (sessions 1–7)
 
 **Short answer: the *size* of the IDM's label errors is not what breaks arm B; their *structure* is, and each of
 its two structural flaws hurts on its own.** Random, step-independent errors as large as the IDM's are nearly
@@ -7,6 +7,13 @@ shrunk, with no noise at all, fail in a dose-dependent way: ×0.7 gives **25/100
 their per-step R² (0.91 and 0.64) is far higher than that of the random noise that works. Noise of the harmless
 size but correlated over time (AR(1), ρ = 0.9, no shrinkage) gives **52/100**. The real IDM labels combine both
 flaws and give 0/100. One training seed per condition.
+
+**Session 7 (2026-11-16): the gap left by image-based labels is also structure, not size.** Labels built from the
+recorded gripper positions (with the true gripper) train a policy to **93/100**, level with true labels (95). Random
+noise on x, y and z at the image CNN's per-step level (R² 0.42 / 0.66 / 0.79) gives **88/100**. The best
+image-based labels, whose per-step errors are *smaller* (R² 0.80 / 0.92 / 0.92), give 60/100. So neither the
+position-to-action map nor the amount of noise explains the gap; something about how the image-based errors are
+structured does.
 
 Sessions 1–2 showed that random errors of the IDM's size are harmless. Arm B
 trained on the 900 action-free demos' true actions plus independent random noise as large as the IDM's error
@@ -38,6 +45,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `fusion` | learned: Kalman/RTS smoother of CNN positions and IDM motion; gripper from the IDM | x 0.886, y 0.949, z 0.955, gripper 92.3% | 5 |
 | `fusion_truegrip` | `fusion` x, y, z (rebuilt in session 6) + the true gripper command (diagnostic) | x 0.799, y 0.919, z 0.921, gripper 100% | 6 (2026-11-16, code `c4a69fc`) |
 | `fusion_gripw` | same x, y, z + gripper from the finger opening estimated in each image | x 0.799, y 0.919, z 0.921, gripper 95.8% | 6 |
+| `posrec_truegrip` | diagnostic: recorded gripper positions (`tcp_pose`), the same position-to-action map; true gripper | x 0.998, y 1.000, z 1.000, gripper 100% | 7 (2026-11-16, code `f5c967a`) |
+| `xyz_cnnlevel` | x, y, z: random noise to the position CNN's Mac step R² (0.42 / 0.66 / 0.79); gripper true | x 0.419, y 0.659, z 0.790, gripper 100% | 7 |
 | Reference: IDM at N = 100 (`../policy_N100/`) | learned labels (Kaggle copy used by arm B) | x 0.23, y 0.29, z 0.81, gripper 94.3% | |
 
 ## Results
@@ -56,6 +65,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `fusion` | 0 / 0 | 12 / 59 | 16 / 56 | **17 / 57** (CI 11–26%) |
 | `fusion_truegrip` | 0 / 0 | 11 / 38 | 15 / 61 | **21 / 65** (CI 14–30%) |
 | `fusion_gripw` | 0 / 0 | 9 / 31 | 17 / 55 | **23 / 64** (CI 16–32%) |
+| `posrec_truegrip` | 0 / 0 | 23 / 75 | 30 / 83 | **38 / 88** (CI 29–48%) |
+| `xyz_cnnlevel` | 0 / 0 | 14 / 59 | 27 / 74 | **35 / 77** (CI 26–45%) |
 | Upper bound, all true labels (`../upper_N1000/`) | 0 / 0 | 19 / 74 | 33 / 84 | 43 / 87 (CI 34–53%) |
 | Arm B, IDM pseudo-labels (`../policy_N100/`) | 0 / 0 | 1 / 1 | 0 / 1 | 1 / 1 |
 
@@ -228,6 +239,50 @@ and changed only the gripper channel (`compare_gripper/`):
   x, y, z. Their structure (`label_error_structure_session6.json`): slope 0.93 / 0.97 / 0.97, error autocorrelation
   0.48 / 0.49 / 0.56, chunk R² 0.98 / 0.99 / 0.99.
 
+## Session 7: goal precision is lost in the image-based errors' structure
+
+After session 6 the remaining failure was the cube carried short and low. A Mac check first ruled out a simple
+bias: summed over the time after the grasp, the median bias of the `fusion` motion labels is at most 0.23 cm,
+against a 2.6 cm miss, though their spread (1.1–1.7 cm) is real and z is noisy, which `xy025`'s labels never were.
+Session 7 then trained two diagnostic policies, both with the true gripper so that only x, y, z differ
+(`compare_precision/`):
+
+- `posrec_truegrip`: the same position-to-action map as `pos_cnn` and `fusion`, fed with the *recorded* gripper
+  positions instead of the CNN's estimates. If the map itself lost precision, this would fail.
+- `xyz_cnnlevel`: true actions plus independent random noise on all three axes, as large per step as the
+  position CNN's errors. If noise on all axes at once were the problem, this would fail.
+
+![precision](compare_precision/figures/success_breakdown.png)
+
+| Comparison (paired, CPU) | Reached target | Success at end |
+|---|---|---|
+| Upper bound vs `posrec_truegrip` | 3 vs 0, p = 0.25 | 2 vs 0, p = 0.5 |
+| Upper bound vs `xyz_cnnlevel` | 7 vs 1, p = 0.07 | 9 vs 2, p = 0.07 |
+| `xy025` vs `xyz_cnnlevel` | 7 vs 3, p = 0.34 | 8 vs 3, p = 0.23 |
+| `posrec_truegrip` vs `xyz_cnnlevel` | 5 vs 2, p = 0.45 | 8 vs 3, p = 0.23 |
+| `posrec_truegrip` vs `fusion_truegrip` | 25 vs 2, p = 6e-6 | 35 vs 2, p = 1e-8 |
+| `xyz_cnnlevel` vs `fusion_truegrip` | 23 vs 3, p = 9e-5 | 33 vs 5, p = 4e-6 |
+| `xyz_cnnlevel` vs `pos_cnn` | 26 vs 1, p = 4e-7 | 39 vs 1, p = 7e-11 |
+| `posrec_truegrip` vs arm B (IDM) | 94 vs 0, p = 1e-28 | 93 vs 0, p = 2e-28 |
+
+- **The position-to-action map is not the problem.** With recorded positions it gives labels with step R²
+  0.998–1.0 and a policy at 93/100, not distinguishable from true labels (95; paired 2 vs 0). The pipeline
+  "estimate the gripper position, then convert it to actions" works if the positions are right. Its small
+  residual errors are strongly autocorrelated (0.86–0.90) and still harmless, so persistence only matters when
+  the errors are large (`label_error_structure_session7.json`).
+- **Noise on all three axes at the CNN's level costs little.** `xyz_cnnlevel` reaches 88/100. It may cost a few
+  episodes against the upper bound (paired 9 vs 2, p = 0.07; one seed) and fails mostly by stopping short with the
+  cube (8 episodes, against 1 for the upper bound), but it is far above `fusion_truegrip` (33 vs 5, p = 4e-6) and
+  `pos_cnn` (39 vs 1), whose x, y, z labels have a similar or *smaller* per-step error.
+- **So the gap is in how the image-based errors are structured.** Same size of error, random: 88. Same size,
+  produced by the CNN: 50–60. By the measures used so far (slope, lag-1 autocorrelation, 30-step chunk R²,
+  per-phase bias) the image-based labels look at least as good as the random noise, so the harmful property is
+  one these measures miss. Untested candidates: errors that depend on what the image shows (cube, goal, arm pose)
+  and so repeat across similar scenes, which the policy can learn as if they were signal; and errors correlated
+  over longer spans than one step.
+- On the GPU simulator both diagnostics score lower (38 and 35/100) than on the CPU, as every policy here does;
+  the upper bound scores 43 there.
+
 ## Caveats
 
 - One training seed and one noise seed per condition; 100 evaluation scenes.
@@ -266,13 +321,17 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
 - `labels/`: corruption settings and achieved label quality of each condition (from `make_noisy_labels.py`).
 - `runs/<condition>/`: config, sessions, metrics and training log from the Kaggle output (checkpoints not
   committed); `runs/xy025_session1_oom/`: the killed session-1 attempt; `runs/xy025_ar09_session3_crash/`: the crashed
-  session-3 run; `runs/session{2,3,4,5,6}_kernel_summary.txt`.
+  session-3 run; `runs/session{2,3,4,5,6,7}_kernel_summary.txt`.
 - `failure_analysis/`: CPU stage analysis of each final checkpoint (`scripts/failure_analysis.py`,
   100 episodes, 10 envs, scene seed 10000).
 - `compare_N100/`: combined summary and figures with arm B (N = 100) and the upper bound (sessions 1–3).
 - `compare_structure/`: random vs correlated noise vs shrinkage, with arm B and the upper bound (sessions 2–4).
 - `compare_labellers/`: learned labellers (`pos_cnn`, `fusion`) with random noise, arms A and B and the upper bound (session 5).
 - `compare_gripper/`: gripper-label variants of `fusion` (session 6).
+- `compare_precision/`: recorded-position labels and CNN-level random noise, with `fusion_truegrip`, `xy025`,
+  arm B and the upper bound (session 7).
+- `label_error_structure_session7.json`: structure of the session-7 labels (the exact Kaggle `posrec_truegrip`
+  labels; `xyz_cnnlevel` rebuilt on the Mac with the same seed, identical achieved R² to Kaggle's).
 - `label_error_structure_session6.json`: structure of the exact session-6 labels (Kaggle).
 - `paired_tests.json`: counts and exact McNemar tests (each entry: only-first, only-second, p).
 - `label_error_structure.json`: label error statistics (IDM vs controlled noise).

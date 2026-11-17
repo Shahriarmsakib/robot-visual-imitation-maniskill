@@ -104,6 +104,12 @@ is 60/100 vs 57 (p = 0.74); with the finger-width gripper (`fusion_gripw`) 53/10
 cube now stop short and low, so the gripper was not the main cause of the gap; the remaining failure is goal
 precision (`../noise_sweep/README.md`, session 6).
 
+**Session 7 result (2026-11-16):** the `pos_oracle` map fed with recorded positions (true gripper,
+`posrec_truegrip`) trains a policy to 93/100, and true actions with random noise at `pos_cnn`'s per-step level
+on all three axes (`xyz_cnnlevel`) to 88/100. The map is not the bottleneck and neither is the size of the
+position errors. The cause is a property of the CNN's errors that the scores above do not measure
+(`../noise_sweep/README.md`, session 7).
+
 ## Caveats
 
 - The labels used for the session-5 policies were built on Kaggle (GPU) and differ somewhat from the Mac labels

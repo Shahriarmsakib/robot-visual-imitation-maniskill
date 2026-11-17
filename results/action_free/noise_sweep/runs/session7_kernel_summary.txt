@@ -1,0 +1,84 @@
+f5c967a Session 7: goal-precision diagnostics (recorded positions; random x, y, z noise at CNN level)
+
+[23:52:09] setup
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.51.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+kaggle-environments 1.33.3 requires gymnasium==1.2.0, but you have gymnasium 1.4.0 which is incompatible.
+ydata-profiling 4.18.4 requires matplotlib<=3.10,>=3.5, but you have matplotlib 3.11.2 which is incompatible.
+dopamine-rl 4.1.2 requires gym<=0.25.2, but you have gym 0.26.2 which is incompatible.
+tensorflow 2.21.0 requires h5py<3.15.0,>=3.11.0, but you have h5py 3.16.0 which is incompatible.
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+mani-skill 3.0.1 requires mplib==0.1.1; platform_system == "Linux", which is not installed.
+mani_skill 3.0.1 sapien 3.0.3
+torch 2.11.0+cu130 cuda True Tesla T4
+[23:53:54] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+Downloading demonstrations to /tmp/code/data/demos - 1/1, PickCube-v1
+0.00it [00:00, ?it/s]  0%|          | 0.00/36.6M [00:00<?, ?it/s]  0%|          | 8.19k/36.6M [00:00<33:23, 18.3kit/s] 46%|████▌     | 16.7M/36.6M [00:00<00:00, 40.4Mit/s] 92%|█████████▏| 33.7M/36.6M [00:00<00:00, 73.4Mit/s]36.6Mit [00:00, 41.5Mit/s]                           
+Replayed 1000 episodes, 1000/1000=100.00% demos saved
+labelled ids: 100
+[00:13:21] labels and datasets: posrec_truegrip [labeller:posrec_truegrip], xyz_cnnlevel [--x-r2 0.42 --y-r2 0.66 --z-r2 0.79]
+loaded labelled (3s), device cuda
+position->action map R2 (true positions, labelled) [0.998 1.    1.   ]; action->motion map R2 [0.998 1.    1.   ]
+IDM trained (79s), loss 0.0183
+position CNN trained (136s), loss 0.0022
+finger-opening CNN trained (193s), loss 0.0045; opening->command map accuracy on recorded openings 1.0000
+held-out IDM slope [0.273 0.398 0.639] | CNN pos err sd (mm) [5.4 3.2 5.4] | IDM motion err sd (mm) [2.64 2.24 2.87]
+  labelled 150/900 (202s)
+  labelled 300/900 (210s)
+  labelled 450/900 (218s)
+  labelled 600/900 (226s)
+  labelled 750/900 (234s)
+  labelled 900/900 (242s)
+idm: R2 x 0.189 y 0.137 z 0.702 | gripper acc 0.919
+idm_rescale: R2 x -4.944 y -1.700 z 0.586 | gripper acc 0.919
+pos_oracle: R2 x 0.998 y 1.000 z 1.000 | gripper acc 0.919
+pos_cnn: R2 x 0.170 y 0.604 z 0.770 | gripper acc 0.919
+fusion: R2 x 0.882 y 0.944 z 0.950 | gripper acc 0.919
+fusion_gripw: R2 x 0.882 y 0.944 z 0.950 | gripper acc 0.954
+fusion_truegrip: R2 x 0.882 y 0.944 z 0.950 | gripper acc 1.000
+posrec_truegrip: R2 x 0.998 y 1.000 z 1.000 | gripper acc 1.000
+done (243s)
+wrote data/action_free/sets/noise_posrec_truegrip_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+wrote data/action_free/pseudo_labels/noise_xyz_cnnlevel.npz: 900 episodes | achieved R2 x 0.419 y 0.659 z 0.790 | gripper acc 1.000
+wrote data/action_free/sets/noise_xyz_cnnlevel_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+[00:17:38] check: resize-on-access matches the old loader
+3760 samples from 50 episodes | frame shape (1, 3, 224, 224) torch.uint8 | stored frame (1, 3, 128, 128) | torch 2.11.0+cu130
+differing samples 0, differing pixel values 0
+PASS
+[00:17:56] PhysX GPU library: load once before the parallel runs
+Downloading PhysX GPU library to /root/.sapien/physx/105.1-physx-5.3.1.patch0 from Github. This can take several minutes. If it fails to download, please manually download fhttps://github.com/sapien-sim/physx-precompiled/releases/download/105.1-physx-5.3.1.patch0/linux-so.zip and unzip at /root/.sapien/physx/105.1-physx-5.3.1.patch0.
+Download complete.
+PhysX GPU library ready
+[00:17:59] training: posrec_truegrip (1000 episodes) on GPU 0, xyz_cnnlevel (1000 episodes) on GPU 1, 12000 steps each
+[03:48:54] training finished: posrec_truegrip exit 0, xyz_cnnlevel exit 0 (0 = done, 3 = stopped by time budget)
+| Run | Demos | Seed | Steps | Status | Final success_at_end | Final success_once | 95% CI (at_end) | Best at_end (step) | Backend | Commit |
+|---|---|---|---|---|---|---|---|---|---|---|
+| phase3_noise_posrec_truegrip_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 38/100 (38%) | 88/100 (88%) | 29%–48% | 38% (12000) | physx_cuda | f5c967a |
+| phase3_noise_xyz_cnnlevel_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 35/100 (35%) | 77/100 (77%) | 26%–45% | 35% (12000) | physx_cuda | f5c967a |
+
+Final = evaluation of the final model of a completed run (headline number). Best = highest success_at_end over all evaluations; it is selected on the evaluation scenes and therefore optimistic.
+
+Wrote 2 runs, 8 evaluations to /kaggle/working/metrics/
+wrote /kaggle/working/figures/fig2_training_loss.png, /kaggle/working/figures/fig2_training_loss.pdf
+wrote /kaggle/working/figures/fig2b_success_vs_step.png, /kaggle/working/figures/fig2b_success_vs_step.pdf
+wrote /kaggle/working/figures/fig3_data_efficiency.png, /kaggle/working/figures/fig3_data_efficiency.pdf
+--- posrec_truegrip
+Run phase3_noise_posrec_truegrip_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (86s)
+[eval] step 4000: success_once 75/100, success_at_end 23/100 (90s)
+[eval] step 8000: success_once 83/100, success_at_end 30/100 (92s)
+[eval] step 12000: success_once 88/100, success_at_end 38/100 (92s)
+--- xyz_cnnlevel
+Run phase3_noise_xyz_cnnlevel_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (84s)
+[eval] step 4000: success_once 59/100, success_at_end 14/100 (90s)
+[eval] step 8000: success_once 74/100, success_at_end 27/100 (93s)
+[eval] step 12000: success_once 77/100, success_at_end 35/100 (93s)
+[03:49:03] done
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 277359 bytes to __results__.html

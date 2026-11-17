@@ -29,7 +29,7 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 4 | `xy025_ar09` (rerun) | `xy_shrink07`: x, y scaled by 0.7, no noise (step R² 0.91) | Does correlated noise alone also break it; how much shrinkage is too much | `xy025_ar09` 52/100 CPU, `xy_shrink07` 25/100: both hurt alone |
 | 5 | `pos_cnn`: gripper position estimated from each image by a CNN, actions from position differences | `fusion`: Kalman/RTS smoother of CNN positions and IDM motion | Do labels with correct scale and cancelling errors (chunk R² 0.98–0.99 offline, `results/action_free/labeller_smoke/`) give a working policy; which matters more, scale (`pos_cnn`) or step accuracy (`fusion`) | `pos_cnn` 50/100, `fusion` 57/100 CPU: rescues arm B (0), below upper (95); label scores did not predict the gap |
 | 6 | `fusion_truegrip`: `fusion` x, y, z + the true gripper command (diagnostic) | `fusion_gripw`: `fusion` x, y, z + gripper from the finger opening estimated in each image | How much of the 57 → 95 gap do the IDM's gripper labels cause (wrong in 22.8% of steps holding at the goal); does the image-only finger-width fix (1.1%) recover it | `fusion_truegrip` 60/100, `fusion_gripw` 53/100 CPU: drops gone, success unchanged; gap is goal precision |
-| 7 | `posrec_truegrip`: recorded gripper positions -> actions (same map), true gripper | `xyz_cnnlevel`: true actions + independent noise on x, y, z at the CNN labels' step R² (0.42 / 0.66 / 0.79), true gripper | Goal precision: is position-to-action lossless (expect ≈ 95)? Does random noise on all three axes at the learned labels' level break precision, or is it the learned errors' structure? | prepared |
+| 7 | `posrec_truegrip`: recorded gripper positions -> actions (same map), true gripper | `xyz_cnnlevel`: true actions + independent noise on x, y, z at the CNN labels' step R² (0.42 / 0.66 / 0.79), true gripper | Goal precision: is position-to-action lossless (expect ≈ 95)? Does random noise on all three axes at the learned labels' level break precision, or is it the learned errors' structure? | done: CPU 93 / 88 |
 
 Sessions 1–2 changed the plan. Independent noise of the IDM's size is harmless (`results/action_free/noise_sweep/`),
 but the IDM's errors are structured: horizontal labels are shrunk (slope 0.27–0.47) and the errors are strongly
@@ -67,3 +67,7 @@ already harmless they would not be informative.
 - Session 6 (2026-11-16, code c4a69fc): labels npz kept in the output. True gripper labels remove the drops
   (20 -> 0) but success at end 60 vs 57 (p = 0.74); finger-width gripper 53/100 (more missed grasps). Failures
   shift to stopping short and low (median 2.3 cm sideways, 2.6 cm low). GPU final 21 / 23.
+- Session 7 (2026-11-16, code f5c967a): both runs completed. CPU success at end `posrec_truegrip` 93/100 (upper 95,
+  paired 2 vs 0) and `xyz_cnnlevel` 88/100 (upper paired 9 vs 2, p = 0.07), both far above `fusion_truegrip` 60
+  (35 vs 2 and 33 vs 5). The position-to-action map is lossless and CNN-sized random noise is nearly harmless, so
+  the gap is the structure of the image-based position errors. GPU final 38 / 35.
