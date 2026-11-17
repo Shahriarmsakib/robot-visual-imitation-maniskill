@@ -1,0 +1,18 @@
+{
+ "labeller": "fusion_errshuf",
+ "episodes": 900,
+ "device": "cuda",
+ "steps": 3000,
+ "achieved": {
+  "x_mae": 0.015548543073236942,
+  "y_mae": 0.012387949042022228,
+  "z_mae": 0.01891462318599224,
+  "x_r2": 0.8763157725334167,
+  "y_r2": 0.9297695755958557,
+  "z_r2": 0.9548803567886353,
+  "xyz_mae": 0.015617039985954762,
+  "xyz_zero_baseline_mae": 0.05892519652843475,
+  "gripper_acc": 1.0,
+  "gripper_majority_baseline_acc": 0.5458323844226828
+ }
+}

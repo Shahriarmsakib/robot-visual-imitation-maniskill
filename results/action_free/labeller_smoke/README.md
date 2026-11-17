@@ -110,6 +110,11 @@ on all three axes (`xyz_cnnlevel`) to 88/100. The map is not the bottleneck and 
 position errors. The cause is a property of the CNN's errors that the scores above do not measure
 (`../noise_sweep/README.md`, session 7).
 
+**Session 8 result (2026-11-17):** moving `fusion_truegrip`'s residual errors to other episodes (`fusion_errshuf`;
+same slope, autocorrelation and chunk R² within 0.01, `structure_errshuf.json` for the Mac check) gives 72/100 vs 74/100
+for the matched control, so scene dependence is not the cause. The control scored 74 vs 60 for the session-6 build of
+the same labeller: one run per learned labeller is only coarse (`../noise_sweep/README.md`, session 8).
+
 ## Caveats
 
 - The labels used for the session-5 policies were built on Kaggle (GPU) and differ somewhat from the Mac labels
@@ -122,4 +127,4 @@ position errors. The cause is a property of the CNN's errors that the scores abo
   only image-based labellers (`idm`, `pos_cnn`, `fusion`) apply.
 - The position CNN needs gripper positions on the labelled demos as training targets; in simulation they come
   from the recorded state, on a real robot from forward kinematics.
-- One training seed per labeller; one task.
+- One training seed per labeller; one task. Rebuilding a labeller and retraining moved success from 60 to 74 (session 8).

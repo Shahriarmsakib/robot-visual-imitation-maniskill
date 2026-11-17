@@ -1,4 +1,4 @@
-# Phase 3: label-noise sweep (sessions 1–7)
+# Phase 3: label-noise sweep (sessions 1–8)
 
 **Short answer: the *size* of the IDM's label errors is not what breaks arm B; their *structure* is, and each of
 its two structural flaws hurts on its own.** Random, step-independent errors as large as the IDM's are nearly
@@ -14,6 +14,13 @@ noise on x, y and z at the image CNN's per-step level (R² 0.42 / 0.66 / 0.79) g
 image-based labels, whose per-step errors are *smaller* (R² 0.80 / 0.92 / 0.92), give 60/100. So neither the
 position-to-action map nor the amount of noise explains the gap; something about how the image-based errors are
 structured does.
+
+**Session 8 (2026-11-17): the errors do not hurt because they depend on the scene, and rebuilding the same labeller
+moves success by 14 episodes.** Moving each episode's image-based errors onto another episode (same size, shrink
+and pattern over time) gives 72/100 against 74/100 for the unchanged labels from the same build (paired 10 vs 12,
+p = 0.83). The unchanged labels themselves scored 60/100 in session 6 and 74/100 here (paired 19 vs 5, p = 0.007):
+one rebuild of the labeller plus one retraining, both on non-deterministic GPUs, changes the result that much. Single
+runs of learned labellers therefore need repeats before small differences mean anything.
 
 Sessions 1–2 showed that random errors of the IDM's size are harmless. Arm B
 trained on the 900 action-free demos' true actions plus independent random noise as large as the IDM's error
@@ -47,6 +54,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `fusion_gripw` | same x, y, z + gripper from the finger opening estimated in each image | x 0.799, y 0.919, z 0.921, gripper 95.8% | 6 |
 | `posrec_truegrip` | diagnostic: recorded gripper positions (`tcp_pose`), the same position-to-action map; true gripper | x 0.998, y 1.000, z 1.000, gripper 100% | 7 (2026-11-16, code `f5c967a`) |
 | `xyz_cnnlevel` | x, y, z: random noise to the position CNN's Mac step R² (0.42 / 0.66 / 0.79); gripper true | x 0.419, y 0.659, z 0.790, gripper 100% | 7 |
+| `fusion_truegrip_s8` | `fusion_truegrip` rebuilt in session 8 (matched control for `fusion_errshuf`) | x 0.877, y 0.930, z 0.955, gripper 100% | 8 (2026-11-17, code `54755eb`) |
+| `fusion_errshuf` | `fusion_truegrip_s8` with each episode's x, y, z residual error (label minus slope × true action) taken from another episode of similar length; true gripper | x 0.876, y 0.930, z 0.955, gripper 100% | 8 |
 | Reference: IDM at N = 100 (`../policy_N100/`) | learned labels (Kaggle copy used by arm B) | x 0.23, y 0.29, z 0.81, gripper 94.3% | |
 
 ## Results
@@ -67,6 +76,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `fusion_gripw` | 0 / 0 | 9 / 31 | 17 / 55 | **23 / 64** (CI 16–32%) |
 | `posrec_truegrip` | 0 / 0 | 23 / 75 | 30 / 83 | **38 / 88** (CI 29–48%) |
 | `xyz_cnnlevel` | 0 / 0 | 14 / 59 | 27 / 74 | **35 / 77** (CI 26–45%) |
+| `fusion_truegrip_s8` | 0 / 0 | 8 / 45 | 22 / 75 | **28 / 72** (CI 20–38%) |
+| `fusion_errshuf` | 0 / 0 | 12 / 60 | 22 / 71 | **27 / 77** (CI 19–36%) |
 | Upper bound, all true labels (`../upper_N1000/`) | 0 / 0 | 19 / 74 | 33 / 84 | 43 / 87 (CI 34–53%) |
 | Arm B, IDM pseudo-labels (`../policy_N100/`) | 0 / 0 | 1 / 1 | 0 / 1 | 1 / 1 |
 
@@ -275,17 +286,57 @@ Session 7 then trained two diagnostic policies, both with the true gripper so th
   cube (8 episodes, against 1 for the upper bound), but it is far above `fusion_truegrip` (33 vs 5, p = 4e-6) and
   `pos_cnn` (39 vs 1), whose x, y, z labels have a similar or *smaller* per-step error.
 - **So the gap is in how the image-based errors are structured.** Same size of error, random: 88. Same size,
-  produced by the CNN: 50–60. By the measures used so far (slope, lag-1 autocorrelation, 30-step chunk R²,
-  per-phase bias) the image-based labels look at least as good as the random noise, so the harmful property is
-  one these measures miss. Untested candidates: errors that depend on what the image shows (cube, goal, arm pose)
-  and so repeat across similar scenes, which the policy can learn as if they were signal; and errors correlated
-  over longer spans than one step.
+  produced by the CNN: 50–60. The image-based labels score better on 30-step chunk R² (0.98–0.99 vs 0.96–0.99)
+  but are mildly shrunk (slope 0.93–0.97 vs 1.0) and their errors persist from step to step (autocorrelation
+  0.48–0.56 vs 0). Candidates at the time: errors that depend on what the image shows, so they repeat across
+  similar scenes; or the mild shrink and persistence, the IDM's two flaws in weaker form. Session 8 tested the
+  first.
 - On the GPU simulator both diagnostics score lower (38 and 35/100) than on the CPU, as every policy here does;
   the upper bound scores 43 there.
 
+## Session 8: not scene dependence; and large run-to-run spread
+
+Session 8 moved each episode's image-based residual errors onto another episode and kept everything else
+(`compare_shuffle/`). Per axis the labels were split into slope × true action plus a residual; each episode kept its
+own slope × true action and took the residual of a neighbour in episode length. Scored on the exact Kaggle labels
+(`label_error_structure_session8.json`), the shuffled and unchanged labels match within 0.01 on step R²
+(0.88 / 0.93 / 0.96), slope (0.94–0.98), error autocorrelation (0.40–0.54), chunk R² and per-episode offset. They
+differ only in which scene the errors belong to. A rerun of the unchanged labels from the same build ran alongside
+as the matched control.
+
+![shuffle](compare_shuffle/figures/success_breakdown.png)
+
+| Comparison (paired, CPU) | Reached target | Success at end |
+|---|---|---|
+| `fusion_truegrip_s8` vs `fusion_errshuf` | 6 vs 6, p = 1 | 12 vs 10, p = 0.83 |
+| `fusion_truegrip_s8` vs `fusion_truegrip` (session 6) | 15 vs 4, p = 0.02 | 19 vs 5, p = 0.007 |
+| `xyz_cnnlevel` vs `fusion_truegrip_s8` | 11 vs 2, p = 0.02 | 19 vs 5, p = 0.007 |
+| `xyz_cnnlevel` vs `fusion_errshuf` | 11 vs 2, p = 0.02 | 19 vs 3, p = 9e-4 |
+| `posrec_truegrip` vs `fusion_truegrip_s8` | 14 vs 2, p = 0.004 | 22 vs 3, p = 2e-4 |
+| Upper bound vs `fusion_truegrip_s8` | 15 vs 0, p = 6e-5 | 23 vs 2, p = 2e-5 |
+
+- **Scene dependence is not the harmful property.** With the errors moved to other scenes the policy does as well
+  as with its own errors (72 vs 74). If the policy had been learning scene-specific errors as signal, the shuffle
+  would have helped.
+- **The same labeller, rebuilt, gives 74 instead of 60.** Session 6 and session 8 both ran `fusion_truegrip` with
+  the same code, settings and training seed. The labeller models train on GPUs, which are not bit-reproducible, so
+  the labels differ: session 8's are somewhat better on x (step R² 0.88 vs 0.80) and less persistent (error
+  autocorrelation 0.40–0.54 vs 0.48–0.56). The policy's GPU training also differs between runs. Whether the
+  14-episode difference comes from the labels or from training noise cannot be separated here. Either way, one run
+  per learned labeller is not enough to rank labellers closer than about 15 episodes, and the session 5–6
+  comparisons (50, 53, 57, 60) are within that range.
+- **A gap remains.** Even the better build stays below random noise of the CNN's size (74 vs 88, p = 0.007) and
+  recorded positions (93). What the image-based labels still have, and random noise does not, is a mild shrink
+  (slope 0.94–0.98) and errors that persist from step to step (0.40–0.54). Those are the IDM's two flaws in weaker
+  form, and each hurt on its own when strong (sessions 3–4). Whether their mild combination explains the remaining
+  gap is untested; a direct test is random noise with the same slope and persistence.
+- On the GPU simulator both runs score 27–28/100.
+
 ## Caveats
 
-- One training seed and one noise seed per condition; 100 evaluation scenes.
+- One training seed and one noise seed per condition; 100 evaluation scenes. Session 8 shows that rebuilding a
+  learned labeller and retraining can move success by 14 episodes (60 vs 74), so single runs of learned labellers
+  are only coarse.
 - The error-structure numbers come from the Mac IDM copies, not the exact labels arm B trained on.
 - Two shrink factors (0.4, 0.7) were tested; where between 0.7 and 1.0 the policy starts to fail is unknown.
 - On the GPU simulator the session-4 conditions score lower (27 and 20/100) than on the CPU (52 and 25/100), in the
@@ -321,7 +372,7 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
 - `labels/`: corruption settings and achieved label quality of each condition (from `make_noisy_labels.py`).
 - `runs/<condition>/`: config, sessions, metrics and training log from the Kaggle output (checkpoints not
   committed); `runs/xy025_session1_oom/`: the killed session-1 attempt; `runs/xy025_ar09_session3_crash/`: the crashed
-  session-3 run; `runs/session{2,3,4,5,6,7}_kernel_summary.txt`.
+  session-3 run; `runs/session{2,3,4,5,6,7,8}_kernel_summary.txt`.
 - `failure_analysis/`: CPU stage analysis of each final checkpoint (`scripts/failure_analysis.py`,
   100 episodes, 10 envs, scene seed 10000).
 - `compare_N100/`: combined summary and figures with arm B (N = 100) and the upper bound (sessions 1–3).
@@ -330,6 +381,9 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
 - `compare_gripper/`: gripper-label variants of `fusion` (session 6).
 - `compare_precision/`: recorded-position labels and CNN-level random noise, with `fusion_truegrip`, `xy025`,
   arm B and the upper bound (session 7).
+- `compare_shuffle/`: errors moved between episodes vs the matched control, with session 6's `fusion_truegrip`,
+  `posrec_truegrip`, `xyz_cnnlevel` and the upper bound (session 8).
+- `label_error_structure_session8.json`: structure of the exact session-8 Kaggle labels.
 - `label_error_structure_session7.json`: structure of the session-7 labels (the exact Kaggle `posrec_truegrip`
   labels; `xyz_cnnlevel` rebuilt on the Mac with the same seed, identical achieved R² to Kaggle's).
 - `label_error_structure_session6.json`: structure of the exact session-6 labels (Kaggle).
