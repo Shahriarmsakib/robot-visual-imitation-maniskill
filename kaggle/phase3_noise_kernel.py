@@ -10,8 +10,8 @@ import sys
 
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
 SETTINGS = {"N": "100", "SEED": "0", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "6.0",
-            "TAG1": "posrec_truegrip", "ARGS1": "labeller:posrec_truegrip",
-            "TAG2": "xyz_cnnlevel", "ARGS2": "--x-r2 0.42 --y-r2 0.66 --z-r2 0.79"}  # session 7: goal precision, ~4 h
+            "TAG1": "fusion_errshuf", "ARGS1": "labeller:fusion_errshuf",
+            "TAG2": "fusion_truegrip_s8", "ARGS2": "labeller:fusion_truegrip"}  # session 8: error shuffle + matched control, ~4 h
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)

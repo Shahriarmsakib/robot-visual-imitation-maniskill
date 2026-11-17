@@ -16,6 +16,10 @@ Labellers (x, y, z; the gripper channel is the IDM's unless named otherwise):
                    the command is fit on recorded openings of demos 0-99
   fusion_truegrip  fusion x, y, z + the TRUE gripper command (diagnostic only: reads the action-free demos' actions)
   posrec_truegrip  recorded positions -> the same map, TRUE gripper (diagnostic: is position-to-action lossless?)
+  fusion_errshuf   fusion_truegrip with its errors moved to ANOTHER episode, TRUE gripper (diagnostic). Per axis
+                   the labels are split as slope * true action + residual; each episode keeps slope * its own
+                   true action and takes the residual of an episode of similar length. Keeps the shrink, the
+                   residual's size and its pattern over time, but breaks the residual's link to the scene
 Writes one npz per labeller (traj_<id> -> (T, 4)) plus a json with its achieved label quality on the action-free
 demos (scored against their true actions, which no labeller reads), for scripts/build_pseudo_dataset.py and
 scripts/label_error_structure.py. Used by scripts/run_phase3_noise.sh with ARGS="labeller:<name>".
@@ -151,6 +155,26 @@ def rts(z, v, R, Q):
     return xs
 
 
+def errshuf(labels, true):
+    """Keep each episode's shrink (slope * its true action) and give it the x, y, z residual of another episode.
+
+    Per axis, label = b * true + residual, with b the least-squares slope over all episodes. Episodes sorted by
+    length are swapped in neighbouring pairs (rank 0 <-> 1, 2 <-> 3, ...; an odd last one takes its lower
+    neighbour's), so no episode keeps its own residual. A donor's residual is cut to the receiver's length, or
+    extended by its own time-reversed tail when shorter. The gripper channel is the true command."""
+    keys = sorted(true, key=lambda k: (len(true[k]), k))
+    T_all = np.concatenate([true[k][:, :3] for k in keys]); L_all = np.concatenate([labels[k][:, :3] for k in keys])
+    b = np.array([np.polyfit(T_all[:, d], L_all[:, d], 1)[0] for d in range(3)])
+    out = {}
+    for r, k in enumerate(keys):
+        j = keys[r ^ 1] if (r ^ 1) < len(keys) else keys[r - 1]
+        e, T = labels[j][:, :3] - b * true[j][:, :3], len(true[k])
+        while len(e) < T:
+            e = np.concatenate([e, e[::-1][:T - len(e)]])
+        out[k] = np.concatenate([np.clip(b * true[k][:, :3] + e[:T], -1, 1), true[k][:, 3:4]], 1).astype(np.float32)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
@@ -241,6 +265,7 @@ def main():
         if (n + 1) % 150 == 0:
             print(f"  labelled {n + 1}/{len(free_ids)} ({time.time() - t0:.0f}s)", flush=True)
     keys = list(true)
+    labs["fusion_errshuf"] = errshuf(labs["fusion_truegrip"], true)
     for k, d in labs.items():
         np.savez(args.out / f"{k}.npz", **{kk: v.astype(np.float32) for kk, v in d.items()})
         q = label_quality(np.concatenate([d[kk] for kk in keys]), np.concatenate([true[kk] for kk in keys]))

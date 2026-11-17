@@ -1,0 +1,66 @@
+{
+ "fusion_truegrip": {
+  "step_r2": [
+   0.902,
+   0.951,
+   0.959
+  ],
+  "bias": [
+   0.0007,
+   -0.0,
+   -0.0004
+  ],
+  "slope_pred_on_true": [
+   0.924,
+   0.955,
+   0.958
+  ],
+  "err_lag1_autocorr": [
+   0.636,
+   0.572,
+   0.712
+  ],
+  "chunk30_displacement_r2": [
+   0.986,
+   0.995,
+   0.995
+  ],
+  "episode_offset_share_of_err_var": [
+   0.035,
+   0.015,
+   0.03
+  ]
+ },
+ "fusion_errshuf": {
+  "step_r2": [
+   0.901,
+   0.951,
+   0.96
+  ],
+  "bias": [
+   0.0007,
+   -0.0,
+   -0.0004
+  ],
+  "slope_pred_on_true": [
+   0.919,
+   0.955,
+   0.963
+  ],
+  "err_lag1_autocorr": [
+   0.64,
+   0.573,
+   0.71
+  ],
+  "chunk30_displacement_r2": [
+   0.981,
+   0.993,
+   0.995
+  ],
+  "episode_offset_share_of_err_var": [
+   0.04,
+   0.02,
+   0.03
+  ]
+ }
+}
