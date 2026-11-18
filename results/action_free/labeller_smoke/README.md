@@ -115,6 +115,12 @@ same slope, autocorrelation and chunk R² within 0.01, `structure_errshuf.json` 
 for the matched control, so scene dependence is not the cause. The control scored 74 vs 60 for the session-6 build of
 the same labeller: one run per learned labeller is only coarse (`../noise_sweep/README.md`, session 8).
 
+**Session 9 result (2026-11-18):** random noise with only `fusion_truegrip_s8`'s mild shrink (slope 0.95–0.98) and
+persistence (AR(1), ρ = 0.45), at its per-step R², gives 76/100, level with the labeller (74) and below larger random
+noise without these properties (88). These two error properties, not the scores above, account for the gap. Policy
+training is deterministic at a fixed seed, so the 60 vs 74 spread came from rebuilding the labeller
+(`../noise_sweep/README.md`, session 9).
+
 ## Caveats
 
 - The labels used for the session-5 policies were built on Kaggle (GPU) and differ somewhat from the Mac labels
@@ -127,4 +133,4 @@ the same labeller: one run per learned labeller is only coarse (`../noise_sweep/
   only image-based labellers (`idm`, `pos_cnn`, `fusion`) apply.
 - The position CNN needs gripper positions on the labelled demos as training targets; in simulation they come
   from the recorded state, on a real robot from forward kinematics.
-- One training seed per labeller; one task. Rebuilding a labeller and retraining moved success from 60 to 74 (session 8).
+- One training seed per labeller; one task. Rebuilding a labeller moved success from 60 to 74 (session 8); policy training itself is deterministic (session 9).

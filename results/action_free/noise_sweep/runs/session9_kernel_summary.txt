@@ -1,0 +1,67 @@
+5c69a43 Session 9: synthetic noise with the image labels' mild shrink and persistence; training-only repeat of xyz_cnnlevel
+
+Cloning into '/tmp/code'...
+5c69a43 Session 9: synthetic noise with the image labels' mild shrink and persistence; training-only repeat of xyz_cnnlevel
+
+[00:31:49] setup
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.51.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+kaggle-environments 1.33.3 requires gymnasium==1.2.0, but you have gymnasium 1.4.0 which is incompatible.
+ydata-profiling 4.18.4 requires matplotlib<=3.10,>=3.5, but you have matplotlib 3.11.2 which is incompatible.
+dopamine-rl 4.1.2 requires gym<=0.25.2, but you have gym 0.26.2 which is incompatible.
+tensorflow 2.21.0 requires h5py<3.15.0,>=3.11.0, but you have h5py 3.16.0 which is incompatible.
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+mani-skill 3.0.1 requires mplib==0.1.1; platform_system == "Linux", which is not installed.
+mani_skill 3.0.1 sapien 3.0.3
+torch 2.11.0+cu130 cuda True Tesla T4
+[00:33:04] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+Downloading demonstrations to /tmp/code/data/demos - 1/1, PickCube-v1
+0.00it [00:00, ?it/s]  0%|          | 0.00/36.6M [00:00<?, ?it/s]  0%|          | 8.19k/36.6M [00:01<45:58, 13.3kit/s]  1%|          | 213k/36.6M [00:01<01:32, 395kit/s]    3%|▎         | 983k/36.6M [00:01<00:18, 1.94Mit/s] 12%|█▏        | 4.44M/36.6M [00:01<00:03, 9.50Mit/s] 31%|███       | 11.3M/36.6M [00:01<00:01, 23.8Mit/s] 50%|█████     | 18.3M/36.6M [00:01<00:00, 34.5Mit/s] 69%|██████▉   | 25.4M/36.6M [00:01<00:00, 42.9Mit/s] 89%|████████▊ | 32.4M/36.6M [00:02<00:00, 48.2Mit/s]36.6Mit [00:02, 17.5Mit/s]                           
+Replayed 1000 episodes, 1000/1000=100.00% demos saved
+labelled ids: 100
+[00:53:50] labels and datasets: xyz_shrink_ar045 [--x-r2 0.880 --y-r2 0.930 --z-r2 0.956 --x-scale 0.947 --y-scale 0.983 --z-scale 0.963 --ar1 0.45], xyz_cnnlevel_r2 [--x-r2 0.42 --y-r2 0.66 --z-r2 0.79]
+wrote data/action_free/pseudo_labels/noise_xyz_shrink_ar045.npz: 900 episodes | achieved R2 x 0.877 y 0.929 z 0.954 | gripper acc 1.000
+wrote data/action_free/sets/noise_xyz_shrink_ar045_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+wrote data/action_free/pseudo_labels/noise_xyz_cnnlevel_r2.npz: 900 episodes | achieved R2 x 0.419 y 0.659 z 0.790 | gripper acc 1.000
+wrote data/action_free/sets/noise_xyz_cnnlevel_r2_N100_seed0.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+[00:54:01] check: resize-on-access matches the old loader
+3760 samples from 50 episodes | frame shape (1, 3, 224, 224) torch.uint8 | stored frame (1, 3, 128, 128) | torch 2.11.0+cu130
+differing samples 0, differing pixel values 0
+PASS
+[00:54:24] PhysX GPU library: load once before the parallel runs
+Downloading PhysX GPU library to /root/.sapien/physx/105.1-physx-5.3.1.patch0 from Github. This can take several minutes. If it fails to download, please manually download fhttps://github.com/sapien-sim/physx-precompiled/releases/download/105.1-physx-5.3.1.patch0/linux-so.zip and unzip at /root/.sapien/physx/105.1-physx-5.3.1.patch0.
+Download complete.
+PhysX GPU library ready
+[00:54:29] training: xyz_shrink_ar045 (1000 episodes) on GPU 0, xyz_cnnlevel_r2 (1000 episodes) on GPU 1, 12000 steps each
+[04:30:50] training finished: xyz_shrink_ar045 exit 0, xyz_cnnlevel_r2 exit 0 (0 = done, 3 = stopped by time budget)
+| Run | Demos | Seed | Steps | Status | Final success_at_end | Final success_once | 95% CI (at_end) | Best at_end (step) | Backend | Commit |
+|---|---|---|---|---|---|---|---|---|---|---|
+| phase3_noise_xyz_cnnlevel_r2_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 35/100 (35%) | 77/100 (77%) | 26%–45% | 35% (12000) | physx_cuda | 5c69a43 |
+| phase3_noise_xyz_shrink_ar045_N100_seed0 | 1000 | 0 | 12000/12000 | complete | 38/100 (38%) | 80/100 (80%) | 29%–48% | 38% (12000) | physx_cuda | 5c69a43 |
+
+Final = evaluation of the final model of a completed run (headline number). Best = highest success_at_end over all evaluations; it is selected on the evaluation scenes and therefore optimistic.
+
+Wrote 2 runs, 8 evaluations to /kaggle/working/metrics/
+wrote /kaggle/working/figures/fig2_training_loss.png, /kaggle/working/figures/fig2_training_loss.pdf
+wrote /kaggle/working/figures/fig2b_success_vs_step.png, /kaggle/working/figures/fig2b_success_vs_step.pdf
+wrote /kaggle/working/figures/fig3_data_efficiency.png, /kaggle/working/figures/fig3_data_efficiency.pdf
+--- xyz_shrink_ar045
+Run phase3_noise_xyz_shrink_ar045_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (90s)
+[eval] step 4000: success_once 55/100, success_at_end 8/100 (90s)
+[eval] step 8000: success_once 78/100, success_at_end 30/100 (89s)
+[eval] step 12000: success_once 80/100, success_at_end 38/100 (86s)
+--- xyz_cnnlevel_r2
+Run phase3_noise_xyz_cnnlevel_r2_N100_seed0: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (89s)
+[eval] step 4000: success_once 59/100, success_at_end 14/100 (90s)
+[eval] step 8000: success_once 74/100, success_at_end 27/100 (90s)
+[eval] step 12000: success_once 77/100, success_at_end 35/100 (92s)
+[04:30:57] done
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 277481 bytes to __results__.html

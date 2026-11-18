@@ -1,0 +1,67 @@
+{
+ "_note": "Rebuilt on the Mac with the session 9 arguments and noise seed 0 (900 action-free demos); sigma matches the Kaggle run's label stats. fusion_truegrip_s8 from session 8 for comparison.",
+ "xyz_shrink_ar045": {
+  "step_r2": [
+   0.877,
+   0.929,
+   0.954
+  ],
+  "bias": [
+   0.0,
+   0.0,
+   0.0003
+  ],
+  "slope_pred_on_true": [
+   0.946,
+   0.982,
+   0.961
+  ],
+  "err_lag1_autocorr": [
+   0.461,
+   0.453,
+   0.471
+  ],
+  "chunk30_displacement_r2": [
+   0.977,
+   0.985,
+   0.991
+  ],
+  "episode_offset_share_of_err_var": [
+   0.035,
+   0.033,
+   0.032
+  ]
+ },
+ "fusion_truegrip_s8": {
+  "step_r2": [
+   0.877,
+   0.93,
+   0.955
+  ],
+  "bias": [
+   0.0004,
+   -0.0008,
+   0.0002
+  ],
+  "slope_pred_on_true": [
+   0.947,
+   0.983,
+   0.963
+  ],
+  "err_lag1_autocorr": [
+   0.462,
+   0.399,
+   0.537
+  ],
+  "chunk30_displacement_r2": [
+   0.986,
+   0.995,
+   0.995
+  ],
+  "episode_offset_share_of_err_var": [
+   0.027,
+   0.011,
+   0.025
+  ]
+ }
+}

@@ -1,4 +1,4 @@
-# Phase 3: label-noise sweep (sessions 1–8)
+# Phase 3: label-noise sweep (sessions 1–9)
 
 **Short answer: the *size* of the IDM's label errors is not what breaks arm B; their *structure* is, and each of
 its two structural flaws hurts on its own.** Random, step-independent errors as large as the IDM's are nearly
@@ -21,6 +21,15 @@ and pattern over time) gives 72/100 against 74/100 for the unchanged labels from
 p = 0.83). The unchanged labels themselves scored 60/100 in session 6 and 74/100 here (paired 19 vs 5, p = 0.007):
 one rebuild of the labeller plus one retraining, both on non-deterministic GPUs, changes the result that much. Single
 runs of learned labellers therefore need repeats before small differences mean anything.
+
+**Session 9 (2026-11-18): random noise with the image-based labels' mild shrink and persistence does as badly as
+those labels.** True actions shrunk by the image labels' slope (0.95 / 0.98 / 0.96) plus random noise that persists
+from step to step (AR(1), ρ = 0.45), at their per-step R² (0.88 / 0.93 / 0.95), give **76/100**. That is level with
+the image-based labels from the same build (74; paired 12 vs 10, p = 0.83) and clearly below random noise that is
+*larger* but neither shrunk nor persistent (88; paired 2 vs 14, p = 0.004). So the mild shrink and persistence are
+enough to reproduce the gap; which of the two matters more is untested. A repeat of the 88 condition with identical
+labels gave a bit-identical policy: given the labels and the seed, training on Kaggle is deterministic, so the
+60 vs 74 spread of sessions 6 and 8 came from rebuilding the labeller, not from training. One seed per condition.
 
 Sessions 1–2 showed that random errors of the IDM's size are harmless. Arm B
 trained on the 900 action-free demos' true actions plus independent random noise as large as the IDM's error
@@ -56,6 +65,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `xyz_cnnlevel` | x, y, z: random noise to the position CNN's Mac step R² (0.42 / 0.66 / 0.79); gripper true | x 0.419, y 0.659, z 0.790, gripper 100% | 7 |
 | `fusion_truegrip_s8` | `fusion_truegrip` rebuilt in session 8 (matched control for `fusion_errshuf`) | x 0.877, y 0.930, z 0.955, gripper 100% | 8 (2026-11-17, code `54755eb`) |
 | `fusion_errshuf` | `fusion_truegrip_s8` with each episode's x, y, z residual error (label minus slope × true action) taken from another episode of similar length; true gripper | x 0.876, y 0.930, z 0.955, gripper 100% | 8 |
+| `xyz_shrink_ar045` | x, y, z: true action × 0.947 / 0.983 / 0.963 plus noise correlated over time (AR(1), ρ = 0.45), sized to the session-8 image labels' step R²; gripper true | x 0.877, y 0.929, z 0.954, gripper 100% | 9 (2026-11-18, code `5c69a43`) |
+| `xyz_cnnlevel_r2` | `xyz_cnnlevel` repeated with identical labels (training-only repeat) | x 0.419, y 0.659, z 0.790, gripper 100% | 9 |
 | Reference: IDM at N = 100 (`../policy_N100/`) | learned labels (Kaggle copy used by arm B) | x 0.23, y 0.29, z 0.81, gripper 94.3% | |
 
 ## Results
@@ -78,6 +89,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `xyz_cnnlevel` | 0 / 0 | 14 / 59 | 27 / 74 | **35 / 77** (CI 26–45%) |
 | `fusion_truegrip_s8` | 0 / 0 | 8 / 45 | 22 / 75 | **28 / 72** (CI 20–38%) |
 | `fusion_errshuf` | 0 / 0 | 12 / 60 | 22 / 71 | **27 / 77** (CI 19–36%) |
+| `xyz_shrink_ar045` | 0 / 0 | 8 / 55 | 30 / 78 | **38 / 80** (CI 29–48%) |
+| `xyz_cnnlevel_r2` | 0 / 0 | 14 / 59 | 27 / 74 | **35 / 77** (CI 26–45%), identical to `xyz_cnnlevel` |
 | Upper bound, all true labels (`../upper_N1000/`) | 0 / 0 | 19 / 74 | 33 / 84 | 43 / 87 (CI 34–53%) |
 | Arm B, IDM pseudo-labels (`../policy_N100/`) | 0 / 0 | 1 / 1 | 0 / 1 | 1 / 1 |
 
@@ -100,6 +113,12 @@ upper bound; `failure_analysis/`, comparison in `compare_N100/`):
 | `fusion` (learned: positions + IDM motion) | 100 | 99 | 90 | 79 | 79 | **57** |
 | `fusion_truegrip` (fusion x, y, z + true gripper) | 100 | 100 | 90 | 71 | 71 | **60** |
 | `fusion_gripw` (fusion x, y, z + finger-width gripper) | 99 | 93 | 84 | 61 | 61 | **53** |
+| `posrec_truegrip` (recorded positions + true gripper) | 100 | 100 | 96 | 94 | 94 | **93** |
+| `xyz_cnnlevel` (random x, y, z noise at the CNN's level) | 100 | 100 | 97 | 91 | 91 | **88** |
+| `fusion_truegrip_s8` (session-8 rebuild of `fusion_truegrip`) | 100 | 100 | 94 | 82 | 82 | **74** |
+| `fusion_errshuf` (its errors moved between episodes) | 100 | 100 | 98 | 82 | 82 | **72** |
+| `xyz_shrink_ar045` (mild shrink + persistent noise) | 100 | 100 | 96 | 83 | 83 | **76** |
+| `xyz_cnnlevel_r2` (repeat of `xyz_cnnlevel`) | 100 | 100 | 97 | 91 | 91 | **88** |
 | Upper bound (all true) | 100 | 100 | 96 | 97 | 97 | 95 |
 | Arm A, 100 labelled only | 97 | 96 | 90 | 11 | 4 | 3 |
 | Arm B, + IDM pseudo-labels | 9 | 12 | 7 | 0 | 0 | 0 |
@@ -329,14 +348,49 @@ as the matched control.
   recorded positions (93). What the image-based labels still have, and random noise does not, is a mild shrink
   (slope 0.94–0.98) and errors that persist from step to step (0.40–0.54). Those are the IDM's two flaws in weaker
   form, and each hurt on its own when strong (sessions 3–4). Whether their mild combination explains the remaining
-  gap is untested; a direct test is random noise with the same slope and persistence.
+  gap is untested; a direct test is random noise with the same slope and persistence (session 9).
 - On the GPU simulator both runs score 27–28/100.
+
+## Session 9: mild shrink plus persistence reproduces the gap
+
+Session 9 built labels from the true actions with the image-based labels' two remaining flaws and nothing else
+(`compare_shrink_persist/`): each axis scaled by the session-8 labels' slope (0.947 / 0.983 / 0.963), plus Gaussian
+noise correlated over time (AR(1), ρ = 0.45), sized so that per-step R² matches (0.88 / 0.93 / 0.956). Rebuilt on the
+Mac with the same arguments and noise seed (`label_error_structure_session9.json`), these labels match the
+session-8 image labels on step R², slope and bias within 0.01 and on error autocorrelation within 0.07
+(0.45–0.47 against 0.40–0.54); their 30-step chunk R² is slightly lower (0.98–0.99 against 0.99–1.00). The second GPU
+repeated `xyz_cnnlevel` with identical labels, to measure how much training alone varies.
+
+![shrink and persistence](compare_shrink_persist/figures/success_breakdown.png)
+
+| Comparison (paired, CPU) | Reached target | Success at end |
+|---|---|---|
+| `xyz_shrink_ar045` vs `fusion_truegrip_s8` | 7 vs 6, p = 1 | 12 vs 10, p = 0.83 |
+| `xyz_shrink_ar045` vs `fusion_errshuf` | 7 vs 6, p = 1 | 10 vs 6, p = 0.45 |
+| `xyz_cnnlevel` vs `xyz_shrink_ar045` | 9 vs 1, p = 0.02 | 14 vs 2, p = 0.004 |
+| Upper bound vs `xyz_shrink_ar045` | 16 vs 2, p = 0.001 | 21 vs 2, p = 7e-5 |
+| `xyz_shrink_ar045` vs `fusion_truegrip` (session 6) | 19 vs 7, p = 0.03 | 24 vs 8, p = 0.007 |
+| `xyz_cnnlevel` vs `xyz_cnnlevel_r2` | 0 vs 0 | 0 vs 0 |
+
+- **The mild shrink and persistence are enough.** Synthetic labels with only these two properties land at 76,
+  level with the image-based labels (74) and their shuffled version (72), and they lose episodes at the same stage:
+  grasping and lifting are intact, reaching and holding the goal is not (reached target 83 vs 82). Random noise
+  with larger per-step errors (R² 0.42 / 0.66 / 0.79) but no shrink or persistence gets 88. Per-step accuracy alone
+  ranks these labels the wrong way round.
+- **Which of the two matters is not separated.** Session 9 combined them. Sessions 3–4 showed each hurts on its own
+  when strong (×0.7 shrink: 25/100; ρ = 0.9: 52/100); whether each mild version alone costs anything is untested.
+- **Training is deterministic given the labels.** `xyz_cnnlevel_r2` produced the same weights as session 7's
+  `xyz_cnnlevel` (largest difference 0.0, the same loss at every logged step) and so the same 100 CPU episodes. The
+  14-episode spread between sessions 6 and 8 therefore came from the labeller rebuild. This repeat says nothing
+  about how much a *different* training seed moves results; that needs more seeds.
+- On the GPU simulator the two runs score 38 and 35/100.
 
 ## Caveats
 
 - One training seed and one noise seed per condition; 100 evaluation scenes. Session 8 shows that rebuilding a
-  learned labeller and retraining can move success by 14 episodes (60 vs 74), so single runs of learned labellers
-  are only coarse.
+  learned labeller can move success by 14 episodes (60 vs 74), so single runs of learned labellers are only coarse.
+  Session 9 shows the policy training itself is deterministic at a fixed seed, so seed-to-seed variation is still
+  unmeasured.
 - The error-structure numbers come from the Mac IDM copies, not the exact labels arm B trained on.
 - Two shrink factors (0.4, 0.7) were tested; where between 0.7 and 1.0 the policy starts to fail is unknown.
 - On the GPU simulator the session-4 conditions score lower (27 and 20/100) than on the CPU (52 and 25/100), in the
@@ -372,7 +426,7 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
 - `labels/`: corruption settings and achieved label quality of each condition (from `make_noisy_labels.py`).
 - `runs/<condition>/`: config, sessions, metrics and training log from the Kaggle output (checkpoints not
   committed); `runs/xy025_session1_oom/`: the killed session-1 attempt; `runs/xy025_ar09_session3_crash/`: the crashed
-  session-3 run; `runs/session{2,3,4,5,6,7,8}_kernel_summary.txt`.
+  session-3 run; `runs/session{2,3,4,5,6,7,8,9}_kernel_summary.txt`.
 - `failure_analysis/`: CPU stage analysis of each final checkpoint (`scripts/failure_analysis.py`,
   100 episodes, 10 envs, scene seed 10000).
 - `compare_N100/`: combined summary and figures with arm B (N = 100) and the upper bound (sessions 1–3).
@@ -383,6 +437,10 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
   arm B and the upper bound (session 7).
 - `compare_shuffle/`: errors moved between episodes vs the matched control, with session 6's `fusion_truegrip`,
   `posrec_truegrip`, `xyz_cnnlevel` and the upper bound (session 8).
+- `compare_shrink_persist/`: mild shrink + persistent noise, with `xyz_cnnlevel`, `fusion_truegrip_s8`,
+  `fusion_errshuf` and the upper bound (session 9).
+- `label_error_structure_session9.json`: structure of the `xyz_shrink_ar045` labels (Mac rebuild with the same
+  arguments and noise seed) next to `fusion_truegrip_s8`.
 - `label_error_structure_session8.json`: structure of the exact session-8 Kaggle labels.
 - `label_error_structure_session7.json`: structure of the session-7 labels (the exact Kaggle `posrec_truegrip`
   labels; `xyz_cnnlevel` rebuilt on the Mac with the same seed, identical achieved R² to Kaggle's).
