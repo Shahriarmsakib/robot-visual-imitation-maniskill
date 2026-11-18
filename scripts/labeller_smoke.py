@@ -180,6 +180,7 @@ def main():
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--steps", type=int, default=3000)
     ap.add_argument("--max-free", type=int, default=None)
+    ap.add_argument("--seed", type=int, default=0, help="seed for the IDM and the two CNNs")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     dev = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
@@ -209,13 +210,14 @@ def main():
           f"action->motion map R2 {np.round(motion_r2, 3)}", flush=True)
 
     # 3) models on demos 0-79
-    idm, info = train_idm([(fr, a) for fr, a, _ in tr], dev, steps=args.steps, seed=0)
+    idm, info = train_idm([(fr, a) for fr, a, _ in tr], dev, steps=args.steps, seed=args.seed)
     print(f"IDM trained ({time.time() - t0:.0f}s), loss {info['final_loss']:.4f}", flush=True)
     pos_pred, ploss = train_pos(np.concatenate([fr for fr, _, _ in tr]), np.concatenate([p for _, _, p in tr]),
-                                dev, args.steps)
+                                dev, args.steps, seed=args.seed)
     print(f"position CNN trained ({time.time() - t0:.0f}s), loss {ploss:.4f}", flush=True)
     wid_pred, wloss = train_pos(np.concatenate([fr for fr, _, _ in tr]),
-                                np.concatenate([finger_opening(f, i) for i in TRAIN])[:, None], dev, args.steps)
+                                np.concatenate([finger_opening(f, i) for i in TRAIN])[:, None], dev, args.steps,
+                                seed=args.seed)
     grip_map = fit_grip_map(np.concatenate([grip_features(finger_opening(f, i)) for i in list(TRAIN) + list(CAL)]),
                             np.concatenate([a[:, 3] > 0 for _, a, _ in tr + cal]))
     grip_fit = float(np.mean(grip_map(np.concatenate([grip_features(finger_opening(f, i)) for i in list(TRAIN) + list(CAL)]))

@@ -8,6 +8,8 @@
 #   OUT=/kaggle/working TAG1=xy025 ARGS1="--xy-r2 0.25" TAG2=zg_idm ARGS2="--z-r2 0.81 --grip-flip 0.06" \
 #     bash scripts/run_phase3_noise.sh
 # Learned labellers instead of injected noise: ARGS1="labeller:pos_cnn" ARGS2="labeller:fusion" (scripts/labeller_smoke.py)
+# All 1,000 demos with true actions (the upper bound, same data file and command as scripts/run_phase3_upper.sh): ARGS1="true"
+# SEED sets the policy's training seed and the labellers' seed; with N = 100 the labelled split is demos 0-99 for every seed.
 # Smoke test: DEMO_COUNT=130 MAX_FREE=30 ITERS=100 EVAL_FREQ=50 EVAL_EPS=10 (LABELLER_STEPS=50 for labellers)
 set -euo pipefail
 
@@ -49,11 +51,18 @@ python -c "from src.action_free.data import save_split; print('labelled ids:', l
 
 build() {  # $1 tag, $2 corruption args or "labeller:<name>" -> prints the number of episodes
   local labels="data/action_free/pseudo_labels/noise_${1}.npz" set="data/action_free/sets/noise_${1}_N${N}_seed${SEED}.h5"
+  if [ "$2" = "true" ]; then
+    # Upper bound: train on the converted file itself, exactly as scripts/run_phase3_upper.sh does.
+    mkdir -p "$(dirname "$set")"; ln -sf "$PWD/$CONV/trajectory.rgb.pd_ee_delta_pos.physx_cpu.h5" "$set"
+    ln -sf "$PWD/$CONV/trajectory.rgb.pd_ee_delta_pos.physx_cpu.json" "${set%.h5}.json"
+    python -c "import json; print(len(json.load(open('${set%.h5}.json'))['episodes']))"
+    return
+  fi
   if [[ "$2" == labeller:* ]]; then
     # Learned labellers (scripts/labeller_smoke.py): trained once on labelled demos 0-79, calibrated on 80-99;
     # writes idm, idm_rescale, pos_oracle, pos_cnn and fusion labels for every action-free demo.
-    local dir=data/action_free/pseudo_labels/labeller
-    [ -f "$dir/${2#labeller:}.npz" ] || python scripts/labeller_smoke.py --out "$dir" --steps "$LABELLER_STEPS" \
+    local dir=data/action_free/pseudo_labels/labeller_seed${SEED}
+    [ -f "$dir/${2#labeller:}.npz" ] || python scripts/labeller_smoke.py --out "$dir" --steps "$LABELLER_STEPS" --seed "$SEED" \
       ${MAX_FREE:+--max-free "$MAX_FREE"} >&2
     labels="$dir/${2#labeller:}.npz"
     mkdir -p "$OUT/labels"; cp "$dir/calibration.json" "$OUT/labels/labeller_calibration.json"
