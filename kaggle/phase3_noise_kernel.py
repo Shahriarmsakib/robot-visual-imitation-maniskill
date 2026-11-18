@@ -10,8 +10,9 @@ import sys
 
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
 SETTINGS = {"N": "100", "SEED": "0", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "6.0",
-            "TAG1": "fusion_errshuf", "ARGS1": "labeller:fusion_errshuf",
-            "TAG2": "fusion_truegrip_s8", "ARGS2": "labeller:fusion_truegrip"}  # session 8: error shuffle + matched control, ~4 h
+            "TAG1": "xyz_shrink_ar045",
+            "ARGS1": "--x-r2 0.880 --y-r2 0.930 --z-r2 0.956 --x-scale 0.947 --y-scale 0.983 --z-scale 0.963 --ar1 0.45",
+            "TAG2": "xyz_cnnlevel_r2", "ARGS2": "--x-r2 0.42 --y-r2 0.66 --z-r2 0.79"}  # session 9: mild shrink + persistence; training-only repeat, ~4 h
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)
