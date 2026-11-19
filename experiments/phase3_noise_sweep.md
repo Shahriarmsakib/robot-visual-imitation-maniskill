@@ -34,8 +34,12 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 9 | `xyz_shrink_ar045`: true actions × slope 0.947 / 0.983 / 0.963 + AR(1) noise (ρ = 0.45) to the session-8 `fusion` per-step R²; true gripper. Offline: step R² 0.88 / 0.93 / 0.95, slope 0.95 / 0.98 / 0.96, error autocorrelation 0.46 / 0.45 / 0.47 (`fusion_truegrip_s8`: 0.46 / 0.40 / 0.54), chunk R² 0.98 / 0.99 / 0.99 | `xyz_cnnlevel_r2`: `xyz_cnnlevel` rerun with identical labels (training-only repeat) | Do the image labels' mild shrink and persistence explain the 74 vs 88 gap (near 74: yes; near 88: no)? How much does GPU training alone move success (vs 60 / 74 for labeller rebuilds)? | done: CPU 76 (vs `fusion_truegrip_s8` 74, p = 0.83; vs `xyz_cnnlevel` 88, 2 vs 14, p = 0.004): mild shrink + persistence reproduce the gap. Repeat bit-identical to session 7 (88): training deterministic, spread came from the labeller rebuild |
 | 10 | `upper`, seed 1: all 1,000 demos with true actions (same data file and command as the upper bound) | `fusion_truegrip`, seed 1: labeller rebuilt with seed 1 | Seed repeats (see below) | done: CPU upper 97 (seed 0: 95, p = 0.73); `fusion_truegrip` 95 (vs session 8 build 74, 23 vs 2, p = 2e-5; vs upper seed 1, 1 vs 3, p = 0.63) |
 | 11 | `xyz_cnnlevel`, seed 1 (same labels, noise seed 0) | `xyz_shrink_ar045`, seed 1 (same labels) | Seed repeats; after session 10, also: do the seed-0 gaps (88 vs 76) survive another seed? | done: CPU 97 and 96 with the same labels (seed 0: 88 and 76; 11 vs 2, p = 0.02; 22 vs 2, p = 4e-5): the seed-0 gaps were a seed effect |
-| 12 | `upper`, seed 2 | `fusion_truegrip`, seed 2 | Seed repeats | to be re-planned after session 11 |
-| 13 | `xyz_cnnlevel`, seed 2 | `xyz_shrink_ar045`, seed 2 | Seed repeats | to be re-planned after session 11 |
+| 12 | `xy025_ar09`, seed 1 (same labels as session 4) | `xy_shrink07`, seed 1 (same labels as session 4) | Do the strong-error effects (52 and 25 at seed 0, against 93 for random noise) survive another seed? | prepared |
+| 13 | arm B IDM labels, seed 1 | `xy025`, seed 1 | Does the IDM collapse (0) and the harmlessness of random noise of the IDM's size (93) survive another seed? | planned |
+
+**Re-plan after session 11.** Sessions 10–11 showed that mild label errors make results seed-dependent, and that
+the seed-0 differences of sessions 7–9 were a seed effect. Sessions 12–13 therefore repeat the large, strong-error
+effects that the main claims rest on, instead of a second seed of conditions that sit at the ceiling at seed 1.
 
 **Seed repeats (sessions 10–13, second Kaggle account).** Session 9 showed that training is deterministic at a
 fixed seed, so a repeat only measures variation if the seed changes. Sessions 10–13 rerun the four conditions behind

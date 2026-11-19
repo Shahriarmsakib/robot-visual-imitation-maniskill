@@ -10,9 +10,8 @@ import sys
 
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
 SETTINGS = {"N": "100", "SEED": "1", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "6.0",
-            "TAG1": "xyz_cnnlevel", "ARGS1": "--x-r2 0.42 --y-r2 0.66 --z-r2 0.79",
-            "TAG2": "xyz_shrink_ar045",
-            "ARGS2": "--x-r2 0.880 --y-r2 0.930 --z-r2 0.956 --x-scale 0.947 --y-scale 0.983 --z-scale 0.963 --ar1 0.45"}  # session 11: seed 1 of the two synthetic conditions (labels as in sessions 7 and 9), ~4 h
+            "TAG1": "xy025_ar09", "ARGS1": "--xy-r2 0.25 --ar1 0.9",
+            "TAG2": "xy_shrink07", "ARGS2": "--xy-scale 0.7"}  # session 12: seed 1 of the session-4 strong-error conditions (same labels), ~4 h
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)
