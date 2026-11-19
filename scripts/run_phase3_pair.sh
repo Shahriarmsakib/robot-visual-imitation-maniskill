@@ -55,6 +55,12 @@ train() {  # $1 arm, $2 gpu, $3 dataset, $4 number of episodes
     --total-iters "$ITERS" --eval-freq "$EVAL_FREQ" --save-freq "$EVAL_FREQ" --num-eval-episodes "$EVAL_EPS" \
     --max-hours "$MAX_HOURS" --runs-dir "$OUT/runs" > "$OUT/train_${1}.log" 2>&1
 }
+# As in scripts/run_phase3_noise.sh: load the PhysX GPU library once before the two parallel runs, and keep the
+# last log lines of a crashed run.
+if command -v nvidia-smi >/dev/null; then
+  python -c "import sapien; sapien.physx.enable_gpu(); print('PhysX GPU library ready')"
+fi
+export PYTHONUNBUFFERED=1
 stamp "training: arm A ($N episodes) on GPU 0, arm B ($NB episodes) on GPU 1, $ITERS steps each"
 train A 0 "data/action_free/sets/A_N${N}_seed${SEED}.h5" "$N" & PA=$!
 train B 1 "data/action_free/sets/B_N${N}_seed${SEED}.h5" "$NB" & PB=$!

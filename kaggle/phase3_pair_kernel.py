@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
-SETTINGS = {"N": "25", "SEED": "0", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "5.0"}  # ~4.5 h on T4 x2
+SETTINGS = {"N": "100", "SEED": "1", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "5.0"}  # session 13: seed 1 of the N = 100 pair (IDM and policy seed 1), ~4.5 h on T4 x2
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)

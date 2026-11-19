@@ -1,0 +1,131 @@
+/usr/local/lib/python3.13/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.13/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=ResNet18_Weights.IMAGENET1K_V1`. You can also use `weights=ResNet18_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Downloading: "https://download.pytorch.org/models/resnet18-f37072fd.pth" to /root/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth
+  0%|          | 0.00/44.7M [00:00<?, ?B/s] 38%|███▊      | 17.0M/44.7M [00:00<00:00, 178MB/s] 81%|████████▏ | 36.4M/44.7M [00:00<00:00, 192MB/s]100%|██████████| 44.7M/44.7M [00:00<00:00, 191MB/s]
+Run phase3_noise_xy025_ar09_N100_seed1: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (88s)
+step 100: loss 1.6826
+step 200: loss 0.8927
+step 300: loss 0.5118
+step 400: loss 0.3137
+step 500: loss 0.2233
+step 600: loss 0.1706
+step 700: loss 0.1378
+step 800: loss 0.1205
+step 900: loss 0.1095
+step 1000: loss 0.0991
+step 1100: loss 0.0908
+step 1200: loss 0.0811
+step 1300: loss 0.0795
+step 1400: loss 0.0766
+step 1500: loss 0.0740
+step 1600: loss 0.0679
+step 1700: loss 0.0652
+step 1800: loss 0.0645
+step 1900: loss 0.0603
+step 2000: loss 0.0587
+step 2100: loss 0.0557
+step 2200: loss 0.0560
+step 2300: loss 0.0520
+step 2400: loss 0.0519
+step 2500: loss 0.0507
+step 2600: loss 0.0489
+step 2700: loss 0.0481
+step 2800: loss 0.0500
+step 2900: loss 0.0469
+step 3000: loss 0.0487
+step 3100: loss 0.0451
+step 3200: loss 0.0454
+step 3300: loss 0.0438
+step 3400: loss 0.0433
+step 3500: loss 0.0412
+step 3600: loss 0.0428
+step 3700: loss 0.0381
+step 3800: loss 0.0394
+step 3900: loss 0.0411
+step 4000: loss 0.0396
+[eval] step 4000: success_once 52/100, success_at_end 21/100 (89s)
+step 4100: loss 0.0388
+step 4200: loss 0.0391
+step 4300: loss 0.0371
+step 4400: loss 0.0401
+step 4500: loss 0.0395
+step 4600: loss 0.0400
+step 4700: loss 0.0355
+step 4800: loss 0.0347
+step 4900: loss 0.0358
+step 5000: loss 0.0334
+step 5100: loss 0.0347
+step 5200: loss 0.0339
+step 5300: loss 0.0344
+step 5400: loss 0.0319
+step 5500: loss 0.0340
+step 5600: loss 0.0324
+step 5700: loss 0.0362
+step 5800: loss 0.0318
+step 5900: loss 0.0334
+step 6000: loss 0.0334
+step 6100: loss 0.0325
+step 6200: loss 0.0319
+step 6300: loss 0.0304
+step 6400: loss 0.0319
+step 6500: loss 0.0294
+step 6600: loss 0.0311
+step 6700: loss 0.0329
+step 6800: loss 0.0282
+step 6900: loss 0.0288
+step 7000: loss 0.0304
+step 7100: loss 0.0295
+step 7200: loss 0.0332
+step 7300: loss 0.0287
+step 7400: loss 0.0293
+step 7500: loss 0.0278
+step 7600: loss 0.0289
+step 7700: loss 0.0295
+step 7800: loss 0.0288
+step 7900: loss 0.0293
+step 8000: loss 0.0275
+[eval] step 8000: success_once 51/100, success_at_end 25/100 (90s)
+step 8100: loss 0.0273
+step 8200: loss 0.0248
+step 8300: loss 0.0253
+step 8400: loss 0.0263
+step 8500: loss 0.0264
+step 8600: loss 0.0261
+step 8700: loss 0.0263
+step 8800: loss 0.0252
+step 8900: loss 0.0246
+step 9000: loss 0.0257
+step 9100: loss 0.0268
+step 9200: loss 0.0266
+step 9300: loss 0.0256
+step 9400: loss 0.0261
+step 9500: loss 0.0256
+step 9600: loss 0.0262
+step 9700: loss 0.0261
+step 9800: loss 0.0261
+step 9900: loss 0.0260
+step 10000: loss 0.0253
+step 10100: loss 0.0254
+step 10200: loss 0.0250
+step 10300: loss 0.0251
+step 10400: loss 0.0274
+step 10500: loss 0.0254
+step 10600: loss 0.0257
+step 10700: loss 0.0261
+step 10800: loss 0.0257
+step 10900: loss 0.0247
+step 11000: loss 0.0265
+step 11100: loss 0.0253
+step 11200: loss 0.0259
+step 11300: loss 0.0246
+step 11400: loss 0.0253
+step 11500: loss 0.0245
+step 11600: loss 0.0253
+step 11700: loss 0.0231
+step 11800: loss 0.0251
+step 11900: loss 0.0245
+step 12000: loss 0.0247
+[eval] step 12000: success_once 44/100, success_at_end 20/100 (89s)
