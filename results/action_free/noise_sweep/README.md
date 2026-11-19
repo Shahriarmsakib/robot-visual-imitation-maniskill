@@ -1,4 +1,4 @@
-# Phase 3: label-noise sweep (sessions 1–9)
+# Phase 3: label-noise sweep (sessions 1–10)
 
 **Short answer: the *size* of the IDM's label errors is not what breaks arm B; their *structure* is, and each of
 its two structural flaws hurts on its own.** Random, step-independent errors as large as the IDM's are nearly
@@ -30,6 +30,14 @@ the image-based labels from the same build (74; paired 12 vs 10, p = 0.83) and c
 enough to reproduce the gap; which of the two matters more is untested. A repeat of the 88 condition with identical
 labels gave a bit-identical policy: given the labels and the seed, training on Kaggle is deterministic, so the
 60 vs 74 spread of sessions 6 and 8 came from rebuilding the labeller, not from training. One seed per condition.
+
+**Session 10 (2026-11-19): with seed 1 the image-based labeller matches the upper bound, so the seed-0 gaps above
+are not settled.** The labeller rebuilt with seed 1 (`fusion_truegrip`, true gripper) trains a policy to **95/100**,
+against 97/100 for the upper bound at seed 1 (paired 1 vs 3, p = 0.63). Its labels look like session 8's (step R²
+0.88 / 0.95 / 0.96, slope 0.96–0.98, error autocorrelation 0.38–0.52), which reached 74/100 at seed 0 (paired
+23 vs 2, p = 2e-5). The seed changes both the labeller and the policy's training, so which of the two caused the jump
+is not separated. The upper bound hardly moves between seeds (95, 97). Until the synthetic conditions are repeated
+with other seeds (sessions 11–13), the conclusions of sessions 7–9 hold only for training seed 0.
 
 Sessions 1–2 showed that random errors of the IDM's size are harmless. Arm B
 trained on the 900 action-free demos' true actions plus independent random noise as large as the IDM's error
@@ -91,6 +99,8 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `fusion_errshuf` | 0 / 0 | 12 / 60 | 22 / 71 | **27 / 77** (CI 19–36%) |
 | `xyz_shrink_ar045` | 0 / 0 | 8 / 55 | 30 / 78 | **38 / 80** (CI 29–48%) |
 | `xyz_cnnlevel_r2` | 0 / 0 | 14 / 59 | 27 / 74 | **35 / 77** (CI 26–45%), identical to `xyz_cnnlevel` |
+| `upper`, seed 1 (session 10) | 0 / 0 | 35 / 83 | 39 / 83 | **33 / 89** (CI 25–43%) |
+| `fusion_truegrip`, seed 1 (session 10) | 0 / 0 | 36 / 83 | 49 / 85 | **43 / 86** (CI 34–53%) |
 | Upper bound, all true labels (`../upper_N1000/`) | 0 / 0 | 19 / 74 | 33 / 84 | 43 / 87 (CI 34–53%) |
 | Arm B, IDM pseudo-labels (`../policy_N100/`) | 0 / 0 | 1 / 1 | 0 / 1 | 1 / 1 |
 
@@ -119,6 +129,8 @@ upper bound; `failure_analysis/`, comparison in `compare_N100/`):
 | `fusion_errshuf` (its errors moved between episodes) | 100 | 100 | 98 | 82 | 82 | **72** |
 | `xyz_shrink_ar045` (mild shrink + persistent noise) | 100 | 100 | 96 | 83 | 83 | **76** |
 | `xyz_cnnlevel_r2` (repeat of `xyz_cnnlevel`) | 100 | 100 | 97 | 91 | 91 | **88** |
+| Upper bound, seed 1 (session 10) | 100 | 100 | 97 | 98 | 98 | **97** |
+| `fusion_truegrip`, labeller and policy seed 1 (session 10) | 100 | 100 | 93 | 96 | 96 | **95** |
 | Upper bound (all true) | 100 | 100 | 96 | 97 | 97 | 95 |
 | Arm A, 100 labelled only | 97 | 96 | 90 | 11 | 4 | 3 |
 | Arm B, + IDM pseudo-labels | 9 | 12 | 7 | 0 | 0 | 0 |
@@ -384,13 +396,56 @@ repeated `xyz_cnnlevel` with identical labels, to measure how much training alon
   14-episode spread between sessions 6 and 8 therefore came from the labeller rebuild. This repeat says nothing
   about how much a *different* training seed moves results; that needs more seeds.
 - On the GPU simulator the two runs score 38 and 35/100.
+- **Seed 0 only.** Session 10 found the image-based labeller at 95/100 with seed 1; whether `xyz_shrink_ar045` and
+  `xyz_cnnlevel` keep their 76 vs 88 difference at other seeds is being tested (sessions 11 and 13).
+
+## Session 10: seed 1 (upper bound and image-based labeller)
+
+Session 10 is the first of the seed repeats (`experiments/phase3_noise_sweep.md`, sessions 10–13; second Kaggle
+account). It reran the upper bound and `fusion_truegrip` with seed 1. The upper bound used the same data file as the
+original run (dataset sha256 identical) through the noise runner's `true` mode. For `fusion_truegrip`, the labeller
+(IDM and both CNNs, `scripts/labeller_smoke.py --seed 1`) was rebuilt with seed 1 and the policy trained with seed 1
+(`compare_seeds/`).
+
+![seeds](compare_seeds/figures/success_breakdown.png)
+
+| Comparison (paired, CPU) | Reached target | Success at end |
+|---|---|---|
+| Upper bound seed 0 vs seed 1 | 2 vs 3, p = 1 | 3 vs 5, p = 0.73 |
+| `fusion_truegrip` seed 1 vs session 6 build (seed 0) | 26 vs 1, p = 4e-7 | 36 vs 1, p = 6e-10 |
+| `fusion_truegrip` seed 1 vs session 8 build (seed 0) | 15 vs 1, p = 5e-4 | 23 vs 2, p = 2e-5 |
+| Upper bound seed 1 vs `fusion_truegrip` seed 1 | 2 vs 0, p = 0.5 | 3 vs 1, p = 0.63 |
+| `xyz_cnnlevel` (seed 0) vs `fusion_truegrip` seed 1 | 2 vs 7, p = 0.18 | 3 vs 10, p = 0.09 |
+| `fusion_truegrip` seed 1 vs `xyz_shrink_ar045` (seed 0) | 16 vs 3, p = 0.004 | 23 vs 4, p = 3e-4 |
+
+Label structure of the three builds (exact Kaggle labels, `label_error_structure_session10.json`; x / y / z):
+
+| Build | CPU success | Step R² | Slope | Error autocorrelation | Chunk-30 R² |
+|---|---|---|---|---|---|
+| Session 6, seed 0 | 60 | 0.80 / 0.92 / 0.92 | 0.93 / 0.97 / 0.97 | 0.48 / 0.49 / 0.56 | 0.98 / 0.99 / 0.99 |
+| Session 8, seed 0 | 74 | 0.88 / 0.93 / 0.96 | 0.95 / 0.98 / 0.96 | 0.46 / 0.40 / 0.54 | 0.99 / 1.00 / 1.00 |
+| Session 10, seed 1 | 95 | 0.88 / 0.95 / 0.96 | 0.96 / 0.97 / 0.98 | 0.38 / 0.52 / 0.47 | 0.99 / 1.00 / 1.00 |
+
+- **The image-based labeller can reach the upper bound.** With seed 1 the policy loses no more episodes than with
+  true labels, at every stage.
+- **Its labels are only slightly different from the 74 build.** Session 10's are a little better on y (step R² 0.95
+  vs 0.93) and slightly less shrunk on y and z, a little more persistent on y and less on x and z. None of these
+  measures separates 95 from 74 clearly.
+- **The cause of the jump is not separated.** Seed 1 changed the labeller and the policy training at once. Either the
+  seed-1 labels are better in a way these measures miss, or policy training at seed 0 is unlucky with slightly noisy
+  labels while true labels are robust to the seed (95, 97). A seed-0 policy on the seed-1 labels, or the reverse,
+  would separate them.
+- **What this means for sessions 7–9.** Their comparisons were all trained with seed 0. The ranking random noise
+  (88) > mild shrink + persistence (76) ≈ image labels (74) may still hold at other seeds, or may be partly a seed-0
+  effect. Sessions 11 and 13 repeat both synthetic conditions with seeds 1 and 2.
+- On the GPU simulator the runs score 33 (upper bound) and 43/100.
 
 ## Caveats
 
 - One training seed and one noise seed per condition; 100 evaluation scenes. Session 8 shows that rebuilding a
   learned labeller can move success by 14 episodes (60 vs 74), so single runs of learned labellers are only coarse.
-  Session 9 shows the policy training itself is deterministic at a fixed seed, so seed-to-seed variation is still
-  unmeasured.
+  Session 9 shows the policy training itself is deterministic at a fixed seed. Session 10 shows that changing the
+  seed can move a labeller from 74 to 95, while the upper bound moves only from 95 to 97.
 - The error-structure numbers come from the Mac IDM copies, not the exact labels arm B trained on.
 - Two shrink factors (0.4, 0.7) were tested; where between 0.7 and 1.0 the policy starts to fail is unknown.
 - On the GPU simulator the session-4 conditions score lower (27 and 20/100) than on the CPU (52 and 25/100), in the
@@ -426,7 +481,7 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
 - `labels/`: corruption settings and achieved label quality of each condition (from `make_noisy_labels.py`).
 - `runs/<condition>/`: config, sessions, metrics and training log from the Kaggle output (checkpoints not
   committed); `runs/xy025_session1_oom/`: the killed session-1 attempt; `runs/xy025_ar09_session3_crash/`: the crashed
-  session-3 run; `runs/session{2,3,4,5,6,7,8,9}_kernel_summary.txt`.
+  session-3 run; `runs/session{2,3,4,5,6,7,8,9,10}_kernel_summary.txt; `runs/seed1_*/`: session-10 seed repeats`.
 - `failure_analysis/`: CPU stage analysis of each final checkpoint (`scripts/failure_analysis.py`,
   100 episodes, 10 envs, scene seed 10000).
 - `compare_N100/`: combined summary and figures with arm B (N = 100) and the upper bound (sessions 1–3).
@@ -437,6 +492,9 @@ also typical when shared memory runs out. Session 4 loaded the library once befo
   arm B and the upper bound (session 7).
 - `compare_shuffle/`: errors moved between episodes vs the matched control, with session 6's `fusion_truegrip`,
   `posrec_truegrip`, `xyz_cnnlevel` and the upper bound (session 8).
+- `compare_seeds/`: seed 1 of the upper bound and `fusion_truegrip`, with the seed-0 runs (session 10).
+- `label_error_structure_session10.json`: structure of the exact labels of the three `fusion_truegrip` builds
+  (sessions 6, 8, 10).
 - `compare_shrink_persist/`: mild shrink + persistent noise, with `xyz_cnnlevel`, `fusion_truegrip_s8`,
   `fusion_errshuf` and the upper bound (session 9).
 - `label_error_structure_session9.json`: structure of the `xyz_shrink_ar045` labels (Mac rebuild with the same

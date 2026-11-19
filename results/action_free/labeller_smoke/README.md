@@ -121,6 +121,10 @@ noise without these properties (88). These two error properties, not the scores 
 training is deterministic at a fixed seed, so the 60 vs 74 spread came from rebuilding the labeller
 (`../noise_sweep/README.md`, session 9).
 
+**Session 10 result (2026-11-19):** rebuilt and trained with seed 1, `fusion_truegrip` reaches 95/100, level with the
+upper bound at seed 1 (97). Its label scores are close to the 74 build's, so these scores do not predict the result;
+labeller and policy seed changed together, so the cause is not yet separated (`../noise_sweep/README.md`, session 10).
+
 ## Caveats
 
 - The labels used for the session-5 policies were built on Kaggle (GPU) and differ somewhat from the Mac labels
