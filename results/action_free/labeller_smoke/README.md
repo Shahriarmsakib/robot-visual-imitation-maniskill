@@ -125,6 +125,11 @@ training is deterministic at a fixed seed, so the 60 vs 74 spread came from rebu
 upper bound at seed 1 (97). Its label scores are close to the 74 build's, so these scores do not predict the result;
 labeller and policy seed changed together, so the cause is not yet separated (`../noise_sweep/README.md`, session 10).
 
+**Session 11 result (2026-11-19):** fixed synthetic labels with the labeller's error size and structure also go from
+76–88 at seed 0 to 96–97 at seed 1. So the labeller's jump is explained by the policy's training seed, and the
+differences between labellers at seed 0 (50, 53, 57, 60, 74) cannot be read as differences in label quality without
+more seeds (`../noise_sweep/README.md`, session 11).
+
 ## Caveats
 
 - The labels used for the session-5 policies were built on Kaggle (GPU) and differ somewhat from the Mac labels

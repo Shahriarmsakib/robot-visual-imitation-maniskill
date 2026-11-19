@@ -33,9 +33,9 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 8 | `fusion_errshuf`: `fusion_truegrip` with its x, y, z residual errors moved to *another* episode (neighbour in length); the shrink (slope × true action) is kept; true gripper. Mac check (`results/action_free/labeller_smoke/structure_errshuf.json`): step R², slope, autocorrelation and chunk R² match the source within 0.01 | `fusion_truegrip_s8`: `fusion_truegrip` rerun from the same labeller build (matched control) | Do the image-based errors hurt because they depend on the scene? Same error size and pattern over time, link to the scene broken. Near 88 -> scene dependence is the harmful property; near 60 -> the pattern over time is | done: CPU 72 vs 74 (p = 0.83): not scene dependence; control 74 vs session 6's 60 (p = 0.007): large run-to-run spread |
 | 9 | `xyz_shrink_ar045`: true actions × slope 0.947 / 0.983 / 0.963 + AR(1) noise (ρ = 0.45) to the session-8 `fusion` per-step R²; true gripper. Offline: step R² 0.88 / 0.93 / 0.95, slope 0.95 / 0.98 / 0.96, error autocorrelation 0.46 / 0.45 / 0.47 (`fusion_truegrip_s8`: 0.46 / 0.40 / 0.54), chunk R² 0.98 / 0.99 / 0.99 | `xyz_cnnlevel_r2`: `xyz_cnnlevel` rerun with identical labels (training-only repeat) | Do the image labels' mild shrink and persistence explain the 74 vs 88 gap (near 74: yes; near 88: no)? How much does GPU training alone move success (vs 60 / 74 for labeller rebuilds)? | done: CPU 76 (vs `fusion_truegrip_s8` 74, p = 0.83; vs `xyz_cnnlevel` 88, 2 vs 14, p = 0.004): mild shrink + persistence reproduce the gap. Repeat bit-identical to session 7 (88): training deterministic, spread came from the labeller rebuild |
 | 10 | `upper`, seed 1: all 1,000 demos with true actions (same data file and command as the upper bound) | `fusion_truegrip`, seed 1: labeller rebuilt with seed 1 | Seed repeats (see below) | done: CPU upper 97 (seed 0: 95, p = 0.73); `fusion_truegrip` 95 (vs session 8 build 74, 23 vs 2, p = 2e-5; vs upper seed 1, 1 vs 3, p = 0.63) |
-| 11 | `xyz_cnnlevel`, seed 1 (same labels, noise seed 0) | `xyz_shrink_ar045`, seed 1 (same labels) | Seed repeats; after session 10, also: do the seed-0 gaps (88 vs 76) survive another seed? | next |
-| 12 | `upper`, seed 2 | `fusion_truegrip`, seed 2 | Seed repeats | planned |
-| 13 | `xyz_cnnlevel`, seed 2 | `xyz_shrink_ar045`, seed 2 | Seed repeats | planned |
+| 11 | `xyz_cnnlevel`, seed 1 (same labels, noise seed 0) | `xyz_shrink_ar045`, seed 1 (same labels) | Seed repeats; after session 10, also: do the seed-0 gaps (88 vs 76) survive another seed? | done: CPU 97 and 96 with the same labels (seed 0: 88 and 76; 11 vs 2, p = 0.02; 22 vs 2, p = 4e-5): the seed-0 gaps were a seed effect |
+| 12 | `upper`, seed 2 | `fusion_truegrip`, seed 2 | Seed repeats | to be re-planned after session 11 |
+| 13 | `xyz_cnnlevel`, seed 2 | `xyz_shrink_ar045`, seed 2 | Seed repeats | to be re-planned after session 11 |
 
 **Seed repeats (sessions 10–13, second Kaggle account).** Session 9 showed that training is deterministic at a
 fixed seed, so a repeat only measures variation if the seed changes. Sessions 10–13 rerun the four conditions behind
@@ -99,3 +99,7 @@ already harmless they would not be informative.
   with the upper bound (1 vs 3, p = 0.63) and far above the seed-0 builds (60, 74). Label statistics are close to the
   session-8 build's, and the seed changed labeller and policy together, so the cause is not separated. The seed-0
   conclusions of sessions 7–9 wait on sessions 11–13. GPU final 33 / 43.
+- Session 11 (2026-11-19, code 3c516f4, second Kaggle account): both runs completed with the same labels as at seed 0.
+  CPU success at end `xyz_cnnlevel` 97/100 (seed 0: 88) and `xyz_shrink_ar045` 96/100 (seed 0: 76); at seed 1 all
+  four conditions score 95–97. The seed-0 differences of sessions 7–10 came from the training seed; the conclusions
+  of sessions 7–9 are withdrawn. The strong-error results of sessions 1–4 still have one seed each. GPU final 38 / 37.
