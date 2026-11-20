@@ -10,8 +10,8 @@ import sys
 
 REPO = "https://github.com/Shahriarmsakib/robot-visual-imitation-maniskill.git"
 SETTINGS = {"N": "100", "SEED": "1", "ITERS": "12000", "EVAL_FREQ": "4000", "MAX_HOURS": "6.0",
-            "TAG1": "xy025_ar09", "ARGS1": "--xy-r2 0.25 --ar1 0.9",
-            "TAG2": "xy_shrink07", "ARGS2": "--xy-scale 0.7"}  # session 12: seed 1 of the session-4 strong-error conditions (same labels), ~4 h
+            "TAG1": "xy025", "ARGS1": "--xy-r2 0.25",
+            "TAG2": "xy_shrink04", "ARGS2": "--xy-scale 0.4"}  # session 14: seed 1 of random noise at the IDM's size and the x0.4 shrink (same labels as sessions 2-3), ~4 h
 
 code = "/tmp/code"
 subprocess.run(["git", "clone", "--depth", "1", REPO, code], check=True)
