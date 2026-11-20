@@ -1,0 +1,63 @@
+3a91e28 Seed repeats, session 13 (seed 1): N = 100 pair, arms A and B
+
+Cloning into '/tmp/code'...
+3a91e28 Session 12 results (seed 1): strong-error effects reproduce (persistent noise 48, x0.7 shrink 23 vs 97); session 13 settings for the N = 100 IDM pair at seed 1
+
+[20:54:40] setup
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.51.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+ydata-profiling 4.18.4 requires matplotlib<=3.10,>=3.5, but you have matplotlib 3.11.2 which is incompatible.
+kaggle-environments 1.32.2 requires gymnasium==1.2.0, but you have gymnasium 1.4.0 which is incompatible.
+dopamine-rl 4.1.2 requires gym<=0.25.2, but you have gym 0.26.2 which is incompatible.
+tensorflow 2.21.0 requires h5py<3.15.0,>=3.11.0, but you have h5py 3.16.0 which is incompatible.
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+mani-skill 3.0.1 requires mplib==0.1.1; platform_system == "Linux", which is not installed.
+mani_skill 3.0.1 sapien 3.0.3
+torch 2.11.0+cu130 cuda True Tesla T4
+[20:55:59] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+Downloading demonstrations to /tmp/code/data/demos - 1/1, PickCube-v1
+0.00it [00:00, ?it/s]  0%|          | 0.00/36.6M [00:00<?, ?it/s]  0%|          | 8.19k/36.6M [00:00<35:19, 17.3kit/s] 23%|██▎       | 8.39M/36.6M [00:00<00:01, 17.3Mit/s] 80%|████████  | 29.4M/36.6M [00:00<00:00, 61.3Mit/s]36.6Mit [00:00, 38.2Mit/s]                           
+Replayed 1000 episodes, 1000/1000=100.00% demos saved
+[21:20:34] IDM: train on N=100 labelled demos (seed 1), pseudo-label the action-free pool
+device cuda | labelled pool 100 demos | action-free pool 900 demos, 70256 transitions | loaded in 38s
+N=100 seed=1: xyz R2 x 0.124 y 0.513 z 0.803 | xyz MAE 0.0408 (zero-action 0.0589) | gripper acc 0.936 (majority 0.546) | 79s
+wrote /kaggle/working/idm/metrics.csv, /kaggle/working/idm/summary.json; total 130s
+[21:22:50] datasets
+wrote data/action_free/sets/A_N100_seed1.h5: 100 labelled (true actions) + 0 pseudo-labelled episodes
+wrote data/action_free/sets/B_N100_seed1.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+Downloading PhysX GPU library to /root/.sapien/physx/105.1-physx-5.3.1.patch0 from Github. This can take several minutes. If it fails to download, please manually download fhttps://github.com/sapien-sim/physx-precompiled/releases/download/105.1-physx-5.3.1.patch0/linux-so.zip and unzip at /root/.sapien/physx/105.1-physx-5.3.1.patch0.
+Download complete.
+PhysX GPU library ready
+[21:22:59] training: arm A (100 episodes) on GPU 0, arm B (1000 episodes) on GPU 1, 12000 steps each
+[00:49:30] training finished: arm A exit 0, arm B exit 0 (0 = done, 3 = stopped by time budget)
+| Run | Demos | Seed | Steps | Status | Final success_at_end | Final success_once | 95% CI (at_end) | Best at_end (step) | Backend | Commit |
+|---|---|---|---|---|---|---|---|---|---|---|
+| phase3_A_N100_seed1 | 100 | 1 | 12000/12000 | complete | 8/100 (8%) | 13/100 (13%) | 4%–15% | 8% (8000) | physx_cuda | 3a91e28 |
+| phase3_B_N100_seed1 | 1000 | 1 | 12000/12000 | complete | 0/100 (0%) | 0/100 (0%) | 0%–4% | 0% (0) | physx_cuda | 3a91e28 |
+
+Final = evaluation of the final model of a completed run (headline number). Best = highest success_at_end over all evaluations; it is selected on the evaluation scenes and therefore optimistic.
+
+Wrote 2 runs, 8 evaluations to /kaggle/working/metrics/
+wrote /kaggle/working/figures/fig2_training_loss.png, /kaggle/working/figures/fig2_training_loss.pdf
+wrote /kaggle/working/figures/fig2b_success_vs_step.png, /kaggle/working/figures/fig2b_success_vs_step.pdf
+wrote /kaggle/working/figures/fig3_data_efficiency.png, /kaggle/working/figures/fig3_data_efficiency.pdf
+--- arm A
+Run phase3_A_N100_seed1: device=cuda sim_backend=physx_cuda samples=7720 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (94s)
+[eval] step 4000: success_once 4/100, success_at_end 3/100 (106s)
+[eval] step 8000: success_once 10/100, success_at_end 8/100 (102s)
+[eval] step 12000: success_once 13/100, success_at_end 8/100 (97s)
+--- arm B
+Run phase3_B_N100_seed1: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (92s)
+[eval] step 4000: success_once 1/100, success_at_end 0/100 (100s)
+[eval] step 8000: success_once 0/100, success_at_end 0/100 (100s)
+[eval] step 12000: success_once 0/100, success_at_end 0/100 (99s)
+[00:49:39] done
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 276726 bytes to __results__.html

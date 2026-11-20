@@ -35,7 +35,7 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 10 | `upper`, seed 1: all 1,000 demos with true actions (same data file and command as the upper bound) | `fusion_truegrip`, seed 1: labeller rebuilt with seed 1 | Seed repeats (see below) | done: CPU upper 97 (seed 0: 95, p = 0.73); `fusion_truegrip` 95 (vs session 8 build 74, 23 vs 2, p = 2e-5; vs upper seed 1, 1 vs 3, p = 0.63) |
 | 11 | `xyz_cnnlevel`, seed 1 (same labels, noise seed 0) | `xyz_shrink_ar045`, seed 1 (same labels) | Seed repeats; after session 10, also: do the seed-0 gaps (88 vs 76) survive another seed? | done: CPU 97 and 96 with the same labels (seed 0: 88 and 76; 11 vs 2, p = 0.02; 22 vs 2, p = 4e-5): the seed-0 gaps were a seed effect |
 | 12 | `xy025_ar09`, seed 1 (same labels as session 4) | `xy_shrink07`, seed 1 (same labels as session 4) | Do the strong-error effects (52 and 25 at seed 0, against 93 for random noise) survive another seed? | done: CPU 48 and 23 (seed 0: 52 and 25; p = 0.61 and 0.63), against 97 for random noise and true labels at seed 1: both reproduce |
-| 13 | arm A (100 labelled demos only), seed 1 | arm B (+ 900 IDM pseudo-labelled), seed 1; `scripts/run_phase3_pair.sh` with N = 100, as in `results/action_free/policy_N100/` | Does the IDM collapse (B 0, A 3 at seed 0) survive another seed? `xy025` seed 1 follows in a later session | next |
+| 13 | arm A (100 labelled demos only), seed 1 | arm B (+ 900 IDM pseudo-labelled), seed 1; `scripts/run_phase3_pair.sh` with N = 100, as in `results/action_free/policy_N100/` | Does the IDM collapse (B 0, A 3 at seed 0) survive another seed? `xy025` seed 1 follows in a later session | done: CPU B 0, A 13 (13 vs 0, p = 2e-4), upper seed 1 97: the collapse reproduces (`results/action_free/policy_N100/`) |
 
 **Re-plan after session 11.** Sessions 10–11 showed that mild label errors make results seed-dependent, and that
 the seed-0 differences of sessions 7–9 were a seed effect. Sessions 12–13 therefore repeat the large, strong-error
@@ -111,3 +111,6 @@ already harmless they would not be informative.
   CPU success at end `xy025_ar09` 48/100 (seed 0: 52; 19 vs 15, p = 0.61) and `xy_shrink07` 23/100 (seed 0: 25; 3 vs 1,
   p = 0.63), against 97 for random noise and true labels at seed 1: both strong-error effects reproduce. GPU final
   20 / 18.
+- Session 13 (2026-11-19, code 3a91e28, second Kaggle account): N = 100 pair with IDM and policy seed 1. IDM R² x 0.12,
+  y 0.51, z 0.80, gripper 93.6%. CPU success at end arm B 0/100 (reached cube 24), arm A 13/100 (seed 0: 3; 11 vs 1,
+  p = 0.006); A vs B 13 vs 0, p = 2e-4. The IDM collapse reproduces. GPU final 8 / 0.

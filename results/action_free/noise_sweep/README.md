@@ -531,8 +531,8 @@ At seed 1, paired against the strong-error runs: upper bound vs `xy025_ar09` 50 
 - **Each fails the same way at both seeds.** Both lose 17–31 episodes before the grasp (69–83 grasped, against 100
   for the upper bound). Shrunk motion then loses most of the rest before the goal (27 reach it at both seeds);
   persistent noise loses fewer there (50–59 reach it).
-- **Still single-seed:** the IDM labels (0/100), ×0.4 shrink (1/100) and random noise of the IDM's size (93/100).
-  Session 13 repeats the IDM pair (arms A and B) with seed 1.
+- **Still single-seed:** ×0.4 shrink (1/100) and random noise of the IDM's size (`xy025`, 93/100). The IDM labels'
+  collapse reproduced at seed 1 in session 13 (0/100; `../policy_N100/README.md`, seed repeat).
 - On the GPU simulator the two runs score 20 and 18/100.
 
 ## Caveats
@@ -543,7 +543,7 @@ At seed 1, paired against the strong-error runs: upper bound vs `xy025_ar09` 50 
   seed can move a labeller from 74 to 95, while the upper bound moves only from 95 to 97. Session 11 shows the same
   for fixed synthetic labels (76 → 96, 88 → 97): with mild label errors one seed is not enough to rank conditions.
   The strong-error conditions `xy025_ar09` and `xy_shrink07` reproduce at seed 1 (session 12); the IDM labels, ×0.4
-  shrink and `xy025` still have one seed each.
+  shrink and `xy025` still have one seed each; the IDM collapse reproduced at seed 1 (session 13, `../policy_N100/`).
 - The error-structure numbers come from the Mac IDM copies, not the exact labels arm B trained on.
 - Two shrink factors (0.4, 0.7) were tested; where between 0.7 and 1.0 the policy starts to fail is unknown.
 - On the GPU simulator the session-4 conditions score lower (27 and 20/100) than on the CPU (52 and 25/100), in the
