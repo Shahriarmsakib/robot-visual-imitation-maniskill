@@ -6,7 +6,7 @@ Robot demonstrations with recorded actions are expensive; video of the same beha
 
 The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goal position) with the official ACT policy from RGB images. Simulation is the point, not a limitation: every frame comes with the true action, object poses and camera calibration, so the study can measure what real-video work cannot. That includes how accurate pseudo-labels are, what latent actions encode, and *why* a policy fails.
 
-> **Status (2026-11-19).** Baseline and failure analysis done. Object-centric dataset pipeline done. Action-free study: inverse-dynamics (IDM) pseudo-labels collapse the policy (0/100 at two seeds, against 95–97/100 with true labels on the same demos). A controlled label-noise sweep shows that strongly structured errors break it (motion shrunk ×0.4 or ×0.7: 1 and 25/100; noise persisting over time: 52/100), while random errors as large as the IDM's do not (93/100). The ×0.7 shrink and persistent-noise results reproduce with a second seed (23 and 48/100, with true labels at 97). Labels built from the gripper position estimated in each image rescue the policy: 50–74/100 at seed 0, and 95/100 at seed 1 (with true gripper labels), level with the upper bound (97/100). Seed repeats showed that with mildly noisy labels the training seed alone moves success by up to 22 episodes, while with true labels it moves by 2; the finer seed-0 comparisons of sessions 7–9 were withdrawn on that basis. Next: a third seed for the key conditions and a published IDM baseline. Simulation only, nothing here claims real-robot transfer. Progress log: [experiments/status.md](experiments/status.md).
+> **Status (2026-11-20).** Baseline and failure analysis done. Object-centric dataset pipeline done. Action-free study: inverse-dynamics (IDM) pseudo-labels collapse the policy (0/100 at two seeds, against 95–97/100 with true labels on the same demos). A controlled label-noise sweep shows that strongly structured errors break it (motion shrunk ×0.4 or ×0.7: 1 and 25/100; noise persisting over time: 52/100), while random errors as large as the IDM's do not (93/100). Every one of these results reproduces with a second training seed (see the two-seed table below). Labels built from the gripper position estimated in each image rescue the policy: 50–74/100 at seed 0, and 95/100 at seed 1 (with true gripper labels), level with the upper bound (97/100). Seed repeats showed that with mildly noisy labels the training seed alone moves success by up to 22 episodes, while with true labels it moves by 2; the finer seed-0 comparisons of sessions 7–9 were withdrawn on that basis. Next: a third seed for the key conditions and a published IDM baseline. Simulation only, nothing here claims real-robot transfer. Progress log: [experiments/status.md](experiments/status.md).
 
 ## Research thread
 
@@ -15,7 +15,7 @@ The test bed is ManiSkill 3's `PickCube-v1` (pick up a cube and hold it at a goa
 | **1. Baseline and diagnosis** | How good is the standard ACT RGB policy, and why does it fail? | Done | 18/100 success (published reference 28/100, best checkpoint). It grasps 97% of the time but places the cube in only 25% of episodes. The bottleneck is goal precision, not grasping |
 | **2. Object-centric data** | Can we extract synchronized RGB-D, ground-truth object/gripper geometry and camera calibration in ACT's action space? | Done | Validated on Mac and Linux; replay matches the recorded demos to 0.00 mm on Linux |
 | **3. Learning from action-free demos** | With only N labelled demos, does an IDM trained on them improve the policy? | Done for N = 25, 100 | IDM labels are worse than none at N ≤ 10 and useful from N ≈ 25 by per-step accuracy, yet they collapse the policy: at N = 100 it reaches the cube in 9/100 episodes vs 97/100 without them, and succeeds 0/100 vs 95/100 with all 1,000 true labels |
-| **3b. What makes pseudo-labels useful?** | Which label errors break the policy, and can labels be built to avoid them? | In progress | Random errors as large as the IDM's are harmless (93/100). Shrunk motion (×0.7: 25 and 23/100 at two seeds; ×0.4: 1/100), time-correlated noise (52 and 48/100) and gripper errors concentrated at the goal break it. Labels from the gripper position estimated in each image: 50–74/100 at seed 0, 95/100 at seed 1 (true gripper), level with the upper bound (97). Mild label errors make results seed-dependent: the same labels give 76 at seed 0 and 96 at seed 1, so the seed-0 differences of sessions 7–9 were withdrawn. A third seed for the key conditions is next |
+| **3b. What makes pseudo-labels useful?** | Which label errors break the policy, and can labels be built to avoid them? | In progress | Random errors as large as the IDM's are harmless (93/100). At two seeds each: random errors of the IDM's size are harmless (93, 95), shrunk motion (×0.7: 25, 23; ×0.4: 1, 1) and time-correlated noise (52, 48) break it, IDM labels give 0 and 0. Gripper errors concentrated at the goal also hurt (seed 0). Labels from the gripper position estimated in each image: 50–74/100 at seed 0, 95/100 at seed 1 (true gripper), level with the upper bound (97). Mild label errors make results seed-dependent: the same labels give 76 at seed 0 and 96 at seed 1, so the seed-0 differences of sessions 7–9 were withdrawn. A third seed for the key conditions is next |
 | **4. Video-only data and generality** *(next)* | Do position-based labels work when the action-free demos have no robot state at all, and on other tasks, with ≥ 3 seeds? | Planned | — |
 | **5. Object-centric latent actions** *(later)* | Do actions expressed relative to the cube and goal fix the precision bottleneck and make action-free learning robust? | Planned | — |
 | **6. Visual robustness** *(later)* | Which representation degrades least under camera, lighting and distractor shifts? | Planned | — |
@@ -103,6 +103,22 @@ The labelling method works when the positions are right (93 vs 95 for true label
 **The strong-error effects hold at a second seed (session 12).** With the same labels, seed 1 gives **48/100** for noise correlated over time (seed 0: 52) and **23/100** for motion shrunk ×0.7 (seed 0: 25), while random noise and true labels score 97 at that seed (paired 50 vs 1 and 74 vs 0, p < 1e-13). The seed that tolerates mild errors fails with strong ones, and each condition fails at the same stages at both seeds. The core finding, that the structure of label errors matters far more than their size, now rests on two seeds for these conditions ([details](results/action_free/noise_sweep/README.md#session-12-the-strong-error-effects-hold-at-seed-1)).
 
 ![strong errors, two seeds](results/action_free/noise_sweep/compare_seeds_strong/figures/success_breakdown.png)
+
+**Core result at two seeds (sessions 1–4 and 12–14).** Every condition behind the main claim has now been trained with two seeds on the same labels (the IDM is retrained with each seed). CPU success at end out of 100, same 100 scenes:
+
+| Labels on the 900 action-free demos | Seed 0 | Seed 1 |
+|---|---|---|
+| True actions (upper bound) | 95 | 97 |
+| Random noise of the IDM's size (x, y at R² 0.25) | 93 | 95 |
+| Same-size noise persisting over time (ρ = 0.9) | 52 | 48 |
+| x, y motion shrunk ×0.7, no noise (per-step R² 0.91) | 25 | 23 |
+| x, y motion shrunk ×0.4, no noise (per-step R² 0.64) | 1 | 1 |
+| IDM pseudo-labels | 0 | 0 |
+| None: 100 labelled demos alone | 3 | 13 |
+
+How much of the label variance is explained per step does not predict success: noise leaving R² at 0.25 is harmless, while shrinking with R² 0.91 costs 70–74 episodes. Whether errors are systematic or persist over time does. No strong-error condition moved by more than 4 episodes between seeds ([details](results/action_free/noise_sweep/README.md#session-14-every-core-result-holds-at-two-seeds)).
+
+![core conditions at seed 1](results/action_free/noise_sweep/compare_seed1_core/figures/success_breakdown.png)
 
 ![precision](results/action_free/noise_sweep/compare_precision/figures/success_breakdown.png)
 

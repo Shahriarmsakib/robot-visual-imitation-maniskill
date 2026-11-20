@@ -208,6 +208,22 @@
    "success_once": 1,
    "final_success": 0
   },
+  "XY25s1": {
+   "approached": 100,
+   "ever_grasped": 99,
+   "stable_lift": 94,
+   "reached_target": 95,
+   "success_once": 95,
+   "final_success": 95
+  },
+  "SH04s1": {
+   "approached": 20,
+   "ever_grasped": 19,
+   "stable_lift": 13,
+   "reached_target": 1,
+   "success_once": 1,
+   "final_success": 1
+  },
   "U1000": {
    "approached": 100,
    "ever_grasped": 100,
@@ -2856,5 +2872,275 @@
   23,
   0,
   2.384185791015625e-07
+ ],
+ "XY25_vs_XY25s1_approached": [
+  0,
+  0,
+  1.0
+ ],
+ "XY25_vs_XY25s1_ever_grasped": [
+  1,
+  0,
+  1.0
+ ],
+ "XY25_vs_XY25s1_stable_lift": [
+  3,
+  4,
+  1.0
+ ],
+ "XY25_vs_XY25s1_reached_target": [
+  4,
+  4,
+  1.0
+ ],
+ "XY25_vs_XY25s1_success_once": [
+  4,
+  4,
+  1.0
+ ],
+ "XY25_vs_XY25s1_final_success": [
+  4,
+  6,
+  0.75390625
+ ],
+ "SH04_vs_SH04s1_approached": [
+  5,
+  1,
+  0.21875
+ ],
+ "SH04_vs_SH04s1_ever_grasped": [
+  7,
+  0,
+  0.015625
+ ],
+ "SH04_vs_SH04s1_stable_lift": [
+  5,
+  0,
+  0.0625
+ ],
+ "SH04_vs_SH04s1_reached_target": [
+  1,
+  1,
+  1.0
+ ],
+ "SH04_vs_SH04s1_success_once": [
+  1,
+  1,
+  1.0
+ ],
+ "SH04_vs_SH04s1_final_success": [
+  1,
+  1,
+  1.0
+ ],
+ "U1s1_vs_XY25s1_approached": [
+  0,
+  0,
+  1.0
+ ],
+ "U1s1_vs_XY25s1_ever_grasped": [
+  1,
+  0,
+  1.0
+ ],
+ "U1s1_vs_XY25s1_stable_lift": [
+  4,
+  1,
+  0.375
+ ],
+ "U1s1_vs_XY25s1_reached_target": [
+  3,
+  0,
+  0.25
+ ],
+ "U1s1_vs_XY25s1_success_once": [
+  3,
+  0,
+  0.25
+ ],
+ "U1s1_vs_XY25s1_final_success": [
+  3,
+  1,
+  0.625
+ ],
+ "U1s1_vs_SH04s1_approached": [
+  80,
+  0,
+  1.6543612251060553e-24
+ ],
+ "U1s1_vs_SH04s1_ever_grasped": [
+  81,
+  0,
+  8.271806125530277e-25
+ ],
+ "U1s1_vs_SH04s1_stable_lift": [
+  84,
+  0,
+  1.0339757656912846e-25
+ ],
+ "U1s1_vs_SH04s1_reached_target": [
+  97,
+  0,
+  1.262177448353619e-29
+ ],
+ "U1s1_vs_SH04s1_success_once": [
+  97,
+  0,
+  1.262177448353619e-29
+ ],
+ "U1s1_vs_SH04s1_final_success": [
+  96,
+  0,
+  2.524354896707238e-29
+ ],
+ "XY25s1_vs_SH04s1_approached": [
+  80,
+  0,
+  1.6543612251060553e-24
+ ],
+ "XY25s1_vs_SH04s1_ever_grasped": [
+  80,
+  0,
+  1.6543612251060553e-24
+ ],
+ "XY25s1_vs_SH04s1_stable_lift": [
+  81,
+  0,
+  8.271806125530277e-25
+ ],
+ "XY25s1_vs_SH04s1_reached_target": [
+  94,
+  0,
+  1.0097419586828951e-28
+ ],
+ "XY25s1_vs_SH04s1_success_once": [
+  94,
+  0,
+  1.0097419586828951e-28
+ ],
+ "XY25s1_vs_SH04s1_final_success": [
+  94,
+  0,
+  1.0097419586828951e-28
+ ],
+ "XY25s1_vs_AR09s1_approached": [
+  30,
+  0,
+  1.862645149230957e-09
+ ],
+ "XY25s1_vs_AR09s1_ever_grasped": [
+  30,
+  0,
+  1.862645149230957e-09
+ ],
+ "XY25s1_vs_AR09s1_stable_lift": [
+  44,
+  2,
+  3.0752289603697136e-11
+ ],
+ "XY25s1_vs_AR09s1_reached_target": [
+  47,
+  2,
+  4.355626970209414e-12
+ ],
+ "XY25s1_vs_AR09s1_success_once": [
+  48,
+  2,
+  2.2666313270747196e-12
+ ],
+ "XY25s1_vs_AR09s1_final_success": [
+  49,
+  2,
+  1.1786127629420662e-12
+ ],
+ "XY25s1_vs_SH07s1_approached": [
+  25,
+  0,
+  5.960464477539063e-08
+ ],
+ "XY25s1_vs_SH07s1_ever_grasped": [
+  25,
+  1,
+  8.046627044677734e-07
+ ],
+ "XY25s1_vs_SH07s1_stable_lift": [
+  40,
+  2,
+  4.1109160520136356e-10
+ ],
+ "XY25s1_vs_SH07s1_reached_target": [
+  68,
+  0,
+  6.776263578034403e-21
+ ],
+ "XY25s1_vs_SH07s1_success_once": [
+  68,
+  0,
+  6.776263578034403e-21
+ ],
+ "XY25s1_vs_SH07s1_final_success": [
+  72,
+  0,
+  4.235164736271502e-22
+ ],
+ "XY25s1_vs_B100s1_approached": [
+  76,
+  0,
+  2.6469779601696886e-23
+ ],
+ "XY25s1_vs_B100s1_ever_grasped": [
+  72,
+  0,
+  4.235164736271502e-22
+ ],
+ "XY25s1_vs_B100s1_stable_lift": [
+  85,
+  0,
+  5.169878828456423e-26
+ ],
+ "XY25s1_vs_B100s1_reached_target": [
+  94,
+  0,
+  1.0097419586828951e-28
+ ],
+ "XY25s1_vs_B100s1_success_once": [
+  94,
+  0,
+  1.0097419586828951e-28
+ ],
+ "XY25s1_vs_B100s1_final_success": [
+  95,
+  0,
+  5.048709793414476e-29
+ ],
+ "SH07s1_vs_SH04s1_approached": [
+  55,
+  0,
+  5.551115123125783e-17
+ ],
+ "SH07s1_vs_SH04s1_ever_grasped": [
+  56,
+  0,
+  2.7755575615628914e-17
+ ],
+ "SH07s1_vs_SH04s1_stable_lift": [
+  43,
+  0,
+  2.2737367544323206e-13
+ ],
+ "SH07s1_vs_SH04s1_reached_target": [
+  26,
+  0,
+  2.9802322387695312e-08
+ ],
+ "SH07s1_vs_SH04s1_success_once": [
+  26,
+  0,
+  2.9802322387695312e-08
+ ],
+ "SH07s1_vs_SH04s1_final_success": [
+  22,
+  0,
+  4.76837158203125e-07
  ]
 }
