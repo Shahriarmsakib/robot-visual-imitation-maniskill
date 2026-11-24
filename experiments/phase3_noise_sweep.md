@@ -37,6 +37,15 @@ so the gap is entirely label quality. This sweep measures policy success against
 | 12 | `xy025_ar09`, seed 1 (same labels as session 4) | `xy_shrink07`, seed 1 (same labels as session 4) | Do the strong-error effects (52 and 25 at seed 0, against 93 for random noise) survive another seed? | done: CPU 48 and 23 (seed 0: 52 and 25; p = 0.61 and 0.63), against 97 for random noise and true labels at seed 1: both reproduce |
 | 13 | arm A (100 labelled demos only), seed 1 | arm B (+ 900 IDM pseudo-labelled), seed 1; `scripts/run_phase3_pair.sh` with N = 100, as in `results/action_free/policy_N100/` | Does the IDM collapse (B 0, A 3 at seed 0) survive another seed? `xy025` seed 1 follows in a later session | done: CPU B 0, A 13 (13 vs 0, p = 2e-4), upper seed 1 97: the collapse reproduces (`results/action_free/policy_N100/`) |
 | 14 | `xy025`, seed 1 (same labels as session 2) | `xy_shrink04`, seed 1 (same labels as session 3) | Does random noise of the IDM's size stay harmless (93), and the ×0.4 shrink fatal (1), at another seed? Completes seed 1 for every core condition | done: CPU 95 and 1 (seed 0: 93 and 1; p = 0.75 and 1): every core condition now has two seeds |
+| 15 | `upper`, seed 2 | `xy025`, seed 2 | Third seed of the core conditions (see below); main account | prepared |
+| 16 | `xy025_ar09`, seed 2 | `xy_shrink07`, seed 2 | Third seed; second account, in parallel with 15 | prepared |
+| 17 | `xy_shrink04`, seed 2 | `fusion_truegrip`, seed 2 (labeller rebuilt with seed 2) | Third seed; main account, after 15 | prepared |
+| 18 | arm A, seed 2 | arm B (IDM rebuilt with seed 2); `scripts/run_phase3_pair.sh`, N = 100 | Third seed; main account, after 17 | prepared |
+
+**Third seed (sessions 15–18).** After session 14 every core condition had two seeds. Sessions 15–18 add seed 2 for
+all of them, plus the image-based labeller (`fusion_truegrip`), with the same labels as before for the synthetic
+conditions. Settings are those of the earlier sessions with `SEED=2` (kernel settings in each session's Kaggle
+script; runners unchanged since session 14). Paired tests: `scripts/paired_tests.py`.
 
 **Re-plan after session 11.** Sessions 10–11 showed that mild label errors make results seed-dependent, and that
 the seed-0 differences of sessions 7–9 were a seed effect. Sessions 12–13 therefore repeat the large, strong-error
