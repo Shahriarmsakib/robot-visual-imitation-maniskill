@@ -61,7 +61,12 @@ Measured on a T4: `idm60k` IDM 21 min, `idm_morin` IDM 2.2–2.3 h, whole sessio
 |---|---|---|---|---|---|
 | 19 | main | 0 | `idm60k` | `idm_morin` | done 2026-11-26: CPU 30 / 27 |
 | 20 | second | 1 | `idm60k` | `idm_morin` | done 2026-11-26: CPU 0 (IDM collapsed) / 29 |
-| 21 | — | 2 | `idm60k` | `idm_morin` | planned |
+| 21 | main | 2 | `idm60k_wl`: as `idm60k` but the learning rate warms up and decays linearly to 0 (the seed-1 constant-rate IDM collapsed) | `idm_morin` | prepared 2026-11-26 |
+| 22 | main | 1 | `idm60k_wl` (replaces the collapsed run) | to decide (e.g. the shrinkage fix) | planned |
+| — | — | 0 | `idm60k_wl`, so all three seeds use the same IDM recipe | — | planned |
+
+Session 15 (seed 2 of the upper bound and `xy025`, cancelled by Kaggle on 2026-11-24) is rerun in parallel on the second
+account as `phase3-seeds-s15r`.
 
 Each session: setup ~20 min, both IDMs trained one after the other (time on a T4 not measured yet; Mac: 37 min and
 ~3.5 h), then the two policies in parallel (~3.5 h). Estimate 6–7 GPU-hours; MAX_HOURS caps each policy at 6 h.
