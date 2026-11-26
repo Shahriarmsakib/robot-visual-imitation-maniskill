@@ -48,12 +48,19 @@ If both reach the upper bound (≥ 93 at every seed), the remaining x shrinkage 
 and prediction 2 fails. If either stays near 0, label structure as we measure it does not explain the failure.
 Labels made on Kaggle differ a little from the Mac labels above; each session records its own label quality.
 
+## Outcome (2026-11-26)
+
+Results: [`results/action_free/idm_budget/README.md`](../results/action_free/idm_budget/README.md). Success 27–30/100
+(vs 0 for arm B, 95–97 for true labels), level with `xy_shrink07` (25, 23). Prediction 1 held only in part (above 25,
+but not above `xy_shrink07`), 2 held, 3 within the spread. The seed-1 `idm60k` IDM collapsed to a constant output.
+Measured on a T4: `idm60k` IDM 21 min, `idm_morin` IDM 2.2–2.3 h, whole session 6.45 h.
+
 ## Sessions
 
 | Session | Account | Seed | GPU 0 | GPU 1 | Status |
 |---|---|---|---|---|---|
-| 19 | main | 0 | `idm60k` | `idm_morin` | launched 2026-11-26 |
-| 20 | second | 1 | `idm60k` | `idm_morin` | launched 2026-11-26 |
+| 19 | main | 0 | `idm60k` | `idm_morin` | done 2026-11-26: CPU 30 / 27 |
+| 20 | second | 1 | `idm60k` | `idm_morin` | done 2026-11-26: CPU 0 (IDM collapsed) / 29 |
 | 21 | — | 2 | `idm60k` | `idm_morin` | planned |
 
 Each session: setup ~20 min, both IDMs trained one after the other (time on a T4 not measured yet; Mac: 37 min and

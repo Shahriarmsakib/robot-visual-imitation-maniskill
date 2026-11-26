@@ -1,0 +1,2 @@
+n_labelled,seed,train_transitions,final_loss,offsets,arch,batch,lr,schedule,loss,res,train_seconds,x_mae,y_mae,z_mae,x_r2,y_r2,z_r2,xyz_mae,xyz_zero_baseline_mae,gripper_acc,gripper_majority_baseline_acc
+100,1,7720,5.590094431795478e-08,"[0, 1]",impala,128,0.0002,warmup_linear,smoothl1,64,8304.8,0.019549686461687088,0.009935584850609303,0.01985451579093933,0.7550807595252991,0.9489229321479797,0.9502066969871521,0.016446594148874283,0.05892519652843475,0.9892108859029833,0.5458323844226828

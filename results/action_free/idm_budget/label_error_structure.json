@@ -1,0 +1,130 @@
+{
+ "seed0_idm60k": {
+  "step_r2": [
+   0.68,
+   0.922,
+   0.938
+  ],
+  "bias": [
+   0.0012,
+   0.0001,
+   0.0011
+  ],
+  "slope_pred_on_true": [
+   0.731,
+   0.899,
+   0.968
+  ],
+  "err_lag1_autocorr": [
+   0.804,
+   0.731,
+   0.788
+  ],
+  "chunk30_displacement_r2": [
+   0.81,
+   0.961,
+   0.968
+  ],
+  "episode_offset_share_of_err_var": [
+   0.135,
+   0.085,
+   0.123
+  ]
+ },
+ "seed0_idm_morin": {
+  "step_r2": [
+   0.733,
+   0.948,
+   0.948
+  ],
+  "bias": [
+   -0.0007,
+   0.001,
+   -0.001
+  ],
+  "slope_pred_on_true": [
+   0.732,
+   0.922,
+   0.937
+  ],
+  "err_lag1_autocorr": [
+   0.838,
+   0.751,
+   0.807
+  ],
+  "chunk30_displacement_r2": [
+   0.828,
+   0.968,
+   0.97
+  ],
+  "episode_offset_share_of_err_var": [
+   0.167,
+   0.124,
+   0.146
+  ]
+ },
+ "seed1_idm60k": {
+  "step_r2": [
+   -0.0,
+   -0.0,
+   -0.0
+  ],
+  "bias": [
+   -0.0007,
+   0.0006,
+   -0.0029
+  ],
+  "slope_pred_on_true": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "err_lag1_autocorr": [
+   0.993,
+   0.99,
+   0.99
+  ],
+  "chunk30_displacement_r2": [
+   -0.003,
+   -0.0,
+   -0.008
+  ],
+  "episode_offset_share_of_err_var": [
+   0.095,
+   0.095,
+   0.049
+  ]
+ },
+ "seed1_idm_morin": {
+  "step_r2": [
+   0.755,
+   0.949,
+   0.95
+  ],
+  "bias": [
+   -0.0011,
+   0.001,
+   -0.0009
+  ],
+  "slope_pred_on_true": [
+   0.739,
+   0.928,
+   0.937
+  ],
+  "err_lag1_autocorr": [
+   0.817,
+   0.71,
+   0.766
+  ],
+  "chunk30_displacement_r2": [
+   0.836,
+   0.973,
+   0.973
+  ],
+  "episode_offset_share_of_err_var": [
+   0.174,
+   0.099,
+   0.138
+  ]
+ }
+}
