@@ -1,0 +1,56 @@
+{
+  "h5": "data/action_free/conversion/trajectory.rgb.pd_ee_delta_pos.physx_cpu.h5",
+  "h5_sha256": "1895d498898a2004e5bb6d5b19ae53f34c6c5f3a8a6c50de42363fef49684f02",
+  "device": "mps",
+  "steps": 60000,
+  "offsets": [
+    0,
+    1,
+    2
+  ],
+  "arch": "small",
+  "batch": 64,
+  "lr": 0.001,
+  "schedule": "constant",
+  "loss": "mse",
+  "res": null,
+  "name": "idm_small60k",
+  "labelled_pool": [
+    0,
+    99
+  ],
+  "action_free_pool": [
+    100,
+    999
+  ],
+  "action_free_transitions": 70256,
+  "by_n": {
+    "100": {
+      "x_r2": {
+        "mean": 0.6959817409515381,
+        "std": 0.0,
+        "n_seeds": 1
+      },
+      "y_r2": {
+        "mean": 0.9286929368972778,
+        "std": 0.0,
+        "n_seeds": 1
+      },
+      "z_r2": {
+        "mean": 0.9443133473396301,
+        "std": 0.0,
+        "n_seeds": 1
+      },
+      "xyz_mae": {
+        "mean": 0.01905544474720955,
+        "std": 0.0,
+        "n_seeds": 1
+      },
+      "gripper_acc": {
+        "mean": 0.9559183557276247,
+        "std": 0.0,
+        "n_seeds": 1
+      }
+    }
+  }
+}

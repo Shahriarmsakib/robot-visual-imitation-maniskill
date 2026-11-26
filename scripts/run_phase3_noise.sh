@@ -8,6 +8,8 @@
 #   OUT=/kaggle/working TAG1=xy025 ARGS1="--xy-r2 0.25" TAG2=zg_idm ARGS2="--z-r2 0.81 --grip-flip 0.06" \
 #     bash scripts/run_phase3_noise.sh
 # Learned labellers instead of injected noise: ARGS1="labeller:pos_cnn" ARGS2="labeller:fusion" (scripts/labeller_smoke.py)
+# An IDM trained on the N labelled demos with this SEED, as for arm B (scripts/idm_sweep.py options after "idm:"),
+#   e.g. Morin et al.'s recipe: ARGS1="idm:--arch impala --batch 128 --lr 2e-4 --schedule warmup_linear --loss smoothl1 --res 64 --offsets 0 1 --steps 60000"
 # All 1,000 demos with true actions (the upper bound, same data file and command as scripts/run_phase3_upper.sh): ARGS1="true"
 # SEED sets the policy's training seed and the labellers' seed; with N = 100 the labelled split is demos 0-99 for every seed.
 # Smoke test: DEMO_COUNT=130 MAX_FREE=30 ITERS=100 EVAL_FREQ=50 EVAL_EPS=10 (LABELLER_STEPS=50 for labellers)
@@ -55,6 +57,16 @@ build() {  # $1 tag, $2 corruption args or "labeller:<name>" -> prints the numbe
     # Upper bound: train on the converted file itself, exactly as scripts/run_phase3_upper.sh does.
     mkdir -p "$(dirname "$set")"; ln -sf "$PWD/$CONV/trajectory.rgb.pd_ee_delta_pos.physx_cpu.h5" "$set"
     ln -sf "$PWD/$CONV/trajectory.rgb.pd_ee_delta_pos.physx_cpu.json" "${set%.h5}.json"
+    python -c "import json; print(len(json.load(open('${set%.h5}.json'))['episodes']))"
+    return
+  fi
+  if [[ "$2" == idm:* ]]; then
+    # shellcheck disable=SC2086
+    python scripts/idm_sweep.py --ns "$N" --seeds "$SEED" --out "$OUT/idm_${1}" --pseudo-dir data/action_free/pseudo_labels \
+      --name "noise_${1}" ${MAX_FREE:+--max-action-free "$MAX_FREE"} ${2#idm:} >&2
+    labels="data/action_free/pseudo_labels/noise_${1}_N${N}_seed${SEED}.npz"
+    mkdir -p "$OUT/labels"; cp "$labels" "$OUT/labels/noise_${1}.npz"; cp "$OUT/idm_${1}/metrics.csv" "$OUT/labels/noise_${1}_idm_metrics.csv"
+    python scripts/build_pseudo_dataset.py --split "$SPLIT" --pseudo "$labels" --out "$set" >&2
     python -c "import json; print(len(json.load(open('${set%.h5}.json'))['episodes']))"
     return
   fi

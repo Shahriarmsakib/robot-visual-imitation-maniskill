@@ -33,6 +33,15 @@ def main():
     p.add_argument("--steps", type=int, default=3000)
     p.add_argument("--offsets", type=int, nargs="+", default=[0, 1],
                    help="IDM frame window relative to t, chosen on the labelled-pool validation split")
+    p.add_argument("--arch", default="small", choices=["small", "impala"],
+                   help="impala = Morin et al.'s IDM recipe (see src/action_free/idm.py)")
+    p.add_argument("--batch", type=int, default=64)
+    p.add_argument("--lr", type=float, default=1e-3)
+    p.add_argument("--schedule", default="constant", choices=["constant", "warmup_linear"])
+    p.add_argument("--loss", default="mse", choices=["mse", "smoothl1"])
+    p.add_argument("--res", type=int, default=None, help="IMPALA IDM input size (default: frame size)")
+    p.add_argument("--name", default="idm", help="pseudo-label file prefix: <name>_N{n}_seed{s}.npz")
+    p.add_argument("--log-every", type=int, default=0)
     p.add_argument("--device", default="auto")
     p.add_argument("--out", type=Path, default=Path("results/action_free/idm"))
     p.add_argument("--pseudo-dir", type=Path, default=Path("data/action_free/pseudo_labels"))
@@ -56,11 +65,13 @@ def main():
             ids = save_split(args.out / "splits" / f"N{n}_seed{seed}.json", n, seed)
             t1 = time.time()
             model, info = train_idm([labelled_pool[i] for i in ids], device, steps=args.steps, seed=seed,
-                                    offsets=tuple(args.offsets))
+                                    offsets=tuple(args.offsets), arch=args.arch, batch=args.batch, lr=args.lr,
+                                    schedule=args.schedule, loss=args.loss, log_every=args.log_every,
+                                    res=args.res)
             train_s = time.time() - t1
             preds = {i: model.predict(free[i][0], tuple(args.offsets)) for i in free_ids}
             q = label_quality(np.concatenate([preds[i] for i in free_ids]), true_free)
-            np.savez_compressed(args.pseudo_dir / f"idm_N{n}_seed{seed}.npz", **{f"traj_{i}": preds[i] for i in free_ids})
+            np.savez_compressed(args.pseudo_dir / f"{args.name}_N{n}_seed{seed}.npz", **{f"traj_{i}": preds[i] for i in free_ids})
             row = {"n_labelled": n, "seed": seed, **info, "train_seconds": round(train_s, 1), **q}
             rows.append(row)
             print(f"N={n:3d} seed={seed}: xyz R2 x {q['x_r2']:.3f} y {q['y_r2']:.3f} z {q['z_r2']:.3f} | xyz MAE "
@@ -72,7 +83,8 @@ def main():
         w.writeheader()
         w.writerows(rows)
     summary = {"h5": args.h5, "h5_sha256": sha256_file(args.h5), "device": str(device), "steps": args.steps,
-               "offsets": args.offsets,
+               "offsets": args.offsets, "arch": args.arch, "batch": args.batch, "lr": args.lr,
+               "schedule": args.schedule, "loss": args.loss, "res": args.res, "name": args.name,
                "labelled_pool": [LABELLED_POOL.start, LABELLED_POOL.stop - 1],
                "action_free_pool": [free_ids[0], free_ids[-1]], "action_free_transitions": int(len(true_free)),
                "by_n": {}}
