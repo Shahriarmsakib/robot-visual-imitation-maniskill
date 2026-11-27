@@ -51,9 +51,10 @@ Labels made on Kaggle differ a little from the Mac labels above; each session re
 ## Outcome (2026-11-26)
 
 Results: [`results/action_free/idm_budget/README.md`](../results/action_free/idm_budget/README.md). Success 27–30/100
-(vs 0 for arm B, 95–97 for true labels), level with `xy_shrink07` (25, 23). Prediction 1 held only in part (above 25,
+(vs 0 for arm B, 95–97 for true labels), level with `xy_shrink07` (25, 23). Session 21 (seed 2): `idm60k_wl` 31,
+`idm_morin` 39 (upper bound 96); the decaying rate fixed the small IDM's collapse. Prediction 1 held only in part (above 25,
 but not above `xy_shrink07`), 2 held, 3 within the spread. The seed-1 `idm60k` IDM collapsed to a constant output.
-Measured on a T4: `idm60k` IDM 21 min, `idm_morin` IDM 2.2–2.3 h, whole session 6.45 h.
+Measured on a T4: `idm60k` IDM 21–22 min, `idm_morin` IDM 2.2–2.3 h, whole session 6.45–6.5 h.
 
 ## Sessions
 
@@ -61,12 +62,12 @@ Measured on a T4: `idm60k` IDM 21 min, `idm_morin` IDM 2.2–2.3 h, whole sessio
 |---|---|---|---|---|---|
 | 19 | main | 0 | `idm60k` | `idm_morin` | done 2026-11-26: CPU 30 / 27 |
 | 20 | second | 1 | `idm60k` | `idm_morin` | done 2026-11-26: CPU 0 (IDM collapsed) / 29 |
-| 21 | main | 2 | `idm60k_wl`: as `idm60k` but the learning rate warms up and decays linearly to 0 (the seed-1 constant-rate IDM collapsed) | `idm_morin` | prepared 2026-11-26 |
+| 21 | main | 2 | `idm60k_wl`: as `idm60k` but the learning rate warms up and decays linearly to 0 (the seed-1 constant-rate IDM collapsed) | `idm_morin` | done 2026-11-27: CPU 31 / 39 |
 | 22 | main | 1 | `idm60k_wl` (replaces the collapsed run) | to decide (e.g. the shrinkage fix) | planned |
 | — | — | 0 | `idm60k_wl`, so all three seeds use the same IDM recipe | — | planned |
 
-Session 15 (seed 2 of the upper bound and `xy025`, cancelled by Kaggle on 2026-11-24) is rerun in parallel on the second
-account as `phase3-seeds-s15r`.
+Session 15 (seed 2 of the upper bound and `xy025`, cancelled by Kaggle on 2026-11-24) was rerun in parallel on the second
+account as `phase3-seeds-s15r`: done 2026-11-26, CPU upper bound 96, `xy025` 93 (the seed-2 references for session 21).
 
 Each session: setup ~20 min, both IDMs trained one after the other (time on a T4 not measured yet; Mac: 37 min and
 ~3.5 h), then the two policies in parallel (~3.5 h). Estimate 6–7 GPU-hours; MAX_HOURS caps each policy at 6 h.
