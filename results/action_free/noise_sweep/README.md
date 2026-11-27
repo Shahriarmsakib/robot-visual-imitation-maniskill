@@ -1,4 +1,4 @@
-# Phase 3: label-noise sweep (sessions 1–15)
+# Phase 3: label-noise sweep (sessions 1–17)
 
 > **Update after session 11 (2026-11-19).** The seed repeats changed the reading of sessions 7–9. With seed 1 and
 > identical labels, the conditions that differed at seed 0 (74–88) all score 95–97, level with the upper bound. Their
@@ -9,7 +9,9 @@
 > [Session 12](#session-12-the-strong-error-effects-hold-at-seed-1)). Session 14 completed seed 1 for every core
 > condition; the two-seed summary is in [Session 14](#session-14-every-core-result-holds-at-two-seeds). Session 15 (rerun
 > 2026-11-26) added seed 2 of the upper bound (96) and `xy025` (93); see
-> [Session 15](#session-15-a-third-seed-for-the-upper-bound-and-xy025).
+> [Session 15](#session-15-a-third-seed-for-the-upper-bound-and-xy025). Sessions 16–17 (reruns, 2026-11-27) completed seed 2
+> for every core condition: all reproduce (persistent noise 47, ×0.7 shrink 26, ×0.4 shrink 0); the image-based
+> labeller gives 85. See [Sessions 16–17](#sessions-1617-every-core-result-holds-at-three-seeds).
 
 **Short answer: the *size* of the IDM's label errors is not what breaks arm B; their *structure* is, and each of
 its two structural flaws hurts on its own.** Random, step-independent errors as large as the IDM's are nearly
@@ -151,6 +153,10 @@ as the N = 100 pair and the upper bound. Runner: `scripts/run_phase3_noise.sh`; 
 | `xy_shrink04`, seed 1 (session 14) | 0 / 0 | 1 / 1 | 3 / 4 | **4 / 4** (CI 2–10%) |
 | `upper`, seed 2 (session 15) | 0 / 0 | 24 / 58 | 35 / 89 | **49 / 95** (CI 39–59%) |
 | `xy025`, seed 2 (session 15) | 0 / 0 | 17 / 29 | 51 / 84 | **52 / 87** (CI 42–62%) |
+| `xy025_ar09`, seed 2 (session 16) | 0 / 0 | 15 / 31 | 34 / 58 | **30 / 55** (CI 22–40%) |
+| `xy_shrink07`, seed 2 (session 16) | 0 / 0 | 5 / 12 | 18 / 35 | **19 / 29** (CI 13–28%) |
+| `xy_shrink04`, seed 2 (session 17) | 0 / 0 | 2 / 2 | 4 / 5 | **4 / 4** (CI 2–10%) |
+| `fusion_truegrip`, labeller and policy seed 2 (session 17) | 0 / 0 | 26 / 63 | 32 / 90 | **32 / 86** (CI 24–42%) |
 | Upper bound, all true labels (`../upper_N1000/`) | 0 / 0 | 19 / 74 | 33 / 84 | 43 / 87 (CI 34–53%) |
 | Arm B, IDM pseudo-labels (`../policy_N100/`) | 0 / 0 | 1 / 1 | 0 / 1 | 1 / 1 |
 
@@ -189,6 +195,10 @@ upper bound; `failure_analysis/`, comparison in `compare_N100/`):
 | `xy_shrink04`, seed 1 (session 14; same labels as seed 0) | 20 | 19 | 13 | 1 | 1 | **1** |
 | Upper bound, seed 2 (session 15) | 100 | 100 | 95 | 97 | 97 | **96** |
 | `xy025`, seed 2 (session 15; same labels as seed 0) | 100 | 100 | 94 | 93 | 93 | **93** |
+| `xy025_ar09`, seed 2 (session 16; same labels as seed 0) | 80 | 80 | 65 | 51 | 51 | **47** |
+| `xy_shrink07`, seed 2 (session 16; same labels as seed 0) | 79 | 77 | 58 | 29 | 29 | **26** |
+| `xy_shrink04`, seed 2 (session 17; same labels as seed 0) | 23 | 22 | 18 | 0 | 0 | **0** |
+| `fusion_truegrip`, labeller and policy seed 2 (session 17) | 100 | 100 | 93 | 90 | 90 | **85** |
 | Upper bound (all true) | 100 | 100 | 96 | 97 | 97 | 95 |
 | Arm A, 100 labelled only | 97 | 96 | 90 | 11 | 4 | 3 |
 | Arm B, + IDM pseudo-labels | 9 | 12 | 7 | 0 | 0 | 0 |
@@ -614,8 +624,37 @@ Paired at seed 2: upper bound vs `xy025` 4 vs 1 (p = 0.38). Across seeds with th
 - **Random label noise of the IDM's size still costs nothing measurable**, now at three seeds (2–3 episodes below
   the upper bound of the same seed, never significant).
 - **The upper bound is stable across seeds** (95, 97, 96), so it is a fixed reference for the other conditions.
-- The other core conditions (`xy025_ar09`, `xy_shrink07`, `xy_shrink04`) still have two seeds.
 - On the GPU simulator the two runs score 49 and 52/100.
+
+## Sessions 16–17: every core result holds at three seeds
+
+Sessions 16 and 17 (seed 2) were cancelled by Kaggle on 2026-11-24 with no reason given and rerun unchanged on
+2026-11-27 (`phase3-seeds-s16r`, `-s17r`, code 06fa1d1, 3.2–3.5 h of training on two T4s;
+`runs/session16r_kernel_summary.txt`, `session17r_kernel_summary.txt`). The synthetic label files are byte-identical
+to those of seeds 0 and 1. The image-based labeller is rebuilt with each seed.
+
+| Labels on the 900 action-free demos | Seed 0 | Seed 1 | Seed 2 |
+|---|---|---|---|
+| True actions (upper bound) | 95 | 97 | 96 |
+| Random noise of the IDM's size, x and y at R² 0.25 (`xy025`) | 93 | 95 | 93 |
+| Noise of the same size, persisting over time, ρ = 0.9 (`xy025_ar09`) | 52 | 48 | 47 |
+| x, y motion shrunk ×0.7, no noise (`xy_shrink07`) | 25 | 23 | 26 |
+| x, y motion shrunk ×0.4, no noise (`xy_shrink04`) | 1 | 1 | 0 |
+| Labels from gripper positions in images, true gripper (`fusion_truegrip`, labeller rebuilt per seed) | 60 (74 in a rebuild) | 95 | 85 |
+
+Paired, across seeds with the same labels (seed 2 against seeds 0 / 1): `xy025_ar09` 19 vs 14 (p = 0.49) / 16 vs 15
+(p = 1); `xy_shrink07` 1 vs 2 / 0 vs 3 (p ≥ 0.25); `xy_shrink04` 1 vs 0 / 1 vs 0. At seed 2, against the upper bound
+(96): `xy025_ar09` 50 vs 1, `xy_shrink07` 70 vs 0, `xy_shrink04` 96 vs 0 (all p < 1e-13); `fusion_truegrip` 12 vs 1
+(p = 0.003). Persistent noise vs ×0.7 shrink: 28 vs 7 (p = 5e-4).
+
+- **Every strong-error effect reproduces at a third seed**, within 5 episodes of the other two seeds: persistent
+  noise costs about half the episodes (47–52), ×0.7 shrinkage about three quarters (23–26), ×0.4 shrinkage all (0–1),
+  while random noise of the same size costs at most 4 (93–95).
+- **The image-based labeller is good but seed-dependent**: 60–74, 95 and 85 at seeds 0, 1, 2. Its seed-2 labels
+  look like the seed-1 ones (step R² x 0.88, y 0.95, slope x 0.93, error lag-1 autocorrelation 0.44–0.63;
+  `label_error_structure_session17r.json`), yet it scores 10 fewer episodes (11 vs 1, p = 0.006), and it is below the
+  upper bound of the same seed (85 vs 96). It fails mostly late (grasped, not delivered 7; lost after the goal 5).
+- On the GPU simulator the four runs score 30, 19, 4 and 32/100.
 
 ## Caveats
 
@@ -626,7 +665,7 @@ Paired at seed 2: upper bound vs `xy025` 4 vs 1 (p = 0.38). Across seeds with th
   for fixed synthetic labels (76 → 96, 88 → 97): with mild label errors one seed is not enough to rank conditions.
   The strong-error conditions `xy025_ar09` and `xy_shrink07` reproduce at seed 1 (session 12); the IDM labels, ×0.4
   shrink and `xy025` reproduce too (session 14), as does the IDM collapse (session 13, `../policy_N100/`): every
-  core condition has two seeds; the upper bound and `xy025` have three (session 15).
+  core condition has three seeds (sessions 15–17).
 - The error-structure numbers come from the Mac IDM copies, not the exact labels arm B trained on.
 - Two shrink factors (0.4, 0.7) were tested; where between 0.7 and 1.0 the policy starts to fail is unknown.
 - On the GPU simulator the session-4 conditions score lower (27 and 20/100) than on the CPU (52 and 25/100), in the

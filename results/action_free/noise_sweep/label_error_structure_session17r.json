@@ -1,0 +1,34 @@
+{
+ "seed2_fusion_truegrip": {
+  "step_r2": [
+   0.882,
+   0.949,
+   0.946
+  ],
+  "bias": [
+   0.0002,
+   0.0002,
+   0.0007
+  ],
+  "slope_pred_on_true": [
+   0.933,
+   0.978,
+   0.961
+  ],
+  "err_lag1_autocorr": [
+   0.54,
+   0.44,
+   0.63
+  ],
+  "chunk30_displacement_r2": [
+   0.985,
+   0.996,
+   0.993
+  ],
+  "episode_offset_share_of_err_var": [
+   0.027,
+   0.013,
+   0.038
+  ]
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "labeller": "fusion_truegrip",
+ "episodes": 900,
+ "device": "cuda",
+ "steps": 3000,
+ "achieved": {
+  "x_mae": 0.015058565884828568,
+  "y_mae": 0.010880645364522934,
+  "z_mae": 0.020376818254590034,
+  "x_r2": 0.8820752501487732,
+  "y_r2": 0.94877028465271,
+  "z_r2": 0.9463390707969666,
+  "xyz_mae": 0.015438676811754704,
+  "xyz_zero_baseline_mae": 0.05892519652843475,
+  "gripper_acc": 1.0,
+  "gripper_majority_baseline_acc": 0.5458323844226828
+ }
+}

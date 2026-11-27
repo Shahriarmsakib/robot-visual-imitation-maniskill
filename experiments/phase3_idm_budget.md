@@ -52,7 +52,8 @@ Labels made on Kaggle differ a little from the Mac labels above; each session re
 
 Results: [`results/action_free/idm_budget/README.md`](../results/action_free/idm_budget/README.md). Success 27–30/100
 (vs 0 for arm B, 95–97 for true labels), level with `xy_shrink07` (25, 23). Session 21 (seed 2): `idm60k_wl` 31,
-`idm_morin` 39 (upper bound 96); the decaying rate fixed the small IDM's collapse. Prediction 1 held only in part (above 25,
+`idm_morin` 39 (upper bound 96, `xy_shrink07` 26 from session 16r: p = 0.47 and 0.035); the decaying rate fixed
+the small IDM's collapse. Prediction 1 held only in part (above 25,
 but not above `xy_shrink07`), 2 held, 3 within the spread. The seed-1 `idm60k` IDM collapsed to a constant output.
 Measured on a T4: `idm60k` IDM 21–22 min, `idm_morin` IDM 2.2–2.3 h, whole session 6.45–6.5 h.
 

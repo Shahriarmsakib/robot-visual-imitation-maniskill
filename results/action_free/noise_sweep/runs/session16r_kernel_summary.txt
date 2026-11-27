@@ -1,0 +1,65 @@
+Cloning into '/tmp/code'...
+06fa1d1 Seed 2: session 21 (idm60k_wl 31, idm_morin 39) and session 15 rerun (upper 96, xy025 93)
+
+[01:38:03] setup
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.51.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+ydata-profiling 4.18.4 requires matplotlib<=3.10,>=3.5, but you have matplotlib 3.11.2 which is incompatible.
+kaggle-environments 1.32.2 requires gymnasium==1.2.0, but you have gymnasium 1.4.0 which is incompatible.
+dopamine-rl 4.1.2 requires gym<=0.25.2, but you have gym 0.26.2 which is incompatible.
+tensorflow 2.21.0 requires h5py<3.15.0,>=3.11.0, but you have h5py 3.16.0 which is incompatible.
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+mani-skill 3.0.1 requires mplib==0.1.1; platform_system == "Linux", which is not installed.
+mani_skill 3.0.1 sapien 3.0.3
+torch 2.11.0+cu130 cuda True Tesla T4
+[01:39:24] demos: download and convert 1000 to rgb + pd_ee_delta_pos
+Downloading demonstrations to /tmp/code/data/demos - 1/1, PickCube-v1
+0.00it [00:00, ?it/s]  0%|          | 0.00/36.6M [00:01<?, ?it/s] 40%|████      | 14.6M/36.6M [00:01<00:00, 146Mit/s] 91%|█████████ | 33.3M/36.6M [00:01<00:00, 170Mit/s]36.6Mit [00:01, 26.2Mit/s]                          
+Replayed 1000 episodes, 1000/1000=100.00% demos saved
+labelled ids: 100
+[01:58:27] labels and datasets: xy025_ar09 [--xy-r2 0.25 --ar1 0.9], xy_shrink07 [--xy-scale 0.7]
+wrote data/action_free/pseudo_labels/noise_xy025_ar09.npz: 900 episodes | achieved R2 x 0.253 y 0.242 z 1.000 | gripper acc 1.000
+wrote data/action_free/sets/noise_xy025_ar09_N100_seed2.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+wrote data/action_free/pseudo_labels/noise_xy_shrink07.npz: 900 episodes | achieved R2 x 0.910 y 0.910 z 1.000 | gripper acc 1.000
+wrote data/action_free/sets/noise_xy_shrink07_N100_seed2.h5: 100 labelled (true actions) + 900 pseudo-labelled episodes
+[01:58:37] check: resize-on-access matches the old loader
+3760 samples from 50 episodes | frame shape (1, 3, 224, 224) torch.uint8 | stored frame (1, 3, 128, 128) | torch 2.11.0+cu130
+differing samples 0, differing pixel values 0
+PASS
+[01:58:59] PhysX GPU library: load once before the parallel runs
+Downloading PhysX GPU library to /root/.sapien/physx/105.1-physx-5.3.1.patch0 from Github. This can take several minutes. If it fails to download, please manually download fhttps://github.com/sapien-sim/physx-precompiled/releases/download/105.1-physx-5.3.1.patch0/linux-so.zip and unzip at /root/.sapien/physx/105.1-physx-5.3.1.patch0.
+Download complete.
+PhysX GPU library ready
+[01:59:03] training: xy025_ar09 (1000 episodes) on GPU 0, xy_shrink07 (1000 episodes) on GPU 1, 12000 steps each
+[05:10:22] training finished: xy025_ar09 exit 0, xy_shrink07 exit 0 (0 = done, 3 = stopped by time budget)
+| Run | Demos | Seed | Steps | Status | Final success_at_end | Final success_once | 95% CI (at_end) | Best at_end (step) | Backend | Commit |
+|---|---|---|---|---|---|---|---|---|---|---|
+| phase3_noise_xy025_ar09_N100_seed2 | 1000 | 2 | 12000/12000 | complete | 30/100 (30%) | 55/100 (55%) | 22%–40% | 34% (8000) | physx_cuda | 06fa1d1 |
+| phase3_noise_xy_shrink07_N100_seed2 | 1000 | 2 | 12000/12000 | complete | 19/100 (19%) | 29/100 (29%) | 13%–28% | 19% (12000) | physx_cuda | 06fa1d1 |
+
+Final = evaluation of the final model of a completed run (headline number). Best = highest success_at_end over all evaluations; it is selected on the evaluation scenes and therefore optimistic.
+
+Wrote 2 runs, 8 evaluations to /kaggle/working/metrics/
+wrote /kaggle/working/figures/fig2_training_loss.png, /kaggle/working/figures/fig2_training_loss.pdf
+wrote /kaggle/working/figures/fig2b_success_vs_step.png, /kaggle/working/figures/fig2b_success_vs_step.pdf
+wrote /kaggle/working/figures/fig3_data_efficiency.png, /kaggle/working/figures/fig3_data_efficiency.pdf
+--- xy025_ar09
+Run phase3_noise_xy025_ar09_N100_seed2: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (92s)
+[eval] step 4000: success_once 31/100, success_at_end 15/100 (89s)
+[eval] step 8000: success_once 58/100, success_at_end 34/100 (90s)
+[eval] step 12000: success_once 55/100, success_at_end 30/100 (90s)
+--- xy_shrink07
+Run phase3_noise_xy_shrink07_N100_seed2: device=cuda sim_backend=physx_cuda samples=77976 steps 0->12000
+[eval] step 0: success_once 0/100, success_at_end 0/100 (90s)
+[eval] step 4000: success_once 12/100, success_at_end 5/100 (90s)
+[eval] step 8000: success_once 35/100, success_at_end 18/100 (90s)
+[eval] step 12000: success_once 29/100, success_at_end 19/100 (86s)
+[05:10:29] done
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 277416 bytes to __results__.html
